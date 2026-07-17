@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Parallel Circuit Simulator</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f4f7fa;
+      color: #1f2933;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      color: #173d7a;
+      font-size: 34px;
+    }
+
+    h2 {
+      margin: 0 0 16px;
+      color: #173d7a;
+      font-size: 22px;
+    }
+
+    .intro {
+      max-width: 950px;
+      margin: 8px auto 20px;
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    .simulator {
+      display: grid;
+      grid-template-columns: 300px minmax(650px, 1fr);
+      gap: 18px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid #d4dde6;
+      border-radius: 10px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .controls {
+      align-self: start;
+    }
+
+    .control-group {
+      margin-bottom: 22px;
+    }
+
+    .control-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    .control-value {
+      min-width: 76px;
+      padding: 7px 9px;
+      border: 1px solid #cbd5df;
+      border-radius: 6px;
+      background: #fafcfd;
+      text-align: center;
+      font-weight: normal;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #2864c7;
+    }
+
+    .range-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 3px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 8px;
+      padding: 11px 14px;
+      border: none;
+      border-radius: 7px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #switchButton {
+      background: #22943a;
+      color: white;
+    }
+
+    #switchButton:hover {
+      background: #19762e;
+    }
+
+    #switchButton.switch-open {
+      background: #a33a32;
+    }
+
+    #resetButton {
+      background: #687786;
+      color: white;
+    }
+
+    #resetButton:hover {
+      background: #53616d;
+    }
+
+    #practiceButton {
+      background: #eef4fb;
+      color: #174a97;
+      border: 1px solid #7da6df;
+    }
+
+    #practiceButton:hover {
+      background: #dfeafa;
+    }
+
+    .formula {
+      margin-top: 14px;
+      padding: 13px 8px;
+      border: 1px solid #8eb4ee;
+      border-radius: 7px;
+      background: #f5f9ff;
+      text-align: center;
+      font-size: 17px;
+      line-height: 1.7;
+    }
+
+    .formula-title {
+      margin-bottom: 4px;
+      color: #174a97;
+      font-weight: bold;
+    }
+
+    .short-note {
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid #e0aa33;
+      border-radius: 7px;
+      background: #fff8e8;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .warning {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border: 1px solid #c94c43;
+      border-radius: 7px;
+      background: #fdeceb;
+      color: #8d241d;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .main-area {
+      min-width: 0;
+    }
+
+    .circuit-card {
+      overflow-x: auto;
+    }
+
+    .circuit-wrapper {
+      min-width: 780px;
+      height: 500px;
+      border: 1px solid #d3e0ea;
+      border-radius: 9px;
+      background: #eef6fb;
+      overflow: hidden;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .wire {
+      fill: none;
+      stroke: #1d2a34;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .wire-off {
+      stroke: #8b98a2;
+    }
+
+    .junction {
+      fill: #1d2a34;
+    }
+
+    .resistor {
+      fill: #f6a623;
+      stroke: #6f4200;
+      stroke-width: 3;
+      transition: filter 0.2s ease, fill 0.2s ease;
+    }
+
+    .supply-box {
+      fill: white;
+      stroke: #34495e;
+      stroke-width: 2;
+    }
+
+    .supply-terminal {
+      fill: white;
+      stroke: #1d2a34;
+      stroke-width: 4;
+    }
+
+    .switch-contact {
+      fill: white;
+      stroke: #d01818;
+      stroke-width: 4;
+    }
+
+    .switch-arm {
+      stroke: #d01818;
+      stroke-width: 5;
+      stroke-linecap: round;
+    }
+
+    .svg-label {
+      font-family: Arial, sans-serif;
+      fill: #17232d;
+    }
+
+    .branch-name {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .branch-resistance {
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .branch-voltage,
+    .branch-current {
+      font-size: 16px;
+      font-weight: bold;
+      fill: #174a97;
+    }
+
+    .supply-text {
+      font-size: 18px;
+      text-anchor: middle;
+    }
+
+    .supply-voltage {
+      font-size: 18px;
+      font-weight: bold;
+      fill: #148027;
+      text-anchor: middle;
+    }
+
+    .terminal-sign {
+      font-size: 28px;
+      font-weight: bold;
+      text-anchor: middle;
+    }
+
+    .direction-arrow {
+      font-family: Arial, sans-serif;
+      font-size: 27px;
+      font-weight: bold;
+      fill: #138525;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .direction-legend {
+      fill: white;
+      stroke: #c3d0db;
+      stroke-width: 1.5;
+    }
+
+    .legend-text {
+      font-family: Arial, sans-serif;
+      fill: #425466;
+      font-size: 16px;
+    }
+
+    .calculations {
+      margin-top: 18px;
+    }
+
+    .calculation-layout {
+      display: grid;
+      grid-template-columns: minmax(500px, 1fr) 270px;
+      gap: 16px;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .result {
+      padding: 14px 10px;
+      border: 1px solid #cde2cf;
+      border-radius: 8px;
+      background: #f2f9f2;
+      text-align: center;
+    }
+
+    .result-label {
+      min-height: 35px;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .result-value {
+      margin-top: 6px;
+      color: #168028;
+      font-size: 23px;
+      font-weight: bold;
+    }
+
+    .equivalent-explanation {
+      padding: 14px;
+      border: 1px solid #e2ad32;
+      border-radius: 8px;
+      background: #fff9ea;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .equivalent-explanation h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: #35230a;
+    }
+
+    .practice-message {
+      display: none;
+      margin-top: 18px;
+      padding: 24px;
+      border: 2px dashed #8292a0;
+      border-radius: 9px;
+      background: #f1f5f8;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 1050px) {
+      .simulator {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .calculation-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 10px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Parallel Circuit Simulator</h1>
+
+  <p class="intro">
+    Adjust the supply voltage and the resistance of each branch. Observe how
+    current divides between the branches while the voltage across every branch
+    remains equal to the supply voltage.
+  </p>
+
+  <main class="simulator">
+    <section class="card controls">
+      <h2>Controls</h2>
+
+      <div class="control-group">
+        <div class="control-heading">
+          <label for="voltage">Supply voltage (V)</label>
+          <span id="voltageDisplay" class="control-value">12.0 V</span>
+        </div>
+
+        <input
+          id="voltage"
+          type="range"
+          min="0"
+          max="12"
+          step="0.5"
+          value="12"
+        >
+
+        <div class="range-labels">
+          <span>0</span>
+          <span>12</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-heading">
+          <label for="resistance1">Resistance R₁ (Ω)</label>
+          <span id="resistance1Display" class="control-value">100 Ω</span>
+        </div>
+
+        <input
+          id="resistance1"
+          type="range"
+          min="0"
+          max="500"
+          step="10"
+          value="100"
+        >
+
+        <div class="range-labels">
+          <span>0</span>
+          <span>500</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-heading">
+          <label for="resistance2">Resistance R₂ (Ω)</label>
+          <span id="resistance2Display" class="control-value">200 Ω</span>
+        </div>
+
+        <input
+          id="resistance2"
+          type="range"
+          min="0"
+          max="500"
+          step="10"
+          value="200"
+        >
+
+        <div class="range-labels">
+          <span>0</span>
+          <span>500</span>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <div class="control-heading">
+          <label for="resistance3">Resistance R₃ (Ω)</label>
+          <span id="resistance3Display" class="control-value">300 Ω</span>
+        </div>
+
+        <input
+          id="resistance3"
+          type="range"
+          min="0"
+          max="500"
+          step="10"
+          value="300"
+        >
+
+        <div class="range-labels">
+          <span>0</span>
+          <span>500</span>
+        </div>
+      </div>
+
+      <button id="switchButton">Open switch</button>
+      <button id="resetButton">Reset</button>
+      <button id="practiceButton">Hide calculations</button>
+
+      <div class="formula">
+        <div class="formula-title">Formula for a parallel circuit</div>
+
+        1 / R<sub>T</sub>
+        =
+        1 / R₁
+        +
+        1 / R₂
+        +
+        1 / R₃
+      </div>
+
+      <div class="short-note">
+        Setting any resistance to 0 Ω creates a short circuit across the
+        power supply.
+      </div>
+
+      <div id="warning" class="warning">
+        A branch is set to 0 Ω. In an ideal circuit, this creates a short
+        circuit and the calculated current becomes unlimited. Real power
+        supplies and circuits have internal resistance and protective devices.
+      </div>
+    </section>
+
+    <section class="main-area">
+      <div class="card circuit-card">
+        <h2>Circuit</h2>
+
+        <div class="circuit-wrapper">
+          <svg
+            viewBox="0 0 900 500"
+            aria-label="Parallel circuit with a variable power supply and three resistors"
+          >
+            <!-- Main circuit -->
+            <path id="topLeftWire" class="wire" d="M120 100 H220"/>
+            <path id="topRightWire" class="wire" d="M280 100 H800"/>
+            <path id="bottomWire" class="wire" d="M120 405 H800"/>
+            <path id="leftUpperWire" class="wire" d="M120 100 V175"/>
+            <path id="leftLowerWire" class="wire" d="M120 325 V405"/>
+
+            <!-- Power supply -->
+            <rect
+              class="supply-box"
+              x="75"
+              y="175"
+              width="90"
+              height="150"
+              rx="3"
+            />
+
+            <circle
+              class="supply-terminal"
+              cx="120"
+              cy="155"
+              r="8"
+            />
+
+            <circle
+              class="supply-terminal"
+              cx="120"
+              cy="345"
+              r="8"
+            />
+
+            <path class="wire" d="M120 155 V175"/>
+            <path class="wire" d="M120 325 V345"/>
+
+            <text class="svg-label terminal-sign" x="86" y="162">+</text>
+            <text class="svg-label terminal-sign" x="86" y="353">−</text>
+
+            <text class="svg-label supply-text" x="120" y="220">
+              Power
+            </text>
+
+            <text class="svg-label supply-text" x="120" y="247">
+              supply
+            </text>
+
+            <text
+              id="supplyVoltageLabel"
+              class="svg-label supply-voltage"
+              x="120"
+              y="290"
+            >
+              12.0 V
+            </text>
+
+            <!-- Switch -->
+            <circle
+              class="switch-contact"
+              cx="220"
+              cy="100"
+              r="7"
+            />
+
+            <circle
+              class="switch-contact"
+              cx="280"
+              cy="100"
+              r="7"
+            />
+
+            <line
+              id="switchArm"
+              class="switch-arm"
+              x1="220"
+              y1="100"
+              x2="280"
+              y2="100"
+            />
+
+            <!-- Branch 1 -->
+            <path id="branch1Top" class="wire" d="M350 100 V215"/>
+            <rect
+              id="resistor1Shape"
+              class="resistor"
+              x="332"
+              y="215"
+              width="36"
+              height="105"
+              rx="3"
+            />
+            <path id="branch1Bottom" class="wire" d="M350 320 V405"/>
+
+            <!-- Branch 2 -->
+            <path id="branch2Top" class="wire" d="M575 100 V215"/>
+            <rect
+              id="resistor2Shape"
+              class="resistor"
+              x="557"
+              y="215"
+              width="36"
+              height="105"
+              rx="3"
+            />
+            <path id="branch2Bottom" class="wire" d="M575 320 V405"/>
+
+            <!-- Branch 3 -->
+            <path id="branch3Top" class="wire" d="M800 100 V215"/>
+            <rect
+              id="resistor3Shape"
+              class="resistor"
+              x="782"
+              y="215"
+              width="36"
+              height="105"
+              rx="3"
+            />
+            <path id="branch3Bottom" class="wire" d="M800 320 V405"/>
+
+            <!-- Junctions -->
+            <circle class="junction" cx="350" cy="100" r="6"/>
+            <circle class="junction" cx="350" cy="405" r="6"/>
+
+            <circle class="junction" cx="575" cy="100" r="6"/>
+            <circle class="junction" cx="575" cy="405" r="6"/>
+
+            <circle class="junction" cx="800" cy="100" r="6"/>
+            <circle class="junction" cx="800" cy="405" r="6"/>
+
+            <!-- Branch 1 labels -->
+            <text class="svg-label branch-name" x="385" y="205">R₁</text>
+
+            <text
+              id="resistance1CircuitLabel"
+              class="svg-label branch-resistance"
+              x="385"
+              y="235"
+            >
+              100 Ω
+            </text>
+
+            <text
+              id="voltage1CircuitLabel"
+              class="svg-label branch-voltage"
+              x="385"
+              y="275"
+            >
+              12.0 V
+            </text>
+
+            <text
+              id="current1CircuitLabel"
+              class="svg-label branch-current"
+              x="385"
+              y="315"
+            >
+              I₁ = 0.120 A
+            </text>
+
+            <!-- Branch 2 labels -->
+            <text class="svg-label branch-name" x="610" y="205">R₂</text>
+
+            <text
+              id="resistance2CircuitLabel"
+              class="svg-label branch-resistance"
+              x="610"
+              y="235"
+            >
+              200 Ω
+            </text>
+
+            <text
+              id="voltage2CircuitLabel"
+              class="svg-label branch-voltage"
+              x="610"
+              y="275"
+            >
+              12.0 V
+            </text>
+
+            <text
+              id="current2CircuitLabel"
+              class="svg-label branch-current"
+              x="610"
+              y="315"
+            >
+              I₂ = 0.060 A
+            </text>
+
+            <!-- Branch 3 labels -->
+            <text class="svg-label branch-name" x="835" y="205">R₃</text>
+
+            <text
+              id="resistance3CircuitLabel"
+              class="svg-label branch-resistance"
+              x="835"
+              y="235"
+            >
+              300 Ω
+            </text>
+
+            <text
+              id="voltage3CircuitLabel"
+              class="svg-label branch-voltage"
+              x="835"
+              y="275"
+            >
+              12.0 V
+            </text>
+
+            <text
+              id="current3CircuitLabel"
+              class="svg-label branch-current"
+              x="835"
+              y="315"
+            >
+              I₃ = 0.040 A
+            </text>
+
+            <!-- Invisible paths for moving arrows -->
+            <path
+              id="route1"
+              d="M280 100 H350 V405 H120 V100 H220"
+              fill="none"
+              stroke="none"
+            />
+
+            <path
+              id="route2"
+              d="M280 100 H575 V405 H120 V100 H220"
+              fill="none"
+              stroke="none"
+            />
+
+            <path
+              id="route3"
+              d="M280 100 H800 V405 H120 V100 H220"
+              fill="none"
+              stroke="none"
+            />
+
+            <!-- Moving arrows -->
+            <text class="direction-arrow animated-arrow" data-route="1">➜</text>
+            <text class="direction-arrow animated-arrow" data-route="1">➜</text>
+
+            <text class="direction-arrow animated-arrow" data-route="2">➜</text>
+            <text class="direction-arrow animated-arrow" data-route="2">➜</text>
+
+            <text class="direction-arrow animated-arrow" data-route="3">➜</text>
+            <text class="direction-arrow animated-arrow" data-route="3">➜</text>
+
+            <!-- Legend -->
+            <rect
+              class="direction-legend"
+              x="330"
+              y="445"
+              width="320"
+              height="38"
+              rx="6"
+            />
+
+            <text class="direction-arrow" x="365" y="465">➜</text>
+
+            <text class="legend-text" x="395" y="471">
+              Direction of current or charge
+            </text>
+          </svg>
+        </div>
+      </div>
+
+      <div id="calculations" class="card calculations">
+        <h2>Calculated values</h2>
+
+        <div class="calculation-layout">
+          <div class="result-grid">
+            <div class="result">
+              <div class="result-label">
+                Equivalent resistance (R<sub>T</sub>)
+              </div>
+
+              <div id="totalResistanceResult" class="result-value">
+                54.55 Ω
+              </div>
+            </div>
+
+            <div class="result">
+              <div class="result-label">
+                Total current (I<sub>T</sub>)
+              </div>
+
+              <div id="totalCurrentResult" class="result-value">
+                0.220 A
+              </div>
+            </div>
+
+            <div class="result">
+              <div class="result-label">
+                Voltage across each branch
+              </div>
+
+              <div id="branchVoltageResult" class="result-value">
+                12.00 V
+              </div>
+            </div>
+
+            <div class="result">
+              <div class="result-label">
+                Current through R₁ (I₁)
+              </div>
+
+              <div id="current1Result" class="result-value">
+                0.120 A
+              </div>
+            </div>
+
+            <div class="result">
+              <div class="result-label">
+                Current through R₂ (I₂)
+              </div>
+
+              <div id="current2Result" class="result-value">
+                0.060 A
+              </div>
+            </div>
+
+            <div class="result">
+              <div class="result-label">
+                Current through R₃ (I₃)
+              </div>
+
+              <div id="current3Result" class="result-value">
+                0.040 A
+              </div>
+            </div>
+          </div>
+
+          <aside class="equivalent-explanation">
+            <h3>Why does the equivalent resistance change?</h3>
+
+            In a parallel circuit, the branches provide several pathways for
+            current. Reducing a branch resistance makes it easier for current
+            to flow, so the equivalent resistance of the whole circuit becomes
+            smaller.
+
+            <br><br>
+
+            Equivalent resistance describes how the complete circuit behaves
+            from the perspective of the power supply. It is always less than
+            the smallest individual branch resistance.
+          </aside>
+        </div>
+      </div>
+
+      <div id="practiceMessage" class="practice-message">
+        Calculate the equivalent resistance, each branch current, and the total
+        current. Then select “Show calculations” to check your answers.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const voltageSlider = document.getElementById("voltage");
+    const resistance1Slider = document.getElementById("resistance1");
+    const resistance2Slider = document.getElementById("resistance2");
+    const resistance3Slider = document.getElementById("resistance3");
+
+    const voltageDisplay = document.getElementById("voltageDisplay");
+    const resistance1Display =
+      document.getElementById("resistance1Display");
+    const resistance2Display =
+      document.getElementById("resistance2Display");
+    const resistance3Display =
+      document.getElementById("resistance3Display");
+
+    const switchButton = document.getElementById("switchButton");
+    const resetButton = document.getElementById("resetButton");
+    const practiceButton = document.getElementById("practiceButton");
+
+    const supplyVoltageLabel =
+      document.getElementById("supplyVoltageLabel");
+
+    const resistance1CircuitLabel =
+      document.getElementById("resistance1CircuitLabel");
+    const resistance2CircuitLabel =
+      document.getElementById("resistance2CircuitLabel");
+    const resistance3CircuitLabel =
+      document.getElementById("resistance3CircuitLabel");
+
+    const voltage1CircuitLabel =
+      document.getElementById("voltage1CircuitLabel");
+    const voltage2CircuitLabel =
+      document.getElementById("voltage2CircuitLabel");
+    const voltage3CircuitLabel =
+      document.getElementById("voltage3CircuitLabel");
+
+    const current1CircuitLabel =
+      document.getElementById("current1CircuitLabel");
+    const current2CircuitLabel =
+      document.getElementById("current2CircuitLabel");
+    const current3CircuitLabel =
+      document.getElementById("current3CircuitLabel");
+
+    const totalResistanceResult =
+      document.getElementById("totalResistanceResult");
+    const totalCurrentResult =
+      document.getElementById("totalCurrentResult");
+    const branchVoltageResult =
+      document.getElementById("branchVoltageResult");
+
+    const current1Result = document.getElementById("current1Result");
+    const current2Result = document.getElementById("current2Result");
+    const current3Result = document.getElementById("current3Result");
+
+    const warning = document.getElementById("warning");
+    const calculations = document.getElementById("calculations");
+    const practiceMessage = document.getElementById("practiceMessage");
+
+    const switchArm = document.getElementById("switchArm");
+
+    const resistor1Shape = document.getElementById("resistor1Shape");
+    const resistor2Shape = document.getElementById("resistor2Shape");
+    const resistor3Shape = document.getElementById("resistor3Shape");
+
+    const wireElements = document.querySelectorAll(".wire");
+    const animatedArrows = document.querySelectorAll(".animated-arrow");
+
+    const routes = {
+      1: document.getElementById("route1"),
+      2: document.getElementById("route2"),
+      3: document.getElementById("route3")
+    };
+
+    let switchClosed = true;
+    let calculationsVisible = true;
+
+    function formatCurrent(current) {
+      if (!Number.isFinite(current)) {
+        return "∞ A";
+      }
+
+      if (current >= 1) {
+        return current.toFixed(2) + " A";
+      }
+
+      return current.toFixed(3) + " A";
+    }
+
+    function calculateEquivalentResistance(r1, r2, r3) {
+      if (r1 === 0 || r2 === 0 || r3 === 0) {
+        return 0;
+      }
+
+      return 1 / ((1 / r1) + (1 / r2) + (1 / r3));
+    }
+
+    function setResistorAppearance(element, current, maximumCurrent) {
+      if (
+        !switchClosed ||
+        current <= 0 ||
+        !Number.isFinite(current) ||
+        maximumCurrent <= 0
+      ) {
+        element.style.fill = "#f6a623";
+        element.style.filter = "none";
+        return;
+      }
+
+      const relativeCurrent = Math.min(current / maximumCurrent, 1);
+      const glowSize = 4 + relativeCurrent * 14;
+      const brightness = 1 + relativeCurrent * 0.3;
+
+      element.style.fill = "#ffb238";
+      element.style.filter =
+        `drop-shadow(0 0 ${glowSize}px rgba(255, 160, 20, 0.75)) ` +
+        `brightness(${brightness})`;
+    }
+
+    function updateSimulator() {
+      const voltage = Number(voltageSlider.value);
+      const r1 = Number(resistance1Slider.value);
+      const r2 = Number(resistance2Slider.value);
+      const r3 = Number(resistance3Slider.value);
+
+      const hasShortCircuit = r1 === 0 || r2 === 0 || r3 === 0;
+
+      const equivalentResistance =
+        calculateEquivalentResistance(r1, r2, r3);
+
+      let current1 = 0;
+      let current2 = 0;
+      let current3 = 0;
+      let totalCurrent = 0;
+
+      if (switchClosed && voltage > 0) {
+        current1 = r1 === 0 ? Infinity : voltage / r1;
+        current2 = r2 === 0 ? Infinity : voltage / r2;
+        current3 = r3 === 0 ? Infinity : voltage / r3;
+
+        totalCurrent = hasShortCircuit
+          ? Infinity
+          : current1 + current2 + current3;
+      }
+
+      const branchVoltage =
+        switchClosed && !hasShortCircuit ? voltage : 0;
+
+      voltageDisplay.textContent = voltage.toFixed(1) + " V";
+      resistance1Display.textContent = r1 + " Ω";
+      resistance2Display.textContent = r2 + " Ω";
+      resistance3Display.textContent = r3 + " Ω";
+
+      supplyVoltageLabel.textContent = voltage.toFixed(1) + " V";
+
+      resistance1CircuitLabel.textContent = r1 + " Ω";
+      resistance2CircuitLabel.textContent = r2 + " Ω";
+      resistance3CircuitLabel.textContent = r3 + " Ω";
+
+      voltage1CircuitLabel.textContent =
+        branchVoltage.toFixed(1) + " V";
+      voltage2CircuitLabel.textContent =
+        branchVoltage.toFixed(1) + " V";
+      voltage3CircuitLabel.textContent =
+        branchVoltage.toFixed(1) + " V";
+
+      current1CircuitLabel.textContent =
+        "I₁ = " + formatCurrent(current1);
+      current2CircuitLabel.textContent =
+        "I₂ = " + formatCurrent(current2);
+      current3CircuitLabel.textContent =
+        "I₃ = " + formatCurrent(current3);
+
+      current1Result.textContent = formatCurrent(current1);
+      current2Result.textContent = formatCurrent(current2);
+      current3Result.textContent = formatCurrent(current3);
+
+      totalCurrentResult.textContent = formatCurrent(totalCurrent);
+      branchVoltageResult.textContent =
+        branchVoltage.toFixed(2) + " V";
+
+      totalResistanceResult.textContent =
+        equivalentResistance === 0
+          ? "0 Ω"
+          : equivalentResistance.toFixed(2) + " Ω";
+
+      warning.style.display = hasShortCircuit ? "block" : "none";
+
+      const finiteCurrents = [current1, current2, current3]
+        .filter((current) => Number.isFinite(current));
+
+      const maximumCurrent =
+        finiteCurrents.length > 0
+          ? Math.max(...finiteCurrents)
+          : 0;
+
+      setResistorAppearance(
+        resistor1Shape,
+        current1,
+        maximumCurrent
+      );
+
+      setResistorAppearance(
+        resistor2Shape,
+        current2,
+        maximumCurrent
+      );
+
+      setResistorAppearance(
+        resistor3Shape,
+        current3,
+        maximumCurrent
+      );
+
+      wireElements.forEach((wire) => {
+        wire.classList.toggle("wire-off", !switchClosed);
+      });
+
+      animatedArrows.forEach((arrow) => {
+        arrow.style.opacity =
+          switchClosed && voltage > 0 && !hasShortCircuit
+            ? "1"
+            : "0";
+      });
+    }
+
+    function updateSwitchDrawing() {
+      if (switchClosed) {
+        switchArm.setAttribute("x2", "280");
+        switchArm.setAttribute("y2", "100");
+
+        switchButton.textContent = "Open switch";
+        switchButton.classList.remove("switch-open");
+      } else {
+        switchArm.setAttribute("x2", "266");
+        switchArm.setAttribute("y2", "75");
+
+        switchButton.textContent = "Close switch";
+        switchButton.classList.add("switch-open");
+      }
+    }
+
+    function resetSimulator() {
+      voltageSlider.value = 12;
+      resistance1Slider.value = 100;
+      resistance2Slider.value = 200;
+      resistance3Slider.value = 300;
+
+      switchClosed = true;
+      calculationsVisible = true;
+
+      calculations.style.display = "block";
+      practiceMessage.style.display = "none";
+      practiceButton.textContent = "Hide calculations";
+
+      updateSwitchDrawing();
+      updateSimulator();
+    }
+
+    switchButton.addEventListener("click", () => {
+      switchClosed = !switchClosed;
+      updateSwitchDrawing();
+      updateSimulator();
+    });
+
+    resetButton.addEventListener("click", resetSimulator);
+
+    practiceButton.addEventListener("click", () => {
+      calculationsVisible = !calculationsVisible;
+
+      calculations.style.display =
+        calculationsVisible ? "block" : "none";
+
+      practiceMessage.style.display =
+        calculationsVisible ? "none" : "block";
+
+      practiceButton.textContent =
+        calculationsVisible
+          ? "Hide calculations"
+          : "Show calculations";
+    });
+
+    [
+      voltageSlider,
+      resistance1Slider,
+      resistance2Slider,
+      resistance3Slider
+    ].forEach((slider) => {
+      slider.addEventListener("input", updateSimulator);
+    });
+
+    function animateArrows(time) {
+      const voltage = Number(voltageSlider.value);
+
+      const resistances = {
+        1: Number(resistance1Slider.value),
+        2: Number(resistance2Slider.value),
+        3: Number(resistance3Slider.value)
+      };
+
+      const circuitActive =
+        switchClosed &&
+        voltage > 0 &&
+        resistances[1] > 0 &&
+        resistances[2] > 0 &&
+        resistances[3] > 0;
+
+      animatedArrows.forEach((arrow, index) => {
+        if (!circuitActive) {
+          arrow.style.opacity = "0";
+          return;
+        }
+
+        const branchNumber = Number(arrow.dataset.route);
+        const route = routes[branchNumber];
+        const routeLength = route.getTotalLength();
+
+        const resistance = resistances[branchNumber];
+        const branchCurrent = voltage / resistance;
+
+        const speed = Math.max(
+          0.035,
+          Math.min(0.12, branchCurrent * 0.7)
+        );
+
+        const routePosition = index % 2;
+        const offset = routePosition / 2;
+
+        const progress =
+          ((time * speed / 1000) + offset) % 1;
+
+        const distance = progress * routeLength;
+        const point = route.getPointAtLength(distance);
+
+        const nextDistance = Math.min(distance + 2, routeLength);
+        const nextPoint = route.getPointAtLength(nextDistance);
+
+        const angle =
+          Math.atan2(
+            nextPoint.y - point.y,
+            nextPoint.x - point.x
+          ) * 180 / Math.PI;
+
+        arrow.setAttribute(
+          "transform",
+          `translate(${point.x} ${point.y}) rotate(${angle})`
+        );
+
+        arrow.style.opacity = "1";
+      });
+
+      requestAnimationFrame(animateArrows);
+    }
+
+    updateSwitchDrawing();
+    updateSimulator();
+    requestAnimationFrame(animateArrows);
+  </script>
+</body>
+</html>
