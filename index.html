@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Engineering Simulators</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #333;
+        }
+
+        header {
+            background: #003366;
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2.4rem;
+        }
+
+        header p {
+            margin-top: 12px;
+            font-size: 1.1rem;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #003366;
+        }
+
+        .card p {
+            min-height: 60px;
+            line-height: 1.5;
+        }
+
+        .button {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 12px 24px;
+            background: #1976d2;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .button:hover {
+            background: #125ca3;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .coming-soon {
+            opacity: 0.65;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Interactive Engineering Simulators</h1>
+    <p>NSW Stage 6 Engineering Studies</p>
+</header>
+
+<main>
+
+<div class="cards">
+
+<div class="card">
+<h2>Series Circuit</h2>
+<p>Investigate current, voltage, resistance, and power in series circuits.</p>
+<a class="button" href="series-circuit/">Open Simulator</a>
+</div>
+
+<div class="card">
+<h2>Parallel Circuit</h2>
+<p>Explore current paths, equivalent resistance, and power in parallel circuits.</p>
+<a class="button" href="parallel-circuit/">Open Simulator</a>
+</div>
+
+<div class="card coming-soon">
+<h2>Ohm's Law</h2>
+<p>Coming soon to this collection.</p>
+</div>
+
+</div>
+
+</main>
+
+<footer>
+Created by Dr Kelly Jawerth
+</footer>
+
+</body>
+</html>
