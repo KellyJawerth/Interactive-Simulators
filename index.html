@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Engineering Simulators</title>
+    <title>Interactive Learning Tools</title>
 
     <style>
         body {
@@ -36,6 +36,18 @@
             padding: 0 20px;
         }
 
+        .subject-section {
+            margin-bottom: 50px;
+        }
+
+        .subject-heading {
+            color: #003366;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 3px solid #1976d2;
+        }
+
         .cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -50,9 +62,10 @@
             text-align: center;
         }
 
-        .card h2 {
+        .card h3 {
             margin-top: 0;
             color: #003366;
+            font-size: 1.4rem;
         }
 
         .card p {
@@ -81,43 +94,57 @@
             color: #666;
             font-size: 0.9rem;
         }
-
-        .coming-soon {
-            opacity: 0.65;
-        }
     </style>
 </head>
 
 <body>
 
 <header>
-    <h1>Interactive Engineering Simulators</h1>
-    <p>NSW Stage 6 Engineering Studies</p>
+    <h1>Interactive Learning Tools</h1>
+    <p>Interactive tools for exploring science, engineering, and mathematics concepts</p>
 </header>
 
 <main>
 
-<div class="cards">
+<section class="subject-section">
+    <h2 class="subject-heading">Engineering</h2>
 
-<div class="card">
-<h2>Series Circuit</h2>
-<p>Investigate current, voltage, resistance, and power in series circuits.</p>
-<a class="button" href="series-circuit/index.html">Open Simulator</a>
-</div>
+    <div class="cards">
 
-<div class="card">
-<h2>Parallel Circuit</h2>
-<p>Explore current paths, equivalent resistance, and power in parallel circuits.</p>
-<a class="button" href="parallel-circuit/index.html">Open Simulator</a>
-</div>
+        <div class="card">
+            <h3>Series Circuit</h3>
+            <p>Investigate current, voltage, resistance, and power in series circuits.</p>
+            <a class="button" href="series-circuit/index.html">Open Simulator</a>
+        </div>
 
-<div class="card">
-<h2>Ohm's Law</h2>
-<p>Explore the relationship between voltage, current, and resistance using an interactive simulator.</p>
-<a class="button" href="ohms-law/index.html">Open Simulator</a>
-</div>
+        <div class="card">
+            <h3>Parallel Circuit</h3>
+            <p>Explore current paths, equivalent resistance, and power in parallel circuits.</p>
+            <a class="button" href="parallel-circuit/index.html">Open Simulator</a>
+        </div>
 
-</div>
+        <div class="card">
+            <h3>Ohm's Law</h3>
+            <p>Explore the relationship between voltage, current, and resistance.</p>
+            <a class="button" href="ohms-law/index.html">Open Simulator</a>
+        </div>
+
+    </div>
+</section>
+
+<section class="subject-section">
+    <h2 class="subject-heading">Chemistry</h2>
+
+    <div class="cards">
+
+        <div class="card">
+            <h3>Will a Precipitate Form?</h3>
+            <p>Mix ionic solutions, calculate Q, compare it with Ksp, and predict whether a precipitate will form.</p>
+            <a class="button" href="chemistry/precipitation-simulator/index.html">Open Simulator</a>
+        </div>
+
+    </div>
+</section>
 
 </main>
 
