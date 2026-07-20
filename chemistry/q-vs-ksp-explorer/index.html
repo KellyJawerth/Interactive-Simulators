@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Q vs Ksp Explorer</title>
+
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --line: #dbe3ee;
+      --navy: #003366;
+      --blue: #1976d2;
+      --green: #137333;
+      --amber: #9a6700;
+      --red: #b91c1c;
+      --soft-blue: #eff6ff;
+      --soft-green: #ecfdf3;
+      --soft-amber: #fff7e6;
+      --soft-red: #fef2f2;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--navy);
+      color: white;
+      text-align: center;
+      padding: 30px 20px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2.2rem;
+    }
+
+    header p {
+      margin: 10px 0 0;
+      font-size: 1.05rem;
+    }
+
+    main {
+      width: min(1160px, 94%);
+      margin: 28px auto 40px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+    }
+
+    .full-width { grid-column: 1 / -1; }
+
+    h2, h3 {
+      margin-top: 0;
+      color: var(--navy);
+    }
+
+    label {
+      display: block;
+      margin: 14px 0 6px;
+      font-weight: bold;
+    }
+
+    select,
+    input,
+    button {
+      width: 100%;
+      font: inherit;
+    }
+
+    select,
+    input {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .primary {
+      margin-top: 18px;
+      background: var(--blue);
+      color: white;
+    }
+
+    .secondary {
+      margin-top: 10px;
+      background: #e8eef8;
+      color: var(--text);
+    }
+
+    .reset {
+      margin-top: 10px;
+      background: #f1f5f9;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .chemistry {
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+
+    .chemistry sub,
+    .chemistry sup {
+      font-size: 0.72em;
+      line-height: 0;
+    }
+
+    .solution-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      background: #f8fafc;
+    }
+
+    .ion-source {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--soft-blue);
+      border: 1px solid #bfdbfe;
+      line-height: 1.55;
+    }
+
+    .equation-box {
+      text-align: center;
+      font-size: 1.16rem;
+      padding: 16px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #f8fafc;
+      margin-top: 12px;
+    }
+
+    .question-box,
+    .instruction-box {
+      background: var(--soft-blue);
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 16px;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+
+    .instruction-box {
+      font-size: 0.94rem;
+      color: #334155;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .summary-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      background: #f8fafc;
+      min-height: 108px;
+    }
+
+    .summary-box strong {
+      display: block;
+      color: var(--navy);
+      margin-bottom: 8px;
+    }
+
+    .result-large {
+      font-size: 1.12rem;
+      line-height: 1.5;
+    }
+
+    .comparison {
+      margin-top: 16px;
+      padding: 18px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      text-align: center;
+      font-weight: bold;
+      line-height: 1.55;
+    }
+
+    .comparison.neutral { background: #f8fafc; }
+
+    .comparison.no-precipitate {
+      background: var(--soft-green);
+      color: var(--green);
+      border-color: #bbf7d0;
+    }
+
+    .comparison.saturated {
+      background: var(--soft-amber);
+      color: var(--amber);
+      border-color: #fde68a;
+    }
+
+    .comparison.precipitate {
+      background: var(--soft-red);
+      color: var(--red);
+      border-color: #fecaca;
+    }
+
+    .calculations {
+      display: none;
+      margin-top: 14px;
+    }
+
+    .calculations.show { display: block; }
+
+    .calc-step {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 10px;
+      background: #f8fafc;
+    }
+
+    .calc-step h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .calc-step p {
+      margin: 6px 0;
+      line-height: 1.6;
+    }
+
+    .calc-equation {
+      text-align: center;
+      font-size: 1.08rem;
+      line-height: 1.8;
+      margin: 10px 0;
+    }
+
+    .ion-cation { color: #991b1b; }
+    .ion-anion { color: #1d4ed8; }
+
+    footer {
+      text-align: center;
+      padding: 28px;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 900px) {
+      .layout,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full-width { grid-column: auto; }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Q vs K<sub>sp</sub> Explorer</h1>
+  <p>Mix two soluble compounds, identify the possible precipitate, and compare Q with K<sub>sp</sub>.</p>
+</header>
+
+<main>
+  <section class="layout">
+
+    <div class="panel">
+      <h2>Solution 1</h2>
+
+      <div class="solution-card">
+        <label for="cationSource">Soluble compound providing the cation</label>
+        <select id="cationSource"></select>
+
+        <div class="ion-source chemistry" id="cationIonDisplay">—</div>
+
+        <label for="cationMoles">Amount of compound (mol)</label>
+        <input id="cationMoles" type="number" min="0" step="0.0001" value="0.006" />
+
+        <label for="cationVolume">Solution volume (mL)</label>
+        <input id="cationVolume" type="number" min="0.1" step="1" value="100" />
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Solution 2</h2>
+
+      <div class="solution-card">
+        <label for="anionSource">Soluble compound providing the anion</label>
+        <select id="anionSource"></select>
+
+        <div class="ion-source chemistry" id="anionIonDisplay">—</div>
+
+        <label for="anionMoles">Amount of compound (mol)</label>
+        <input id="anionMoles" type="number" min="0" step="0.0001" value="0.010" />
+
+        <label for="anionVolume">Solution volume (mL)</label>
+        <input id="anionVolume" type="number" min="0.1" step="1" value="100" />
+      </div>
+    </div>
+
+    <div class="panel full-width">
+      <h2>Predict the possible precipitate</h2>
+
+      <div class="question-box chemistry" id="ionSummaryDisplay">—</div>
+
+      <label for="precipitatePrediction">Which compound could form from the cation and anion?</label>
+      <select id="precipitatePrediction"></select>
+
+      <button class="primary" id="checkPredictionBtn" type="button">Check prediction</button>
+
+      <div class="comparison neutral" id="predictionFeedback">
+        Choose a compound before revealing the K<sub>sp</sub> information.
+      </div>
+
+      <div id="revealedChemistry" style="display: none;">
+        <div class="equation-box chemistry" id="precipitateDisplay">—</div>
+        <div class="equation-box chemistry" id="equationDisplay">—</div>
+        <div class="equation-box chemistry" id="qExpressionDisplay">—</div>
+
+        <div class="instruction-box chemistry">
+          Now calculate the mixed ion concentrations and compare Q with K<sub>sp</sub>.
+        </div>
+
+        <button class="primary" id="calculateBtn" type="button">Calculate Q and predict precipitation</button>
+      </div>
+
+      <button class="reset" id="resetBtn" type="button">Reset example</button>
+    </div>
+
+    <div class="panel full-width">
+      <h2>Results</h2>
+
+      <div class="summary-grid">
+        <div class="summary-box">
+          <strong>Total volume after mixing</strong>
+          <div class="result-large chemistry" id="totalVolumeDisplay">—</div>
+        </div>
+
+        <div class="summary-box">
+          <strong>Mixed cation concentration</strong>
+          <div class="result-large chemistry" id="mixedCationDisplay">—</div>
+        </div>
+
+        <div class="summary-box">
+          <strong>Mixed anion concentration</strong>
+          <div class="result-large chemistry" id="mixedAnionDisplay">—</div>
+        </div>
+
+        <div class="summary-box">
+          <strong>Reaction quotient, Q</strong>
+          <div class="result-large chemistry" id="qDisplay">—</div>
+        </div>
+      </div>
+
+      <div class="comparison neutral" id="comparisonDisplay">
+        No result yet
+      </div>
+
+      <button class="secondary" id="toggleCalcBtn" type="button">
+        Show worked solution
+      </button>
+
+      <div class="calculations" id="calculations"></div>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  Created by Dr Kelly Jawerth
+</footer>
+
+<script>
+  const cationSources = {
+    BaNO3: {
+      name: "Barium nitrate",
+      formulaHTML: "Ba(NO<sub>3</sub>)<sub>2</sub>",
+      cationHTML: "Ba<sup>2+</sup>",
+      cationKey: "Ba",
+      cationCount: 1,
+      spectatorHTML: "NO<sub>3</sub><sup>−</sup>",
+      spectatorCount: 2
+    },
+    CaNO3: {
+      name: "Calcium nitrate",
+      formulaHTML: "Ca(NO<sub>3</sub>)<sub>2</sub>",
+      cationHTML: "Ca<sup>2+</sup>",
+      cationKey: "Ca",
+      cationCount: 1,
+      spectatorHTML: "NO<sub>3</sub><sup>−</sup>",
+      spectatorCount: 2
+    },
+    CuNO3: {
+      name: "Copper(II) nitrate",
+      formulaHTML: "Cu(NO<sub>3</sub>)<sub>2</sub>",
+      cationHTML: "Cu<sup>2+</sup>",
+      cationKey: "Cu",
+      cationCount: 1,
+      spectatorHTML: "NO<sub>3</sub><sup>−</sup>",
+      spectatorCount: 2
+    },
+    FeNO32: {
+      name: "Iron(II) nitrate",
+      formulaHTML: "Fe(NO<sub>3</sub>)<sub>2</sub>",
+      cationHTML: "Fe<sup>2+</sup>",
+      cationKey: "Fe2",
+      cationCount: 1,
+      spectatorHTML: "NO<sub>3</sub><sup>−</sup>",
+      spectatorCount: 2
+    },
+    FeNO33: {
+      name: "Iron(III) nitrate",
+      formulaHTML: "Fe(NO<sub>3</sub>)<sub>3</sub>",
+      cationHTML: "Fe<sup>3+</sup>",
+      cationKey: "Fe3",
+      cationCount: 1,
+      spectatorHTML: "NO<sub>3</sub><sup>−</sup>",
+      spectatorCount: 3
+    },
+    PbNO3: {
+      name: "Lead(II) nitrate",
+      formulaHTML: "Pb(NO<sub>3</sub>)<sub>2</sub>",
+      cationHTML: "Pb<sup>2+</sup>",
+      cationKey: "Pb",
+      cationCount: 1,
+      spectatorHTML: "NO<sub>3</sub><sup>−</sup>",
+      spectatorCount: 2
+    },
+    MgNO3: {
+      name: "Magnesium nitrate",
+      formulaHTML: "Mg(NO<sub>3</sub>)<sub>2</sub>",
+      cationHTML: "Mg<sup>2+</sup>",
+      cationKey: "Mg",
+      cationCount: 1,
+      spectatorHTML: "NO<sub>3</sub><sup>−</sup>",
+      spectatorCount: 2
+    },
+    AgNO3: {
+      name: "Silver nitrate",
+      formulaHTML: "AgNO<sub>3</sub>",
+      cationHTML: "Ag<sup>+</sup>",
+      cationKey: "Ag",
+      cationCount: 1,
+      spectatorHTML: "NO<sub>3</sub><sup>−</sup>",
+      spectatorCount: 1
+    }
+  };
+
+  const anionSources = {
+    NaBr: {
+      name: "Sodium bromide",
+      formulaHTML: "NaBr",
+      anionHTML: "Br<sup>−</sup>",
+      anionKey: "Br",
+      anionCount: 1,
+      spectatorHTML: "Na<sup>+</sup>",
+      spectatorCount: 1
+    },
+    NaCl: {
+      name: "Sodium chloride",
+      formulaHTML: "NaCl",
+      anionHTML: "Cl<sup>−</sup>",
+      anionKey: "Cl",
+      anionCount: 1,
+      spectatorHTML: "Na<sup>+</sup>",
+      spectatorCount: 1
+    },
+    NaI: {
+      name: "Sodium iodide",
+      formulaHTML: "NaI",
+      anionHTML: "I<sup>−</sup>",
+      anionKey: "I",
+      anionCount: 1,
+      spectatorHTML: "Na<sup>+</sup>",
+      spectatorCount: 1
+    },
+    Na2CO3: {
+      name: "Sodium carbonate",
+      formulaHTML: "Na<sub>2</sub>CO<sub>3</sub>",
+      anionHTML: "CO<sub>3</sub><sup>2−</sup>",
+      anionKey: "CO3",
+      anionCount: 1,
+      spectatorHTML: "Na<sup>+</sup>",
+      spectatorCount: 2
+    },
+    NaOH: {
+      name: "Sodium hydroxide",
+      formulaHTML: "NaOH",
+      anionHTML: "OH<sup>−</sup>",
+      anionKey: "OH",
+      anionCount: 1,
+      spectatorHTML: "Na<sup>+</sup>",
+      spectatorCount: 1
+    },
+    Na3PO4: {
+      name: "Sodium phosphate",
+      formulaHTML: "Na<sub>3</sub>PO<sub>4</sub>",
+      anionHTML: "PO<sub>4</sub><sup>3−</sup>",
+      anionKey: "PO4",
+      anionCount: 1,
+      spectatorHTML: "Na<sup>+</sup>",
+      spectatorCount: 3
+    },
+    Na2SO4: {
+      name: "Sodium sulfate",
+      formulaHTML: "Na<sub>2</sub>SO<sub>4</sub>",
+      anionHTML: "SO<sub>4</sub><sup>2−</sup>",
+      anionKey: "SO4",
+      anionCount: 1,
+      spectatorHTML: "Na<sup>+</sup>",
+      spectatorCount: 2
+    }
+  };
+
+  const precipitates = {
+    "Ba|CO3": { name: "Barium carbonate", formulaHTML: "BaCO<sub>3</sub>", ksp: 2.58e-9, a: 1, b: 1 },
+    "Ba|OH": { name: "Barium hydroxide", formulaHTML: "Ba(OH)<sub>2</sub>", ksp: 2.55e-4, a: 1, b: 2 },
+    "Ba|PO4": { name: "Barium phosphate", formulaHTML: "Ba<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>", ksp: 1.3e-29, a: 3, b: 2 },
+    "Ba|SO4": { name: "Barium sulfate", formulaHTML: "BaSO<sub>4</sub>", ksp: 1.08e-10, a: 1, b: 1 },
+
+    "Ca|CO3": { name: "Calcium carbonate", formulaHTML: "CaCO<sub>3</sub>", ksp: 3.36e-9, a: 1, b: 1 },
+    "Ca|OH": { name: "Calcium hydroxide", formulaHTML: "Ca(OH)<sub>2</sub>", ksp: 5.02e-6, a: 1, b: 2 },
+    "Ca|PO4": { name: "Calcium phosphate", formulaHTML: "Ca<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>", ksp: 2.07e-29, a: 3, b: 2 },
+    "Ca|SO4": { name: "Calcium sulfate", formulaHTML: "CaSO<sub>4</sub>", ksp: 4.93e-5, a: 1, b: 1 },
+
+    "Cu|CO3": { name: "Copper(II) carbonate", formulaHTML: "CuCO<sub>3</sub>", ksp: 1.4e-10, a: 1, b: 1 },
+    "Cu|OH": { name: "Copper(II) hydroxide", formulaHTML: "Cu(OH)<sub>2</sub>", ksp: 2.2e-20, a: 1, b: 2 },
+    "Cu|PO4": { name: "Copper(II) phosphate", formulaHTML: "Cu<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>", ksp: 1.40e-37, a: 3, b: 2 },
+
+    "Fe2|CO3": { name: "Iron(II) carbonate", formulaHTML: "FeCO<sub>3</sub>", ksp: 3.13e-11, a: 1, b: 1 },
+    "Fe2|OH": { name: "Iron(II) hydroxide", formulaHTML: "Fe(OH)<sub>2</sub>", ksp: 4.87e-17, a: 1, b: 2 },
+
+    "Fe3|OH": { name: "Iron(III) hydroxide", formulaHTML: "Fe(OH)<sub>3</sub>", ksp: 2.79e-39, a: 1, b: 3 },
+    "Fe3|PO4": { name: "Iron(III) phosphate", formulaHTML: "FePO<sub>4</sub>", ksp: 9.91e-16, a: 1, b: 1 },
+
+    "Pb|Br": { name: "Lead(II) bromide", formulaHTML: "PbBr<sub>2</sub>", ksp: 6.60e-6, a: 1, b: 2 },
+    "Pb|Cl": { name: "Lead(II) chloride", formulaHTML: "PbCl<sub>2</sub>", ksp: 1.70e-5, a: 1, b: 2 },
+    "Pb|I": { name: "Lead(II) iodide", formulaHTML: "PbI<sub>2</sub>", ksp: 9.8e-9, a: 1, b: 2 },
+    "Pb|CO3": { name: "Lead(II) carbonate", formulaHTML: "PbCO<sub>3</sub>", ksp: 7.40e-14, a: 1, b: 1 },
+    "Pb|OH": { name: "Lead(II) hydroxide", formulaHTML: "Pb(OH)<sub>2</sub>", ksp: 1.43e-15, a: 1, b: 2 },
+    "Pb|PO4": { name: "Lead(II) phosphate", formulaHTML: "Pb<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>", ksp: 8.0e-43, a: 3, b: 2 },
+    "Pb|SO4": { name: "Lead(II) sulfate", formulaHTML: "PbSO<sub>4</sub>", ksp: 2.53e-8, a: 1, b: 1 },
+
+    "Mg|CO3": { name: "Magnesium carbonate", formulaHTML: "MgCO<sub>3</sub>", ksp: 6.82e-6, a: 1, b: 1 },
+    "Mg|OH": { name: "Magnesium hydroxide", formulaHTML: "Mg(OH)<sub>2</sub>", ksp: 5.61e-12, a: 1, b: 2 },
+    "Mg|PO4": { name: "Magnesium phosphate", formulaHTML: "Mg<sub>3</sub>(PO<sub>4</sub>)<sub>2</sub>", ksp: 1.04e-24, a: 3, b: 2 },
+
+    "Ag|Br": { name: "Silver bromide", formulaHTML: "AgBr", ksp: 5.35e-13, a: 1, b: 1 },
+    "Ag|Cl": { name: "Silver chloride", formulaHTML: "AgCl", ksp: 1.77e-10, a: 1, b: 1 },
+    "Ag|I": { name: "Silver iodide", formulaHTML: "AgI", ksp: 8.52e-17, a: 1, b: 1 },
+    "Ag|CO3": { name: "Silver carbonate", formulaHTML: "Ag<sub>2</sub>CO<sub>3</sub>", ksp: 8.46e-12, a: 2, b: 1 },
+    "Ag|OH": { name: "Silver hydroxide", formulaHTML: "AgOH", ksp: 2.0e-8, a: 1, b: 1 },
+    "Ag|PO4": { name: "Silver phosphate", formulaHTML: "Ag<sub>3</sub>PO<sub>4</sub>", ksp: 8.89e-17, a: 3, b: 1 },
+    "Ag|SO4": { name: "Silver sulfate", formulaHTML: "Ag<sub>2</sub>SO<sub>4</sub>", ksp: 1.20e-5, a: 2, b: 1 }
+  };
+
+  const cationSourceSelect = document.getElementById("cationSource");
+  const anionSourceSelect = document.getElementById("anionSource");
+
+  const cationMolesInput = document.getElementById("cationMoles");
+  const cationVolumeInput = document.getElementById("cationVolume");
+  const anionMolesInput = document.getElementById("anionMoles");
+  const anionVolumeInput = document.getElementById("anionVolume");
+
+  const cationIonDisplay = document.getElementById("cationIonDisplay");
+  const anionIonDisplay = document.getElementById("anionIonDisplay");
+  const ionSummaryDisplay = document.getElementById("ionSummaryDisplay");
+  const precipitatePrediction = document.getElementById("precipitatePrediction");
+  const checkPredictionBtn = document.getElementById("checkPredictionBtn");
+  const predictionFeedback = document.getElementById("predictionFeedback");
+  const revealedChemistry = document.getElementById("revealedChemistry");
+  const precipitateDisplay = document.getElementById("precipitateDisplay");
+  const equationDisplay = document.getElementById("equationDisplay");
+  const qExpressionDisplay = document.getElementById("qExpressionDisplay");
+
+  const totalVolumeDisplay = document.getElementById("totalVolumeDisplay");
+  const mixedCationDisplay = document.getElementById("mixedCationDisplay");
+  const mixedAnionDisplay = document.getElementById("mixedAnionDisplay");
+  const qDisplay = document.getElementById("qDisplay");
+  const comparisonDisplay = document.getElementById("comparisonDisplay");
+  const calculations = document.getElementById("calculations");
+
+  const calculateBtn = document.getElementById("calculateBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const toggleCalcBtn = document.getElementById("toggleCalcBtn");
+
+  let calculationVisible = false;
+
+  function populateSelect(select, data) {
+    Object.entries(data)
+      .sort(([, a], [, b]) => a.name.localeCompare(b.name))
+      .forEach(([key, item]) => {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = item.name;
+        select.appendChild(option);
+      });
+  }
+
+  function superscript(number) {
+    const map = {
+      "-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³",
+      "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷",
+      "8": "⁸", "9": "⁹"
+    };
+
+    return String(number).split("").map(c => map[c] || c).join("");
+  }
+
+  function scientific(value, decimals = 3) {
+    if (value === 0) return "0";
+    const exponent = Math.floor(Math.log10(Math.abs(value)));
+    const mantissa = value / Math.pow(10, exponent);
+    return `${mantissa.toFixed(decimals)} × 10${superscript(exponent)}`;
+  }
+
+  function coefficient(value) {
+    return value === 1 ? "" : value;
+  }
+
+  function updateSelection() {
+    const cationSource = cationSources[cationSourceSelect.value];
+    const anionSource = anionSources[anionSourceSelect.value];
+    const precipitate = precipitates[`${cationSource.cationKey}|${anionSource.anionKey}`];
+
+    cationIonDisplay.innerHTML = `
+      ${cationSource.formulaHTML}(aq) provides
+      <span class="ion-cation">${cationSource.cationHTML}</span>(aq)
+      and ${cationSource.spectatorHTML}(aq).
+    `;
+
+    anionIonDisplay.innerHTML = `
+      ${anionSource.formulaHTML}(aq) provides
+      <span class="ion-anion">${anionSource.anionHTML}</span>(aq)
+      and ${anionSource.spectatorHTML}(aq).
+    `;
+
+    ionSummaryDisplay.innerHTML = `
+      After mixing, the ions present include
+      <span class="ion-cation">${cationSource.cationHTML}</span>,
+      ${cationSource.spectatorHTML},
+      ${anionSource.spectatorHTML}, and
+      <span class="ion-anion">${anionSource.anionHTML}</span>.
+      Which cation–anion combination could form a sparingly soluble compound?
+    `;
+
+    precipitatePrediction.innerHTML = "";
+
+    const promptOption = document.createElement("option");
+    promptOption.value = "";
+    promptOption.textContent = "Select a possible product";
+    precipitatePrediction.appendChild(promptOption);
+
+    if (precipitate) {
+      const correctOption = document.createElement("option");
+      correctOption.value = "correct";
+      correctOption.innerHTML = precipitate.name;
+      correctOption.textContent = precipitate.name;
+      precipitatePrediction.appendChild(correctOption);
+    }
+
+    const spectatorOption = document.createElement("option");
+    spectatorOption.value = "spectator";
+    spectatorOption.textContent = "Sodium nitrate";
+    precipitatePrediction.appendChild(spectatorOption);
+
+    const noneOption = document.createElement("option");
+    noneOption.value = "none";
+    noneOption.textContent = "No possible precipitate";
+    precipitatePrediction.appendChild(noneOption);
+
+    predictionFeedback.className = "comparison neutral";
+    predictionFeedback.innerHTML = "Choose a compound before revealing the K<sub>sp</sub> information.";
+    revealedChemistry.style.display = "none";
+    calculateBtn.disabled = true;
+
+    if (!precipitate) {
+      precipitateDisplay.innerHTML = "No HSC K<sub>sp</sub> entry is available for this ion pair.";
+      equationDisplay.textContent = "—";
+      qExpressionDisplay.textContent = "—";
+      return;
+    }
+
+    precipitateDisplay.innerHTML = `
+      Possible precipitate: ${precipitate.formulaHTML}(s)<br>
+      K<sub>sp</sub> = ${scientific(precipitate.ksp)} at 25 °C
+    `;
+
+    equationDisplay.innerHTML = `
+      ${coefficient(precipitate.a)}<span class="ion-cation">${cationSource.cationHTML}</span>(aq)
+      + ${coefficient(precipitate.b)}<span class="ion-anion">${anionSource.anionHTML}</span>(aq)
+      ⇌ ${precipitate.formulaHTML}(s)
+    `;
+
+    const cationPower = precipitate.a === 1 ? "" : `<sup>${precipitate.a}</sup>`;
+    const anionPower = precipitate.b === 1 ? "" : `<sup>${precipitate.b}</sup>`;
+
+    qExpressionDisplay.innerHTML = `
+      Q = [<span class="ion-cation">${cationSource.cationHTML}</span>]${cationPower}
+          [<span class="ion-anion">${anionSource.anionHTML}</span>]${anionPower}
+    `;
+
+    clearResults();
+  }
+
+  function checkPrediction() {
+    const cationSource = cationSources[cationSourceSelect.value];
+    const anionSource = anionSources[anionSourceSelect.value];
+    const precipitate = precipitates[`${cationSource.cationKey}|${anionSource.anionKey}`];
+    const choice = precipitatePrediction.value;
+
+    if (!choice) {
+      predictionFeedback.className = "comparison saturated";
+      predictionFeedback.textContent = "Choose a prediction first.";
+      return;
+    }
+
+    if (choice === "correct" && precipitate) {
+      predictionFeedback.className = "comparison no-precipitate";
+      predictionFeedback.innerHTML = `
+        Correct. ${cationSource.cationHTML} and ${anionSource.anionHTML}
+        can combine to form ${precipitate.formulaHTML}(s).
+      `;
+      revealedChemistry.style.display = "block";
+      calculateBtn.disabled = false;
+    } else {
+      predictionFeedback.className = "comparison precipitate";
+      predictionFeedback.innerHTML = `
+        Not quite. Pair the metal cation with the anion from the second solution.
+        Sodium and nitrate ions remain dissolved as spectator ions.
+      `;
+      revealedChemistry.style.display = "none";
+      calculateBtn.disabled = true;
+    }
+  }
+
+  function clearResults() {
+    totalVolumeDisplay.textContent = "—";
+    mixedCationDisplay.textContent = "—";
+    mixedAnionDisplay.textContent = "—";
+    qDisplay.textContent = "—";
+    comparisonDisplay.className = "comparison neutral";
+    comparisonDisplay.textContent = "No result yet";
+    calculations.innerHTML = "";
+  }
+
+  function calculate() {
+    const cationSource = cationSources[cationSourceSelect.value];
+    const anionSource = anionSources[anionSourceSelect.value];
+    const precipitate = precipitates[`${cationSource.cationKey}|${anionSource.anionKey}`];
+
+    const cationCompoundMoles = Number(cationMolesInput.value);
+    const cationVolumeMl = Number(cationVolumeInput.value);
+    const anionCompoundMoles = Number(anionMolesInput.value);
+    const anionVolumeMl = Number(anionVolumeInput.value);
+
+    const values = [cationCompoundMoles, cationVolumeMl, anionCompoundMoles, anionVolumeMl];
+
+    if (
+      values.some(value => !Number.isFinite(value)) ||
+      cationCompoundMoles < 0 ||
+      anionCompoundMoles < 0 ||
+      cationVolumeMl <= 0 ||
+      anionVolumeMl <= 0
+    ) {
+      comparisonDisplay.className = "comparison precipitate";
+      comparisonDisplay.textContent = "Enter valid non-negative amounts and positive solution volumes.";
+      return;
+    }
+
+    const totalVolumeL = (cationVolumeMl + anionVolumeMl) / 1000;
+    const cationMoles = cationCompoundMoles * cationSource.cationCount;
+    const anionMoles = anionCompoundMoles * anionSource.anionCount;
+
+    const mixedCation = cationMoles / totalVolumeL;
+    const mixedAnion = anionMoles / totalVolumeL;
+
+    const q = Math.pow(mixedCation, precipitate.a) * Math.pow(mixedAnion, precipitate.b);
+    const ratio = q / precipitate.ksp;
+    const tolerance = 1e-9;
+
+    let outcomeClass;
+    let outcomeText;
+    let conclusionText;
+
+    if (Math.abs(ratio - 1) <= tolerance) {
+      outcomeClass = "saturated";
+      outcomeText = "Q = Kₛₚ. The mixture is saturated and at equilibrium.";
+      conclusionText = "There is no net tendency for additional solid to dissolve or precipitate.";
+    } else if (q < precipitate.ksp) {
+      outcomeClass = "no-precipitate";
+      outcomeText = "Q < Kₛₚ. No precipitate forms.";
+      conclusionText = `The mixture is unsaturated with respect to ${precipitate.formulaHTML}.`;
+    } else {
+      outcomeClass = "precipitate";
+      outcomeText = "Q > Kₛₚ. A precipitate forms.";
+      conclusionText = `${precipitate.formulaHTML}(s) forms because the ion product exceeds K<sub>sp</sub>.`;
+    }
+
+    totalVolumeDisplay.innerHTML = `${(totalVolumeL).toFixed(3)} L`;
+
+    mixedCationDisplay.innerHTML = `
+      [<span class="ion-cation">${cationSource.cationHTML}</span>]
+      = ${scientific(mixedCation)} mol L<sup>−1</sup>
+    `;
+
+    mixedAnionDisplay.innerHTML = `
+      [<span class="ion-anion">${anionSource.anionHTML}</span>]
+      = ${scientific(mixedAnion)} mol L<sup>−1</sup>
+    `;
+
+    qDisplay.innerHTML = scientific(q);
+
+    comparisonDisplay.className = `comparison ${outcomeClass}`;
+    comparisonDisplay.innerHTML = `
+      ${outcomeText}<br>
+      <span style="font-weight: normal;">${conclusionText}</span>
+    `;
+
+    const cationPower = precipitate.a === 1 ? "" : `<sup>${precipitate.a}</sup>`;
+    const anionPower = precipitate.b === 1 ? "" : `<sup>${precipitate.b}</sup>`;
+
+    calculations.innerHTML = `
+      <div class="calc-step">
+        <h3>Step 1: Identify the ions present</h3>
+        <p class="chemistry">
+          ${cationSource.formulaHTML}(aq) provides
+          <span class="ion-cation">${cationSource.cationHTML}</span>(aq)
+          and ${cationSource.spectatorHTML}(aq).
+        </p>
+        <p class="chemistry">
+          ${anionSource.formulaHTML}(aq) provides
+          <span class="ion-anion">${anionSource.anionHTML}</span>(aq)
+          and ${anionSource.spectatorHTML}(aq).
+        </p>
+      </div>
+
+      <div class="calc-step">
+        <h3>Step 2: Identify the possible precipitate</h3>
+        <div class="calc-equation chemistry">
+          ${coefficient(precipitate.a)}${cationSource.cationHTML}(aq)
+          + ${coefficient(precipitate.b)}${anionSource.anionHTML}(aq)
+          ⇌ ${precipitate.formulaHTML}(s)
+        </div>
+        <p class="chemistry">
+          K<sub>sp</sub> = ${scientific(precipitate.ksp)}
+        </p>
+      </div>
+
+      <div class="calc-step">
+        <h3>Step 3: Calculate the total volume</h3>
+        <div class="calc-equation chemistry">
+          V<sub>total</sub> = ${cationVolumeMl.toFixed(1)} mL + ${anionVolumeMl.toFixed(1)} mL<br>
+          V<sub>total</sub> = ${(cationVolumeMl + anionVolumeMl).toFixed(1)} mL
+          = ${totalVolumeL.toFixed(3)} L
+        </div>
+      </div>
+
+      <div class="calc-step">
+        <h3>Step 4: Calculate the mixed cation concentration</h3>
+        <div class="calc-equation chemistry">
+          n(${cationSource.cationHTML}) = ${cationCompoundMoles.toPrecision(4)} mol<br>
+          [${cationSource.cationHTML}]
+          = ${cationMoles.toPrecision(4)} ÷ ${totalVolumeL.toFixed(3)}<br>
+          [${cationSource.cationHTML}]
+          = ${scientific(mixedCation)} mol L<sup>−1</sup>
+        </div>
+      </div>
+
+      <div class="calc-step">
+        <h3>Step 5: Calculate the mixed anion concentration</h3>
+        <div class="calc-equation chemistry">
+          n(${anionSource.anionHTML}) = ${anionCompoundMoles.toPrecision(4)} mol<br>
+          [${anionSource.anionHTML}]
+          = ${anionMoles.toPrecision(4)} ÷ ${totalVolumeL.toFixed(3)}<br>
+          [${anionSource.anionHTML}]
+          = ${scientific(mixedAnion)} mol L<sup>−1</sup>
+        </div>
+      </div>
+
+      <div class="calc-step">
+        <h3>Step 6: Calculate Q</h3>
+        <div class="calc-equation chemistry">
+          Q = [${cationSource.cationHTML}]${cationPower}
+              [${anionSource.anionHTML}]${anionPower}<br>
+          Q = (${scientific(mixedCation)})${cationPower}
+              (${scientific(mixedAnion)})${anionPower}<br>
+          Q = ${scientific(q)}
+        </div>
+      </div>
+
+      <div class="calc-step">
+        <h3>Step 7: Compare Q with K<sub>sp</sub></h3>
+        <div class="calc-equation chemistry">
+          Q = ${scientific(q)}<br>
+          K<sub>sp</sub> = ${scientific(precipitate.ksp)}
+        </div>
+        <p class="chemistry">${outcomeText}</p>
+        <p class="chemistry">${conclusionText}</p>
+      </div>
+    `;
+  }
+
+  populateSelect(cationSourceSelect, cationSources);
+  populateSelect(anionSourceSelect, anionSources);
+
+  cationSourceSelect.value = "MgNO3";
+  anionSourceSelect.value = "NaOH";
+
+  cationSourceSelect.addEventListener("change", updateSelection);
+  anionSourceSelect.addEventListener("change", updateSelection);
+  checkPredictionBtn.addEventListener("click", checkPrediction);
+  calculateBtn.addEventListener("click", calculate);
+
+  resetBtn.addEventListener("click", () => {
+    cationSourceSelect.value = "MgNO3";
+    anionSourceSelect.value = "NaOH";
+    cationMolesInput.value = 0.006;
+    cationVolumeInput.value = 100;
+    anionMolesInput.value = 0.010;
+    anionVolumeInput.value = 100;
+    updateSelection();
+  });
+
+  toggleCalcBtn.addEventListener("click", () => {
+    calculationVisible = !calculationVisible;
+    calculations.classList.toggle("show", calculationVisible);
+    toggleCalcBtn.textContent = calculationVisible
+      ? "Hide worked solution"
+      : "Show worked solution";
+  });
+
+  updateSelection();
+</script>
+
+</body>
+</html>
