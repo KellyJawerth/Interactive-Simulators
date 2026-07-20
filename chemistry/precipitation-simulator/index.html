@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Will a Precipitate Form?</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --line: #dbe3ee;
+      --accent: #2563eb;
+      --good: #15803d;
+      --warn: #b45309;
+      --bad: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      width: min(1100px, 94%);
+      margin: 24px auto 40px;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .intro {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 12px 0 6px;
+    }
+
+    select,
+    input,
+    button {
+      width: 100%;
+      font: inherit;
+    }
+
+    select,
+    input {
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: white;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .prediction {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .prediction button,
+    .primary,
+    .secondary {
+      border: none;
+      border-radius: 9px;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .prediction button {
+      background: #e8eef8;
+      color: var(--text);
+    }
+
+    .prediction button.selected {
+      outline: 3px solid var(--accent);
+      background: #dbeafe;
+    }
+
+    .primary {
+      background: var(--accent);
+      color: white;
+      margin-top: 16px;
+    }
+
+    .secondary {
+      background: #e8eef8;
+      color: var(--text);
+      margin-top: 10px;
+    }
+
+    .primary:hover,
+    .secondary:hover,
+    .prediction button:hover {
+      filter: brightness(0.97);
+    }
+
+    .beaker-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 320px;
+    }
+
+    .beaker {
+      position: relative;
+      width: 260px;
+      height: 270px;
+      border: 5px solid #94a3b8;
+      border-top: none;
+      border-radius: 0 0 34px 34px;
+      overflow: hidden;
+      background: linear-gradient(to top, rgba(191, 219, 254, 0.78) 0 72%, transparent 72%);
+    }
+
+    .beaker::before,
+    .beaker::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      width: 36px;
+      height: 5px;
+      background: #94a3b8;
+    }
+
+    .beaker::before {
+      left: -5px;
+    }
+
+    .beaker::after {
+      right: -5px;
+    }
+
+    .ion {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      border: 2px solid rgba(255,255,255,0.8);
+      animation: drift 3.8s ease-in-out infinite alternate;
+      user-select: none;
+    }
+
+    .cation {
+      background: #fecaca;
+    }
+
+    .anion {
+      background: #bfdbfe;
+    }
+
+    .spectator {
+      opacity: 0.55;
+    }
+
+    @keyframes drift {
+      from { transform: translate(-5px, 0); }
+      to   { transform: translate(8px, -12px); }
+    }
+
+    .solid {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: 5px;
+      height: 0;
+      border-radius: 14px 14px 22px 22px;
+      background: repeating-linear-gradient(
+        45deg,
+        #f8fafc,
+        #f8fafc 10px,
+        #d9e2ec 10px,
+        #d9e2ec 20px
+      );
+      transition: height 1.1s ease;
+      opacity: 0.96;
+    }
+
+    .solid.show {
+      height: 56px;
+    }
+
+    .status {
+      text-align: center;
+      margin-top: 12px;
+      font-weight: 700;
+      min-height: 24px;
+    }
+
+    .result {
+      display: none;
+      margin-top: 16px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    .result.show {
+      display: block;
+    }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .result-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 12px;
+      background: #f8fafc;
+    }
+
+    .formula {
+      font-family: "Courier New", monospace;
+      font-size: 1.05rem;
+    }
+
+    .verdict {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .verdict.good {
+      background: #dcfce7;
+      color: var(--good);
+    }
+
+    .verdict.warn {
+      background: #fef3c7;
+      color: var(--warn);
+    }
+
+    .verdict.bad {
+      background: #fee2e2;
+      color: var(--bad);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 760px) {
+      .grid,
+      .row,
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .full {
+        grid-column: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="page">
+    <h1>Will a Precipitate Form?</h1>
+    <p class="intro">
+      Choose two solutions, predict the outcome, then compare the ion product, Q, with Ksp.
+    </p>
+
+    <section class="grid">
+      <div class="panel">
+        <h2>1. Choose the solutions</h2>
+
+        <label for="cation">Solution A: nitrate solution</label>
+        <select id="cation">
+          <option value="Ag">AgNO₃</option>
+          <option value="Pb">Pb(NO₃)₂</option>
+          <option value="Ba">Ba(NO₃)₂</option>
+          <option value="Ca">Ca(NO₃)₂</option>
+          <option value="Mg">Mg(NO₃)₂</option>
+          <option value="Cu">Cu(NO₃)₂</option>
+          <option value="Fe">Fe(NO₃)₃</option>
+        </select>
+
+        <div class="row">
+          <div>
+            <label for="cationConc">Concentration (mol L⁻¹)</label>
+            <input id="cationConc" type="number" min="0" step="0.001" value="0.020" />
+          </div>
+          <div>
+            <label for="cationVol">Volume (mL)</label>
+            <input id="cationVol" type="number" min="1" step="1" value="50" />
+          </div>
+        </div>
+
+        <label for="anion">Solution B: sodium solution</label>
+        <select id="anion">
+          <option value="Cl">NaCl</option>
+          <option value="Br">NaBr</option>
+          <option value="I">NaI</option>
+          <option value="SO4">Na₂SO₄</option>
+          <option value="CO3">Na₂CO₃</option>
+          <option value="OH">NaOH</option>
+        </select>
+
+        <div class="row">
+          <div>
+            <label for="anionConc">Concentration (mol L⁻¹)</label>
+            <input id="anionConc" type="number" min="0" step="0.001" value="0.020" />
+          </div>
+          <div>
+            <label for="anionVol">Volume (mL)</label>
+            <input id="anionVol" type="number" min="1" step="1" value="50" />
+          </div>
+        </div>
+
+        <h3 style="margin-top:18px;">2. Make a prediction</h3>
+        <div class="prediction">
+          <button id="predictYes" type="button">Precipitate forms</button>
+          <button id="predictNo" type="button">No precipitate</button>
+        </div>
+
+        <button id="mixBtn" class="primary" type="button">Mix the solutions</button>
+        <button id="resetBtn" class="secondary" type="button">Reset</button>
+
+        <p class="small">
+          Ksp values are approximate values at 25 °C. Concentrations are recalculated after mixing.
+        </p>
+      </div>
+
+      <div class="panel">
+        <h2>Particle view</h2>
+        <div class="beaker-wrap">
+          <div class="beaker" id="beaker">
+            <div class="solid" id="solid"></div>
+          </div>
+        </div>
+        <div class="status" id="status">Choose the solutions and make a prediction.</div>
+      </div>
+
+      <div class="panel full">
+        <h2>3. Check the chemistry</h2>
+        <div class="result" id="result">
+          <div class="result-grid">
+            <div class="result-box">
+              <h3>Possible precipitate</h3>
+              <div id="compoundName">—</div>
+              <div class="formula" id="equation">—</div>
+            </div>
+
+            <div class="result-box">
+              <h3>Ksp expression</h3>
+              <div class="formula" id="kspExpression">—</div>
+            </div>
+
+            <div class="result-box">
+              <h3>Ion concentrations after mixing</h3>
+              <div id="mixedConcentrations">—</div>
+            </div>
+
+            <div class="result-box">
+              <h3>Comparison</h3>
+              <div id="comparison">—</div>
+            </div>
+          </div>
+
+          <div id="verdict" class="verdict"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const cations = {
+      Ag: { symbol: "Ag⁺", charge: 1, colour: "cation" },
+      Pb: { symbol: "Pb²⁺", charge: 2, colour: "cation" },
+      Ba: { symbol: "Ba²⁺", charge: 2, colour: "cation" },
+      Ca: { symbol: "Ca²⁺", charge: 2, colour: "cation" },
+      Mg: { symbol: "Mg²⁺", charge: 2, colour: "cation" },
+      Cu: { symbol: "Cu²⁺", charge: 2, colour: "cation" },
+      Fe: { symbol: "Fe³⁺", charge: 3, colour: "cation" }
+    };
+
+    const anions = {
+      Cl:  { symbol: "Cl⁻", charge: 1, colour: "anion" },
+      Br:  { symbol: "Br⁻", charge: 1, colour: "anion" },
+      I:   { symbol: "I⁻", charge: 1, colour: "anion" },
+      SO4: { symbol: "SO₄²⁻", charge: 2, colour: "anion" },
+      CO3: { symbol: "CO₃²⁻", charge: 2, colour: "anion" },
+      OH:  { symbol: "OH⁻", charge: 1, colour: "anion" }
+    };
+
+    /*
+      Each entry gives:
+      formula: displayed formula
+      ksp: approximate Ksp at 25 °C
+      cationPower and anionPower: exponents in the Ksp expression
+      cationCoeff and anionCoeff: stoichiometric coefficients in dissolution equation
+    */
+    const salts = {
+      "Ag-Cl":  { formula: "AgCl",      ksp: 1.8e-10, cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+      "Ag-Br":  { formula: "AgBr",      ksp: 5.0e-13, cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+      "Ag-I":   { formula: "AgI",       ksp: 8.3e-17, cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+      "Ag-CO3": { formula: "Ag₂CO₃",    ksp: 8.5e-12, cationPower: 2, anionPower: 1, cationCoeff: 2, anionCoeff: 1 },
+
+      "Pb-Cl":  { formula: "PbCl₂",     ksp: 1.7e-5,  cationPower: 1, anionPower: 2, cationCoeff: 1, anionCoeff: 2 },
+      "Pb-Br":  { formula: "PbBr₂",     ksp: 6.6e-6,  cationPower: 1, anionPower: 2, cationCoeff: 1, anionCoeff: 2 },
+      "Pb-I":   { formula: "PbI₂",      ksp: 7.9e-9,  cationPower: 1, anionPower: 2, cationCoeff: 1, anionCoeff: 2 },
+      "Pb-SO4": { formula: "PbSO₄",     ksp: 1.6e-8,  cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+      "Pb-CO3": { formula: "PbCO₃",     ksp: 7.4e-14, cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+
+      "Ba-SO4": { formula: "BaSO₄",     ksp: 1.1e-10, cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+      "Ba-CO3": { formula: "BaCO₃",     ksp: 5.1e-9,  cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+
+      "Ca-SO4": { formula: "CaSO₄",     ksp: 2.4e-5,  cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+      "Ca-CO3": { formula: "CaCO₃",     ksp: 3.3e-9,  cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+      "Ca-OH":  { formula: "Ca(OH)₂",   ksp: 5.5e-6,  cationPower: 1, anionPower: 2, cationCoeff: 1, anionCoeff: 2 },
+
+      "Mg-CO3": { formula: "MgCO₃",     ksp: 6.8e-6,  cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+      "Mg-OH":  { formula: "Mg(OH)₂",   ksp: 5.6e-12, cationPower: 1, anionPower: 2, cationCoeff: 1, anionCoeff: 2 },
+
+      "Cu-CO3": { formula: "CuCO₃",     ksp: 1.4e-10, cationPower: 1, anionPower: 1, cationCoeff: 1, anionCoeff: 1 },
+      "Cu-OH":  { formula: "Cu(OH)₂",   ksp: 2.2e-20, cationPower: 1, anionPower: 2, cationCoeff: 1, anionCoeff: 2 },
+
+      "Fe-OH":  { formula: "Fe(OH)₃",   ksp: 2.8e-39, cationPower: 1, anionPower: 3, cationCoeff: 1, anionCoeff: 3 }
+    };
+
+    const cationSelect = document.getElementById("cation");
+    const anionSelect = document.getElementById("anion");
+    const cationConc = document.getElementById("cationConc");
+    const anionConc = document.getElementById("anionConc");
+    const cationVol = document.getElementById("cationVol");
+    const anionVol = document.getElementById("anionVol");
+
+    const predictYes = document.getElementById("predictYes");
+    const predictNo = document.getElementById("predictNo");
+    const mixBtn = document.getElementById("mixBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    const beaker = document.getElementById("beaker");
+    const solid = document.getElementById("solid");
+    const status = document.getElementById("status");
+    const result = document.getElementById("result");
+    const compoundName = document.getElementById("compoundName");
+    const equation = document.getElementById("equation");
+    const kspExpression = document.getElementById("kspExpression");
+    const mixedConcentrations = document.getElementById("mixedConcentrations");
+    const comparison = document.getElementById("comparison");
+    const verdict = document.getElementById("verdict");
+
+    let prediction = null;
+
+    function choosePrediction(value) {
+      prediction = value;
+      predictYes.classList.toggle("selected", value === true);
+      predictNo.classList.toggle("selected", value === false);
+    }
+
+    predictYes.addEventListener("click", () => choosePrediction(true));
+    predictNo.addEventListener("click", () => choosePrediction(false));
+
+    function superscriptPower(power) {
+      if (power === 1) return "";
+      const map = { 2: "²", 3: "³" };
+      return map[power] || `^${power}`;
+    }
+
+    function formatScientific(value) {
+      if (value === 0) return "0";
+      const exponent = Math.floor(Math.log10(Math.abs(value)));
+      const mantissa = value / Math.pow(10, exponent);
+      return `${mantissa.toFixed(2)} × 10${toSuperscript(exponent)}`;
+    }
+
+    function toSuperscript(number) {
+      const chars = {
+        "-": "⁻", "0": "⁰", "1": "¹", "2": "²", "3": "³",
+        "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹"
+      };
+      return String(number).split("").map(char => chars[char] || char).join("");
+    }
+
+    function addIon(label, type, x, y, delay, spectator = false) {
+      const ion = document.createElement("div");
+      ion.className = `ion ${type}${spectator ? " spectator" : ""}`;
+      ion.textContent = label;
+      ion.style.left = `${x}px`;
+      ion.style.top = `${y}px`;
+      ion.style.animationDelay = `${delay}s`;
+      beaker.appendChild(ion);
+    }
+
+    function clearIons() {
+      beaker.querySelectorAll(".ion").forEach(ion => ion.remove());
+    }
+
+    function drawParticles(cationKey, anionKey) {
+      clearIons();
+
+      const cation = cations[cationKey];
+      const anion = anions[anionKey];
+
+      const positions = [
+        [28, 45], [82, 70], [145, 42], [195, 90],
+        [45, 125], [112, 138], [175, 145], [75, 190],
+        [150, 195], [205, 185], [28, 205], [118, 92]
+      ];
+
+      positions.forEach((position, index) => {
+        const isCation = index % 2 === 0;
+        addIon(
+          isCation ? cation.symbol : anion.symbol,
+          isCation ? "cation" : "anion",
+          position[0],
+          position[1],
+          index * 0.16
+        );
+      });
+
+      addIon("NO₃⁻", "anion", 18, 85, 0.5, true);
+      addIon("Na⁺", "cation", 190, 45, 0.8, true);
+      addIon("NO₃⁻", "anion", 100, 210, 1.0, true);
+      addIon("Na⁺", "cation", 205, 130, 1.2, true);
+    }
+
+    function validateInputs() {
+      const values = [
+        Number(cationConc.value),
+        Number(anionConc.value),
+        Number(cationVol.value),
+        Number(anionVol.value)
+      ];
+      return values.every(value => Number.isFinite(value) && value > 0);
+    }
+
+    function resetSimulation() {
+      prediction = null;
+      predictYes.classList.remove("selected");
+      predictNo.classList.remove("selected");
+      solid.classList.remove("show");
+      result.classList.remove("show");
+      verdict.className = "verdict";
+      status.textContent = "Choose the solutions and make a prediction.";
+      clearIons();
+    }
+
+    resetBtn.addEventListener("click", resetSimulation);
+
+    mixBtn.addEventListener("click", () => {
+      if (!validateInputs()) {
+        status.textContent = "Enter positive concentration and volume values.";
+        return;
+      }
+
+      if (prediction === null) {
+        status.textContent = "Make a prediction before mixing.";
+        return;
+      }
+
+      const cationKey = cationSelect.value;
+      const anionKey = anionSelect.value;
+      const saltKey = `${cationKey}-${anionKey}`;
+      const salt = salts[saltKey];
+
+      const cInitial = Number(cationConc.value);
+      const aInitial = Number(anionConc.value);
+      const cVol = Number(cationVol.value);
+      const aVol = Number(anionVol.value);
+      const totalVol = cVol + aVol;
+
+      const cMixed = cInitial * cVol / totalVol;
+      const aMixed = aInitial * aVol / totalVol;
+
+      drawParticles(cationKey, anionKey);
+      result.classList.add("show");
+
+      if (!salt) {
+        solid.classList.remove("show");
+        status.textContent = "No sparingly soluble product is included for this pair.";
+
+        compoundName.textContent = "No listed precipitate";
+        equation.textContent = "No Ksp comparison required in this model.";
+        kspExpression.textContent = "—";
+        mixedConcentrations.innerHTML =
+          `[${cations[cationKey].symbol}] = ${cMixed.toFixed(4)} mol L⁻¹<br>` +
+          `[${anions[anionKey].symbol}] = ${aMixed.toFixed(4)} mol L⁻¹`;
+        comparison.textContent = "The selected ion pair is treated as soluble.";
+
+        const correct = prediction === false;
+        verdict.className = `verdict ${correct ? "good" : "bad"}`;
+        verdict.textContent = correct
+          ? "Correct prediction. No precipitate is expected."
+          : "Revise the prediction. No precipitate is expected for this pair.";
+
+        return;
+      }
+
+      const q = Math.pow(cMixed, salt.cationPower) *
+                Math.pow(aMixed, salt.anionPower);
+
+      const precipitates = q > salt.ksp;
+      const atEquilibrium = Math.abs(Math.log10(q / salt.ksp)) < 0.01;
+
+      solid.classList.toggle("show", precipitates);
+
+      const cation = cations[cationKey];
+      const anion = anions[anionKey];
+
+      const leftCoeff = salt.formula;
+      const cCoeffText = salt.cationCoeff > 1 ? `${salt.cationCoeff}` : "";
+      const aCoeffText = salt.anionCoeff > 1 ? `${salt.anionCoeff}` : "";
+
+      compoundName.textContent = salt.formula;
+      equation.textContent =
+        `${leftCoeff}(s) ⇌ ${cCoeffText}${cation.symbol}(aq) + ${aCoeffText}${anion.symbol}(aq)`;
+
+      kspExpression.textContent =
+        `Ksp = [${cation.symbol}]${superscriptPower(salt.cationPower)}` +
+        `[${anion.symbol}]${superscriptPower(salt.anionPower)}`;
+
+      mixedConcentrations.innerHTML =
+        `[${cation.symbol}] = ${cMixed.toFixed(4)} mol L⁻¹<br>` +
+        `[${anion.symbol}] = ${aMixed.toFixed(4)} mol L⁻¹`;
+
+      comparison.innerHTML =
+        `Q = ${formatScientific(q)}<br>` +
+        `Ksp = ${formatScientific(salt.ksp)}<br>` +
+        `<strong>${atEquilibrium ? "Q ≈ Ksp" : q > salt.ksp ? "Q > Ksp" : "Q < Ksp"}</strong>`;
+
+      const correct = prediction === precipitates;
+
+      if (atEquilibrium) {
+        status.textContent = "The solution is approximately saturated.";
+        verdict.className = `verdict ${correct ? "good" : "warn"}`;
+        verdict.textContent =
+          "Q is approximately equal to Ksp. The solution is at the precipitation threshold.";
+      } else if (precipitates) {
+        status.textContent = `${salt.formula} precipitate forms.`;
+        verdict.className = `verdict ${correct ? "good" : "bad"}`;
+        verdict.textContent = correct
+          ? `Correct. Q is greater than Ksp, so ${salt.formula} precipitates.`
+          : `Revise the prediction. Q is greater than Ksp, so ${salt.formula} precipitates.`;
+      } else {
+        status.textContent = "The solution remains clear.";
+        verdict.className = `verdict ${correct ? "good" : "bad"}`;
+        verdict.textContent = correct
+          ? "Correct. Q is less than Ksp, so no precipitate forms."
+          : "Revise the prediction. Q is less than Ksp, so no precipitate forms.";
+      }
+    });
+  </script>
+</body>
+</html>
