@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Engineering Stress Learning Tool</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --border: #d7dee8;
+      --primary: #1769aa;
+      --primary-dark: #0f4f83;
+      --primary-soft: #eaf3fb;
+      --success: #1f7a45;
+      --success-soft: #e9f7ef;
+      --warning: #996515;
+      --warning-soft: #fff7df;
+      --danger: #b42318;
+      --danger-soft: #fff0ee;
+      --shadow: 0 8px 24px rgba(31, 41, 55, 0.08);
+      --radius: 16px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 28px));
+      margin: 24px auto 48px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f4f83, #1769aa);
+      color: white;
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 800px;
+      font-size: 1.05rem;
+    }
+
+    .formula-strip {
+      margin-top: 18px;
+      display: inline-flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      background: rgba(255,255,255,0.13);
+      padding: 12px 16px;
+      border-radius: 12px;
+    }
+
+    .formula {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin: 22px 0;
+      flex-wrap: wrap;
+    }
+
+    .tab-button,
+    .level-button {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 11px 16px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .tab-button.active,
+    .level-button.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.85fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin-top: 0;
+    }
+
+    .level-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .level-description {
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .question-card {
+      background: var(--primary-soft);
+      border-left: 5px solid var(--primary);
+      padding: 18px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+    }
+
+    .question-card p {
+      margin: 0;
+      font-size: 1.06rem;
+    }
+
+    .diagram-wrap {
+      display: grid;
+      place-items: center;
+      min-height: 260px;
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      background: #fbfdff;
+      padding: 12px;
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+
+    svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .step-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .step-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .step-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 150px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      border: 1px solid #b9c5d3;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: white;
+      color: var(--text);
+    }
+
+    input:focus,
+    select:focus,
+    button:focus-visible {
+      outline: 3px solid rgba(23, 105, 170, 0.25);
+      outline-offset: 2px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .primary-button,
+    .secondary-button,
+    .ghost-button {
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-weight: 700;
+    }
+
+    .primary-button {
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: white;
+    }
+
+    .primary-button:hover {
+      background: var(--primary-dark);
+    }
+
+    .secondary-button {
+      border: 1px solid var(--primary);
+      background: white;
+      color: var(--primary);
+    }
+
+    .ghost-button {
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      color: var(--text);
+    }
+
+    .feedback {
+      margin-top: 16px;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: none;
+    }
+
+    .feedback.show {
+      display: block;
+    }
+
+    .feedback.success {
+      background: var(--success-soft);
+      border: 1px solid #a8d8bc;
+      color: var(--success);
+    }
+
+    .feedback.warning {
+      background: var(--warning-soft);
+      border: 1px solid #ead28e;
+      color: #6d4a0c;
+    }
+
+    .feedback.danger {
+      background: var(--danger-soft);
+      border: 1px solid #efb2aa;
+      color: var(--danger);
+    }
+
+    .worked-solution {
+      margin-top: 16px;
+      border: 1px solid #b9d5ea;
+      background: #f7fbff;
+      border-radius: 14px;
+      padding: 18px;
+      display: none;
+    }
+
+    .worked-solution.show {
+      display: block;
+    }
+
+    .worked-solution ol {
+      padding-left: 22px;
+      margin-bottom: 0;
+    }
+
+    .worked-solution li {
+      margin: 10px 0;
+    }
+
+    .hint-list,
+    .reference-list {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .hint-list li,
+    .reference-list li {
+      margin-bottom: 8px;
+    }
+
+    .side-note {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .side-note:last-child {
+      margin-bottom: 0;
+    }
+
+    .side-note h3 {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .own-values-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .dimension-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .small-text {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .progress {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .progress-chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #eef2f6;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .progress-chip.active {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+    }
+
+    @media (max-width: 860px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .page {
+        width: min(100% - 16px, 1180px);
+        margin-top: 8px;
+      }
+
+      .hero,
+      .panel {
+        padding: 18px;
+      }
+
+      .input-row,
+      .dimension-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tab-button,
+      .level-button,
+      .primary-button,
+      .secondary-button,
+      .ghost-button {
+        width: 100%;
+      }
+
+      .tabs,
+      .level-row,
+      .button-row {
+        display: grid;
+      }
+    }
+
+
+    .answer-requirement {
+      margin: 12px 0 0;
+      padding: 10px 12px;
+      border-left: 4px solid var(--primary);
+      background: var(--primary-soft);
+      font-size: 0.96rem;
+    }
+
+    .pdf-note {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .assignment-setup,
+    .assignment-report {
+      display: grid;
+      gap: 18px;
+    }
+
+    .setup-grid,
+    .report-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 14px;
+    }
+
+    .assignment-status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .report-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+      background: white;
+    }
+
+    .report-table th,
+    .report-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.9rem;
+    }
+
+    .report-table th {
+      background: var(--primary-soft);
+      color: var(--primary-dark);
+    }
+
+    .report-summary {
+      padding: 16px;
+      border-radius: 12px;
+      background: #f7f9fc;
+      border: 1px solid var(--border);
+    }
+
+    .report-summary ul {
+      margin-bottom: 0;
+    }
+
+    .muted-box {
+      padding: 12px;
+      border-radius: 10px;
+      background: #f7f9fc;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      #assignmentReport,
+      #assignmentReport * {
+        visibility: visible;
+      }
+
+      #assignmentReport {
+        position: absolute;
+        inset: 0;
+        padding: 20px;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Engineering Stress Learning Tool</h1>
+      <p>Calculate normal stress caused by a force acting over a cross-sectional area. Work through the engineering process, check your answer, and use the hints when you need them.</p>
+      <div class="formula-strip">
+        <span class="formula">Stress = Force ÷ Area</span>
+        <span>σ = F/A</span>
+      </div>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="Learning modes">
+      <button class="tab-button active" id="practiceTab" type="button">Practice Questions</button>
+      <button class="tab-button" id="ownTab" type="button">Use My Own Values</button>
+      <button class="tab-button" id="assignmentTab" type="button">Guided Assignment</button>
+    </div>
+
+    <section id="practiceMode">
+      <div class="layout">
+        <div class="panel">
+          <h2>Practice Question</h2>
+
+          <div class="level-row" aria-label="Question level">
+            <button class="level-button active" data-level="1" type="button">Level 1</button>
+            <button class="level-button" data-level="2" type="button">Level 2</button>
+            <button class="level-button" data-level="3" type="button">Level 3</button>
+          </div>
+
+          <p class="level-description" id="levelDescription"></p>
+
+          <div class="progress">
+            <span class="progress-chip active">1. Identify values</span>
+            <span class="progress-chip">2. Calculate area</span>
+            <span class="progress-chip">3. Calculate stress</span>
+            <span class="progress-chip">4. Check units</span>
+          </div>
+
+          <div class="question-card">
+            <p id="questionText"></p>
+          </div>
+
+          <div class="diagram-wrap" id="diagram"></div>
+
+          <div class="step-grid">
+            <div class="step-card" id="areaStep">
+              <h3>Step 1: Cross-sectional area</h3>
+              <p class="small-text" id="areaInstruction"></p>
+              <div class="input-row">
+                <div>
+                  <label for="areaAnswer">Area</label>
+                  <input id="areaAnswer" type="number" step="any" inputmode="decimal" />
+                </div>
+                <div>
+                  <label for="areaUnit">Unit</label>
+                  <select id="areaUnit">
+                    <option value="mm2">mm²</option>
+                    <option value="cm2">cm²</option>
+                    <option value="m2">m²</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <h3>Step 2: Stress</h3>
+              <div class="input-row">
+                <div>
+                  <label for="stressAnswer">Stress</label>
+                  <input id="stressAnswer" type="number" step="any" inputmode="decimal" />
+                </div>
+                <div>
+                  <label for="stressUnit">Unit</label>
+                  <select id="stressUnit">
+                    <option value="Pa">Pa (N/m²)</option>
+                    <option value="kPa">kPa (kN/m²)</option>
+                    <option value="MPa" selected>MPa (N/mm²)</option>
+                    <option value="GPa">GPa (kN/mm²)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="primary-button" id="checkAnswer" type="button">Check Answer</button>
+            <button class="secondary-button" id="showHint" type="button">Give Me a Hint</button>
+            <button class="ghost-button" id="newQuestion" type="button">New Question</button>
+          </div>
+
+          <div id="feedback" class="feedback" aria-live="polite"></div>
+          <div id="workedSolution" class="worked-solution" aria-live="polite"></div>
+        </div>
+
+        <aside class="panel">
+          <h2>Reference</h2>
+
+          <div class="side-note">
+            <h3>Stress units</h3>
+            <ul class="reference-list">
+              <li>1 Pa = 1 N/m²</li>
+              <li>1 kPa = 1 kN/m²</li>
+              <li>1 MPa = 1 N/mm²</li>
+              <li>1 GPa = 1 kN/mm²</li>
+            </ul>
+          </div>
+
+          <div class="side-note">
+            <h3>Area formulas</h3>
+            <ul class="reference-list">
+              <li>Rectangle: A = bh</li>
+              <li>Square: A = s²</li>
+              <li>Circle: A = πr² = πd²/4</li>
+              <li>Hollow rectangle: A = BH − bh</li>
+              <li>Hollow square: A = S² − s²</li>
+              <li>Hollow circle: A = π(D² − d²)/4</li>
+              <li>Plate with hole: outer area − hole area</li>
+            </ul>
+          </div>
+
+          <div class="side-note">
+            <h3>Engineering habit</h3>
+            <p>Check that all dimensions use the same unit before calculating an area. Then check that your stress unit matches the force and area units you used.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+
+    <section id="assignmentMode" class="hidden">
+      <div class="layout">
+        <div class="panel">
+          <div id="assignmentSetup" class="assignment-setup">
+            <h2>Guided Assignment</h2>
+            <p>Complete a set of questions using the same hints and immediate worked feedback as Practice Questions. A student learning record will show where support was needed.</p>
+
+            <div class="setup-grid">
+              <div>
+                <label for="assignmentStudent">Student name</label>
+                <input id="assignmentStudent" type="text" autocomplete="name" placeholder="Optional" />
+              </div>
+              <div>
+                <label for="assignmentLevel">Question level</label>
+                <select id="assignmentLevel">
+                  <option value="1">Level 1: Area supplied</option>
+                  <option value="2">Level 2: Solid sections</option>
+                  <option value="3">Level 3: Hollow and cut-out sections</option>
+                </select>
+              </div>
+              <div>
+                <label for="assignmentCount">Number of questions</label>
+                <select id="assignmentCount">
+                  <option value="3">3 questions</option>
+                  <option value="5" selected>5 questions</option>
+                  <option value="8">8 questions</option>
+                  <option value="10">10 questions</option>
+                  <option value="15">15 questions</option>
+                  <option value="20">20 questions</option>
+                </select>
+              </div>
+            </div>
+
+            <button class="primary-button" id="startAssignment" type="button">Start Assignment</button>
+          </div>
+
+          <div id="assignmentActivity" class="hidden">
+            <div class="assignment-status">
+              <span class="status-chip" id="assignmentProgress">Question 1 of 5</span>
+              <span class="status-chip" id="assignmentLevelChip">Level 1</span>
+            </div>
+
+            <div class="question-card">
+              <p id="assignmentQuestionText"></p>
+              <p id="assignmentRoundingRequirement" class="answer-requirement"></p>
+            </div>
+
+            <div class="diagram-wrap" id="assignmentDiagram"></div>
+
+            <div class="step-grid">
+              <div class="step-card" id="assignmentAreaStep">
+                <h3>Step 1: Cross-sectional area</h3>
+                <p class="small-text" id="assignmentAreaInstruction"></p>
+                <div class="input-row">
+                  <div>
+                    <label for="assignmentAreaAnswer">Area</label>
+                    <input id="assignmentAreaAnswer" type="number" step="any" inputmode="decimal" />
+                  </div>
+                  <div>
+                    <label for="assignmentAreaUnit">Unit</label>
+                    <select id="assignmentAreaUnit">
+                      <option value="mm2">mm²</option>
+                      <option value="cm2">cm²</option>
+                      <option value="m2">m²</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="step-card">
+                <h3>Step 2: Stress</h3>
+                <div class="input-row">
+                  <div>
+                    <label for="assignmentStressAnswer">Stress</label>
+                    <input id="assignmentStressAnswer" type="number" step="any" inputmode="decimal" />
+                  </div>
+                  <div>
+                    <label for="assignmentStressUnit">Unit</label>
+                    <select id="assignmentStressUnit">
+                      <option value="Pa">Pa (N/m²)</option>
+                      <option value="kPa">kPa (kN/m²)</option>
+                      <option value="MPa" selected>MPa (N/mm²)</option>
+                      <option value="GPa">GPa (kN/mm²)</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button class="primary-button" id="assignmentCheck" type="button">Check Answer</button>
+              <button class="secondary-button" id="assignmentHint" type="button">Give Me a Hint</button>
+              <button class="ghost-button hidden" id="assignmentNext" type="button">Next Question</button>
+            </div>
+
+            <div id="assignmentFeedback" class="feedback" aria-live="polite"></div>
+            <div id="assignmentWorked" class="worked-solution" aria-live="polite"></div>
+          </div>
+
+          <div id="assignmentReport" class="assignment-report hidden">
+            <h2>Engineering Stress Student Learning Record</h2>
+            <div id="assignmentReportHeader"></div>
+            <div class="report-table-wrap">
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th>Question</th>
+                    <th>Question brief</th>
+                    <th>Attempts</th>
+                    <th>Hints used</th>
+                    <th>Hint that helped</th>
+                    <th>Learning outcome</th>
+                    <th>Learning notes</th>
+                  </tr>
+                </thead>
+                <tbody id="assignmentReportRows"></tbody>
+              </table>
+            </div>
+
+            <div class="report-summary" id="assignmentOverallSummary"></div>
+
+            
+            
+            <div class="report-actions no-print">
+              <button class="primary-button" id="downloadPdfReport" type="button">Download PDF Learning Record</button>
+              <button class="secondary-button" id="printReport" type="button">Print Learning Record</button>
+              <button class="ghost-button" id="restartAssignment" type="button">Start Another Assignment</button>
+            </div>
+            <div id="reportActionMessage" class="feedback no-print" aria-live="polite"></div>
+            <p class="pdf-note no-print">The PDF can be attached to an email or uploaded to the school learning platform.</p>
+          </div>
+        </div>
+
+        <aside class="panel">
+          <h2>What the learning record shows</h2>
+          <div class="side-note">
+            <ul class="reference-list">
+              <li>Whether the answer was correct initially or after support</li>
+              <li>Each hint used</li>
+              <li>Which hint was followed by improvement</li>
+              <li>Whether the worked solution was shown</li>
+              <li>Area, unit, formula, and numerical difficulties</li>
+              <li>Recurring patterns across the assignment</li>
+            </ul>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="ownMode" class="hidden">
+      <div class="layout">
+        <div class="panel">
+          <h2>Use My Own Values</h2>
+          <p>Enter the applied force and either enter the area directly or calculate it from the cross-section dimensions.</p>
+
+          <div class="own-values-grid">
+            <div class="step-card">
+              <h3>Applied force</h3>
+              <div class="input-row">
+                <div>
+                  <label for="ownForce">Force</label>
+                  <input id="ownForce" type="number" step="any" inputmode="decimal" />
+                </div>
+                <div>
+                  <label for="ownForceUnit">Unit</label>
+                  <select id="ownForceUnit">
+                    <option value="N">N</option>
+                    <option value="kN" selected>kN</option>
+                    <option value="MN">MN</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <h3>Cross-section</h3>
+              <label for="ownShape">How is the area provided?</label>
+              <select id="ownShape">
+                <option value="direct">Area is given</option>
+                <option value="rectangle">Solid rectangle</option>
+                <option value="square">Solid square</option>
+                <option value="circle">Solid circle</option>
+                <option value="hollowRectangle">Hollow rectangle</option>
+                <option value="hollowSquare">Hollow square</option>
+                <option value="hollowCircle">Hollow circle</option>
+                <option value="rectCircleHole">Rectangular plate with circular hole</option>
+                <option value="squareCircleHole">Square plate with circular hole</option>
+              </select>
+
+              <div id="ownDimensions" class="dimension-grid" style="margin-top: 14px;"></div>
+            </div>
+
+            <div class="step-card">
+              <h3>Your calculated stress</h3>
+              <div class="input-row">
+                <div>
+                  <label for="ownStress">Stress</label>
+                  <input id="ownStress" type="number" step="any" inputmode="decimal" />
+                </div>
+                <div>
+                  <label for="ownStressUnit">Unit</label>
+                  <select id="ownStressUnit">
+                    <option value="Pa">Pa (N/m²)</option>
+                    <option value="kPa">kPa (kN/m²)</option>
+                    <option value="MPa" selected>MPa (N/mm²)</option>
+                    <option value="GPa">GPa (kN/mm²)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="primary-button" id="checkOwn" type="button">Check My Answer</button>
+            <button class="secondary-button" id="hintOwn" type="button">Give Me a Hint</button>
+            <button class="ghost-button" id="resetOwn" type="button">Reset</button>
+          </div>
+
+          <div id="ownFeedback" class="feedback" aria-live="polite"></div>
+          <div id="ownWorked" class="worked-solution" aria-live="polite"></div>
+        </div>
+
+        <aside class="panel">
+          <h2>How to use this mode</h2>
+          <div class="side-note">
+            <p>Choose a cross-section, enter the measurements, calculate the net area, and then calculate the stress yourself.</p>
+          </div>
+          <div class="side-note">
+            <h3>For hollow or cut-out sections</h3>
+            <p>Calculate the outside area first, calculate the removed area, and subtract:</p>
+            <p><strong>Net area = outer area − removed area</strong></p>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    const levels = {
+      1: {
+        description: "The cross-sectional area is supplied. Focus on applying σ = F/A and selecting an appropriate unit."
+      },
+      2: {
+        description: "Calculate the area of a solid rectangular, square, or circular cross-section before calculating stress."
+      },
+      3: {
+        description: "Calculate the net area of a hollow or cut-out cross-section before calculating stress."
+      }
+    };
+
+    const questions = {
+      1: [
+        {
+          level: 1,
+          shape: "direct",
+          force: 12,
+          forceUnit: "kN",
+          area: 300,
+          areaUnit: "mm2",
+          text: "A tensile member carries a force of 12 kN. Its cross-sectional area is 300 mm². Calculate the normal stress.",
+          label: "Area supplied: 300 mm²"
+        },
+        {
+          level: 1,
+          shape: "direct",
+          force: 25,
+          forceUnit: "kN",
+          area: 5,
+          areaUnit: "cm2",
+          text: "A steel member carries a tensile force of 25 kN. Its cross-sectional area is 5 cm². Calculate the normal stress.",
+          label: "Area supplied: 5 cm²"
+        },
+        {
+          level: 1,
+          shape: "direct",
+          force: 150,
+          forceUnit: "kN",
+          area: 0.003,
+          areaUnit: "m2",
+          text: "A structural member carries a tensile force of 150 kN. Its cross-sectional area is 0.003 m². Calculate the normal stress.",
+          label: "Area supplied: 0.003 m²"
+        }
+      ],
+      2: [
+        {
+          level: 2,
+          shape: "rectangle",
+          force: 48,
+          forceUnit: "kN",
+          dims: { b: 40, h: 20 },
+          dimUnit: "mm",
+          text: "A rectangular steel tie is 40 mm wide and 20 mm thick. It carries a tensile force of 48 kN. Calculate the normal stress."
+        },
+        {
+          level: 2,
+          shape: "square",
+          force: 72,
+          forceUnit: "kN",
+          dims: { s: 30 },
+          dimUnit: "mm",
+          text: "A square steel member has a side length of 30 mm and carries a tensile force of 72 kN. Calculate the normal stress."
+        },
+        {
+          level: 2,
+          shape: "circle",
+          force: 65,
+          forceUnit: "kN",
+          dims: { d: 20 },
+          dimUnit: "mm",
+          text: "A solid circular tie rod has a diameter of 20 mm and carries a tensile force of 65 kN. Calculate the normal stress."
+        }
+      ],
+      3: [
+        {
+          level: 3,
+          shape: "hollowCircle",
+          force: 120,
+          forceUnit: "kN",
+          dims: { D: 60, d: 40 },
+          dimUnit: "mm",
+          text: "A hollow circular steel member has an outside diameter of 60 mm and an inside diameter of 40 mm. It carries a tensile force of 120 kN. Calculate the normal stress."
+        },
+        {
+          level: 3,
+          shape: "hollowRectangle",
+          force: 96,
+          forceUnit: "kN",
+          dims: { B: 80, H: 50, b: 60, h: 30 },
+          dimUnit: "mm",
+          text: "A hollow rectangular member has outside dimensions of 80 mm by 50 mm and inside dimensions of 60 mm by 30 mm. It carries a tensile force of 96 kN. Calculate the normal stress."
+        },
+        {
+          level: 3,
+          shape: "hollowSquare",
+          force: 105,
+          forceUnit: "kN",
+          dims: { S: 70, s: 50 },
+          dimUnit: "mm",
+          text: "A hollow square member has an outside side length of 70 mm and an inside side length of 50 mm. It carries a tensile force of 105 kN. Calculate the normal stress."
+        },
+        {
+          level: 3,
+          shape: "rectCircleHole",
+          force: 90,
+          forceUnit: "kN",
+          dims: { B: 80, H: 40, d: 20 },
+          dimUnit: "mm",
+          text: "A rectangular plate is 80 mm wide and 40 mm thick, with a circular hole of diameter 20 mm through its centre. It carries a tensile force of 90 kN. Calculate the normal stress using the net cross-sectional area."
+        },
+        {
+          level: 3,
+          shape: "squareCircleHole",
+          force: 110,
+          forceUnit: "kN",
+          dims: { S: 60, d: 24 },
+          dimUnit: "mm",
+          text: "A square plate has a side length of 60 mm and a central circular hole of diameter 24 mm. It carries a tensile force of 110 kN. Calculate the normal stress using the net cross-sectional area."
+        }
+      ]
+    };
+
+    const areaFactorsToM2 = {
+      mm2: 1e-6,
+      cm2: 1e-4,
+      m2: 1
+    };
+
+    const forceFactorsToN = {
+      N: 1,
+      kN: 1000,
+      MN: 1e6
+    };
+
+    const stressFactorsToPa = {
+      Pa: 1,
+      kPa: 1e3,
+      MPa: 1e6,
+      GPa: 1e9
+    };
+
+    function randomChoice(values) {
+      return values[Math.floor(Math.random() * values.length)];
+    }
+
+    function randomInt(min, max, step = 1) {
+      const count = Math.floor((max - min) / step);
+      return min + Math.floor(Math.random() * (count + 1)) * step;
+    }
+
+    function roundingInstruction(q) {
+      return q.rounding.type === "dp"
+        ? `${q.rounding.places} decimal place${q.rounding.places === 1 ? "" : "s"}`
+        : `${q.rounding.places} significant figures`;
+    }
+
+    function formattedRequiredAnswer(value, rounding) {
+      if (rounding.type === "dp") return value.toFixed(rounding.places);
+      return Number(value.toPrecision(rounding.places)).toString();
+    }
+
+    function generateRounding() {
+      return randomChoice([
+        { type: "dp", places: 1 },
+        { type: "dp", places: 2 },
+        { type: "sf", places: 3 }
+      ]);
+    }
+
+    function generateQuestion(level) {
+      const force = Number((randomInt(78, 186, 3) / 3).toFixed(1));
+      const rounding = generateRounding();
+
+      if (level === 1) {
+        const areaUnit = randomChoice(["mm2", "mm2", "cm2"]);
+        const area = areaUnit === "mm2"
+          ? randomInt(185, 2385, 5)
+          : Number((randomInt(24, 185) / 10).toFixed(1));
+        const q = { level: 1, shape: "direct", force, forceUnit: "kN", area, areaUnit, rounding };
+        q.text = buildAssignmentQuestionText(q);
+        q.label = `${area} ${formatAreaUnit(areaUnit)}`;
+        return q;
+      }
+
+      if (level === 2) {
+        const shape = randomChoice(["rectangle", "square", "circle"]);
+        let dims;
+        if (shape === "rectangle") dims = { b: randomInt(26, 76, 2), h: randomInt(9, 34) };
+        if (shape === "square") dims = { s: randomInt(22, 54, 2) };
+        if (shape === "circle") dims = { d: randomInt(18, 46) };
+        const q = { level: 2, shape, force, forceUnit: "kN", dims, dimUnit: "mm", rounding };
+        q.text = buildAssignmentQuestionText(q);
+        return q;
+      }
+
+      const shape = randomChoice([
+        "hollowCircle", "hollowRectangle", "hollowSquare",
+        "rectCircleHole", "squareCircleHole"
+      ]);
+      let dims;
+
+      if (shape === "hollowCircle") {
+        const D = randomInt(48, 88, 2);
+        dims = { D, d: randomInt(22, D - 14, 2) };
+      } else if (shape === "hollowRectangle") {
+        const B = randomInt(62, 104, 2);
+        const H = randomInt(42, 78, 2);
+        const wallX = randomInt(7, 15);
+        const wallY = randomInt(6, 13);
+        dims = { B, H, b: B - 2 * wallX, h: H - 2 * wallY };
+      } else if (shape === "hollowSquare") {
+        const S = randomInt(52, 92, 2);
+        const wall = randomInt(7, 16);
+        dims = { S, s: S - 2 * wall };
+      } else if (shape === "rectCircleHole") {
+        const B = randomInt(64, 106, 2);
+        const H = randomInt(24, 52, 2);
+        dims = { B, H, d: randomInt(12, Math.min(H - 6, 34)) };
+      } else {
+        const S = randomInt(48, 86, 2);
+        dims = { S, d: randomInt(14, Math.min(S - 12, 38)) };
+      }
+
+      const q = { level: 3, shape, force, forceUnit: "kN", dims, dimUnit: "mm", rounding };
+      q.text = buildAssignmentQuestionText(q);
+      return q;
+    }
+
+    function answerMatchesRequiredRounding(inputElement, correctMpa, rounding) {
+      const userText = inputElement.value.trim();
+      const userValue = Number(userText);
+      if (!Number.isFinite(userValue)) return false;
+
+      const expectedText = formattedRequiredAnswer(correctMpa, rounding);
+      if (rounding.type === "dp") {
+        const decimalPart = userText.includes(".") ? userText.split(".")[1] : "";
+        if (decimalPart.length !== rounding.places) return false;
+      }
+      return userValue === Number(expectedText);
+    }
+
+    let currentLevel = 1;
+    let currentQuestion = null;
+    let attempts = 0;
+    let hintIndex = 0;
+
+    const practiceTab = document.getElementById("practiceTab");
+    const ownTab = document.getElementById("ownTab");
+    const assignmentTab = document.getElementById("assignmentTab");
+    const practiceMode = document.getElementById("practiceMode");
+    const ownMode = document.getElementById("ownMode");
+    const assignmentMode = document.getElementById("assignmentMode");
+    const questionText = document.getElementById("questionText");
+    const levelDescription = document.getElementById("levelDescription");
+    const diagram = document.getElementById("diagram");
+    const areaStep = document.getElementById("areaStep");
+    const areaInstruction = document.getElementById("areaInstruction");
+    const areaAnswer = document.getElementById("areaAnswer");
+    const areaUnit = document.getElementById("areaUnit");
+    const stressAnswer = document.getElementById("stressAnswer");
+    const stressUnit = document.getElementById("stressUnit");
+    const feedback = document.getElementById("feedback");
+    const workedSolution = document.getElementById("workedSolution");
+
+    function switchMode(mode) {
+      const practice = mode === "practice";
+      const own = mode === "own";
+      const assignment = mode === "assignment";
+      practiceMode.classList.toggle("hidden", !practice);
+      ownMode.classList.toggle("hidden", !own);
+      assignmentMode.classList.toggle("hidden", !assignment);
+      practiceTab.classList.toggle("active", practice);
+      ownTab.classList.toggle("active", own);
+      assignmentTab.classList.toggle("active", assignment);
+    }
+
+    function roundForDisplay(value) {
+      if (Math.abs(value) >= 1000) return Number(value.toFixed(2)).toLocaleString("en-AU");
+      if (Math.abs(value) >= 10) return Number(value.toFixed(2)).toString();
+      if (Math.abs(value) >= 1) return Number(value.toFixed(3)).toString();
+      return Number(value.toPrecision(4)).toString();
+    }
+
+    function calculateAreaMm2(q) {
+      if (q.shape === "direct") {
+        return q.area * areaFactorsToM2[q.areaUnit] / 1e-6;
+      }
+      const d = q.dims;
+      switch (q.shape) {
+        case "rectangle": return d.b * d.h;
+        case "square": return d.s ** 2;
+        case "circle": return Math.PI * d.d ** 2 / 4;
+        case "hollowCircle": return Math.PI * (d.D ** 2 - d.d ** 2) / 4;
+        case "hollowRectangle": return d.B * d.H - d.b * d.h;
+        case "hollowSquare": return d.S ** 2 - d.s ** 2;
+        case "rectCircleHole": return d.B * d.H - Math.PI * d.d ** 2 / 4;
+        case "squareCircleHole": return d.S ** 2 - Math.PI * d.d ** 2 / 4;
+        default: return NaN;
+      }
+    }
+
+    function stressPa(q) {
+      const forceN = q.force * forceFactorsToN[q.forceUnit];
+      const areaM2 = calculateAreaMm2(q) * 1e-6;
+      return forceN / areaM2;
+    }
+
+    function isClose(user, correct, tolerance = 0.015) {
+      if (!Number.isFinite(user) || !Number.isFinite(correct)) return false;
+      const allowed = Math.max(Math.abs(correct) * tolerance, 1e-9);
+      return Math.abs(user - correct) <= allowed;
+    }
+
+    function pickQuestion() {
+      currentQuestion = generateQuestion(currentLevel);
+      attempts = 0;
+      hintIndex = 0;
+      areaAnswer.value = "";
+      stressAnswer.value = "";
+      stressUnit.value = "MPa";
+      areaUnit.value = "mm2";
+      feedback.className = "feedback";
+      feedback.innerHTML = "";
+      workedSolution.className = "worked-solution";
+      workedSolution.innerHTML = "";
+      questionText.textContent = `${currentQuestion.text} Give your answer in MPa, rounded to ${roundingInstruction(currentQuestion)}.`;
+      levelDescription.textContent = levels[currentLevel].description;
+      areaStep.classList.toggle("hidden", currentLevel === 1);
+      areaInstruction.textContent = currentLevel === 1
+        ? ""
+        : currentLevel === 2
+          ? "Calculate the solid cross-sectional area before calculating stress."
+          : "Calculate the net material area. Subtract the hollow or cut-out area from the outside area.";
+      renderDiagram(currentQuestion);
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const chips = [...document.querySelectorAll(".progress-chip")];
+      chips.forEach((chip, index) => chip.classList.toggle("active", index === 0));
+    }
+
+
+    function renderDiagram(q, target = diagram) {
+      const arrow = `
+        <defs>
+          <marker id="arrow" markerWidth="10" markerHeight="10" refX="7" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#1769aa"></path>
+          </marker>
+        </defs>
+
+        <!-- Tensile member -->
+        <rect x="58" y="28" width="204" height="34" rx="5"
+              fill="#dbeaf6" stroke="#1769aa" stroke-width="3" />
+
+        <!-- Forces pulling away from the member -->
+        <line x1="58" y1="45" x2="12" y2="45"
+              stroke="#1769aa" stroke-width="4" marker-end="url(#arrow)" />
+        <line x1="262" y1="45" x2="308" y2="45"
+              stroke="#1769aa" stroke-width="4" marker-end="url(#arrow)" />
+
+        <text x="10" y="24" font-size="13" fill="#1f2937">${q.force} ${q.forceUnit}</text>
+        <text x="258" y="24" font-size="13" fill="#1f2937">${q.force} ${q.forceUnit}</text>
+        <text x="160" y="50" text-anchor="middle" font-size="14"
+              font-weight="700" fill="#0f4f83">Member in tension</text>
+
+        <!-- Cross-section location -->
+        <line x1="160" y1="62" x2="160" y2="82"
+              stroke="#5f6b7a" stroke-width="2" stroke-dasharray="4 4" />
+        <text x="168" y="78" font-size="12" fill="#5f6b7a">Cross-section</text>
+      `;
+
+      let shape = "";
+      const d = q.dims || {};
+
+      if (q.shape === "direct") {
+        shape = `
+          <rect x="80" y="92" width="160" height="82" rx="6"
+                fill="#dbeaf6" stroke="#1769aa" stroke-width="3" />
+          <text x="160" y="125" text-anchor="middle" font-size="15" fill="#1f2937">Area supplied</text>
+          <text x="160" y="151" text-anchor="middle" font-size="17"
+                font-weight="700" fill="#0f4f83">${q.label}</text>
+        `;
+      } else if (q.shape === "rectangle") {
+        shape = `
+          <rect x="90" y="95" width="140" height="72"
+                fill="#dbeaf6" stroke="#1769aa" stroke-width="3" />
+          <line x1="90" y1="184" x2="230" y2="184" stroke="#1f2937" stroke-width="1.5"/>
+          <text x="160" y="204" text-anchor="middle" font-size="14">${d.b} mm</text>
+          <line x1="245" y1="95" x2="245" y2="167" stroke="#1f2937" stroke-width="1.5"/>
+          <text x="253" y="135" font-size="14">${d.h} mm</text>
+        `;
+      } else if (q.shape === "square") {
+        shape = `
+          <rect x="108" y="91" width="104" height="104"
+                fill="#dbeaf6" stroke="#1769aa" stroke-width="3" />
+          <text x="160" y="216" text-anchor="middle" font-size="14">${d.s} mm</text>
+          <text x="222" y="146" font-size="14">${d.s} mm</text>
+        `;
+      } else if (q.shape === "circle") {
+        shape = `
+          <circle cx="160" cy="143" r="52"
+                  fill="#dbeaf6" stroke="#1769aa" stroke-width="3" />
+          <line x1="108" y1="143" x2="212" y2="143" stroke="#1f2937" stroke-width="1.5"/>
+          <text x="160" y="133" text-anchor="middle" font-size="14">d = ${d.d} mm</text>
+        `;
+      } else if (q.shape === "hollowCircle") {
+        shape = `
+          <circle cx="160" cy="143" r="58"
+                  fill="#dbeaf6" stroke="#1769aa" stroke-width="3" />
+          <circle cx="160" cy="143" r="34"
+                  fill="white" stroke="#1769aa" stroke-width="3" />
+          <line x1="102" y1="143" x2="218" y2="143" stroke="#1f2937" stroke-width="1.5"/>
+          <text x="160" y="130" text-anchor="middle" font-size="13">D = ${d.D} mm</text>
+          <line x1="126" y1="156" x2="194" y2="156" stroke="#1f2937" stroke-width="1.5"/>
+          <text x="160" y="176" text-anchor="middle" font-size="13">d = ${d.d} mm</text>
+        `;
+      } else if (q.shape === "hollowRectangle") {
+        shape = `
+          <rect x="78" y="96" width="164" height="96"
+                fill="#dbeaf6" stroke="#1769aa" stroke-width="3" />
+          <rect x="110" y="116" width="100" height="56"
+                fill="white" stroke="#1769aa" stroke-width="3" />
+          <text x="160" y="214" text-anchor="middle" font-size="13">Outer: ${d.B} × ${d.H} mm</text>
+          <text x="160" y="148" text-anchor="middle" font-size="13">Inner: ${d.b} × ${d.h} mm</text>
+        `;
+      } else if (q.shape === "hollowSquare") {
+        shape = `
+          <rect x="100" y="88" width="120" height="120"
+                fill="#dbeaf6" stroke="#1769aa" stroke-width="3" />
+          <rect x="118" y="106" width="84" height="84"
+                fill="white" stroke="#1769aa" stroke-width="3" />
+          <text x="160" y="226" text-anchor="middle" font-size="13">Outer side: ${d.S} mm</text>
+          <text x="160" y="151" text-anchor="middle" font-size="13">Inner side: ${d.s} mm</text>
+        `;
+      } else if (q.shape === "rectCircleHole") {
+        shape = `
+          <rect x="78" y="105" width="164" height="82"
+                fill="#dbeaf6" stroke="#1769aa" stroke-width="3" />
+          <circle cx="160" cy="146" r="24"
+                  fill="white" stroke="#1769aa" stroke-width="3" />
+          <text x="160" y="209" text-anchor="middle" font-size="13">${d.B} × ${d.H} mm</text>
+          <text x="160" y="150" text-anchor="middle" font-size="13">d = ${d.d} mm</text>
+        `;
+      } else if (q.shape === "squareCircleHole") {
+        shape = `
+          <rect x="103" y="91" width="114" height="114"
+                fill="#dbeaf6" stroke="#1769aa" stroke-width="3" />
+          <circle cx="160" cy="148" r="26"
+                  fill="white" stroke="#1769aa" stroke-width="3" />
+          <text x="160" y="224" text-anchor="middle" font-size="13">Side = ${d.S} mm</text>
+          <text x="160" y="152" text-anchor="middle" font-size="13">d = ${d.d} mm</text>
+        `;
+      }
+
+      target.innerHTML = `
+        <svg viewBox="0 0 320 240" role="img"
+             aria-label="A member in tension with arrows pulling away from it and the selected cross-section shown below">
+          ${arrow}
+          ${shape}
+        </svg>
+      `;
+    }
+
+
+    function getAreaFormulaText(q) {
+      const d = q.dims || {};
+      switch (q.shape) {
+        case "direct":
+          return `Area is supplied: ${q.area} ${formatAreaUnit(q.areaUnit)}.`;
+        case "rectangle":
+          return `A = bh = ${d.b} × ${d.h} = ${roundForDisplay(d.b * d.h)} mm².`;
+        case "square":
+          return `A = s² = ${d.s}² = ${roundForDisplay(d.s ** 2)} mm².`;
+        case "circle":
+          return `A = πd²/4 = π(${d.d})²/4 = ${roundForDisplay(calculateAreaMm2(q))} mm².`;
+        case "hollowCircle":
+          return `A = π(D² − d²)/4 = π(${d.D}² − ${d.d}²)/4 = ${roundForDisplay(calculateAreaMm2(q))} mm².`;
+        case "hollowRectangle":
+          return `A = BH − bh = (${d.B} × ${d.H}) − (${d.b} × ${d.h}) = ${roundForDisplay(calculateAreaMm2(q))} mm².`;
+        case "hollowSquare":
+          return `A = S² − s² = ${d.S}² − ${d.s}² = ${roundForDisplay(calculateAreaMm2(q))} mm².`;
+        case "rectCircleHole":
+          return `A = BH − πd²/4 = (${d.B} × ${d.H}) − π(${d.d})²/4 = ${roundForDisplay(calculateAreaMm2(q))} mm².`;
+        case "squareCircleHole":
+          return `A = S² − πd²/4 = ${d.S}² − π(${d.d})²/4 = ${roundForDisplay(calculateAreaMm2(q))} mm².`;
+      }
+    }
+
+    function formatAreaUnit(unit) {
+      return unit === "mm2" ? "mm²" : unit === "cm2" ? "cm²" : "m²";
+    }
+
+    function buildWorkedSolution(q) {
+      const areaMm2 = calculateAreaMm2(q);
+      const forceN = q.force * forceFactorsToN[q.forceUnit];
+      const pa = stressPa(q);
+      const mpa = pa / 1e6;
+
+      return `
+        <h3>Worked solution</h3>
+        <ol>
+          <li><strong>Known values:</strong> F = ${q.force} ${q.forceUnit}${q.shape === "direct" ? `, A = ${q.area} ${formatAreaUnit(q.areaUnit)}` : ""}.</li>
+          <li><strong>Calculate the area:</strong> ${getAreaFormulaText(q)}</li>
+          <li><strong>We can either</strong> convert everything to SI units and calculate in Pa, or use N and mm² directly to obtain N/mm², which is equivalent to MPa.</li>
+          <li><strong>Convert the force:</strong> ${q.force} ${q.forceUnit} = ${roundForDisplay(forceN)} N.</li>
+          <li><strong>Substitute:</strong> σ = F/A = ${roundForDisplay(forceN)} N ÷ ${roundForDisplay(areaMm2)} mm².</li>
+          <li><strong>Unrounded stress:</strong> σ = ${roundForDisplay(mpa)} N/mm² = ${roundForDisplay(mpa)} MPa.</li>
+          <li><strong>Required answer:</strong> ${formattedRequiredAnswer(mpa, q.rounding)} MPa (${roundingInstruction(q)}).</li>
+        </ol>
+      `;
+    }
+
+    function getHints(q) {
+      const hints = [
+        "Start by identifying the force and the cross-sectional area.",
+        "Stress is calculated using σ = F/A.",
+        "For an answer in MPa, use force in newtons and area in mm² because 1 N/mm² = 1 MPa."
+      ];
+
+      if (q.shape === "direct") {
+        hints.unshift("The area is already supplied, so you do not need to calculate it.");
+      } else if (q.shape === "rectangle") {
+        hints.unshift("Use A = width × thickness for the rectangular section.");
+      } else if (q.shape === "square") {
+        hints.unshift("Use A = side² for the square section.");
+      } else if (q.shape === "circle") {
+        hints.unshift("The dimension given is a diameter. Use A = πd²/4, or divide the diameter by 2 before using A = πr².");
+      } else if (q.shape === "hollowCircle") {
+        hints.unshift("Calculate the outside circular area and subtract the inside circular area.");
+      } else if (q.shape === "hollowRectangle") {
+        hints.unshift("Use net area = outside rectangle − inside rectangle.");
+      } else if (q.shape === "hollowSquare") {
+        hints.unshift("Use net area = outside square − inside square.");
+      } else if (q.shape === "rectCircleHole") {
+        hints.unshift("Calculate the rectangular area, then subtract the circular hole.");
+      } else if (q.shape === "squareCircleHole") {
+        hints.unshift("Calculate the square area, then subtract the circular hole.");
+      }
+
+      return hints;
+    }
+
+    function showFeedback(type, message) {
+      feedback.className = `feedback show ${type}`;
+      feedback.innerHTML = message;
+    }
+
+    function checkPractice() {
+      attempts += 1;
+      const q = currentQuestion;
+      const correctAreaMm2 = calculateAreaMm2(q);
+      const userAreaMm2 = Number(areaAnswer.value) * areaFactorsToM2[areaUnit.value] / 1e-6;
+      const correctStressPa = stressPa(q);
+      const userStressPa = Number(stressAnswer.value) * stressFactorsToPa[stressUnit.value];
+
+      const areaCorrect = currentLevel === 1 || isClose(userAreaMm2, correctAreaMm2);
+      const correctStressMpa = correctStressPa / 1e6;
+      const stressCorrect = stressUnit.value === "MPa" &&
+        answerMatchesRequiredRounding(stressAnswer, correctStressMpa, q.rounding);
+
+      if (areaCorrect && stressCorrect) {
+        showFeedback("success", "<strong>Correct.</strong> Your area, stress value, and selected unit are consistent.");
+        workedSolution.innerHTML = buildWorkedSolution(q);
+        workedSolution.className = "worked-solution show";
+        return;
+      }
+
+      let message = "<strong>Not quite.</strong> ";
+
+      if (!areaCorrect && !stressCorrect) {
+        message += "Check your area calculation first. The stress answer depends on the correct net cross-sectional area.";
+      } else if (!areaCorrect) {
+        message += "Your stress value may be based on the wrong area. Check whether you need to subtract a hollow or cut-out section.";
+      } else {
+        const userNumber = Number(stressAnswer.value);
+        const correctMpa = correctStressPa / 1e6;
+
+        if (stressUnit.value !== "MPa") {
+          message += "This question requires the final answer in MPa.";
+        } else if (isClose(userNumber, correctMpa, 0.0005)) {
+          message += `Your numerical value is close, but it must be rounded to ${roundingInstruction(q)}.`;
+        } else {
+          message += "Your area is correct. Check the force conversion and then divide force by area.";
+        }
+      }
+
+      if (attempts >= 2) {
+        message += " The complete worked solution is shown below.";
+        workedSolution.innerHTML = buildWorkedSolution(q);
+        workedSolution.className = "worked-solution show";
+      } else {
+        message += " Try again, or use a hint.";
+      }
+
+      showFeedback("warning", message);
+    }
+
+    document.getElementById("checkAnswer").addEventListener("click", checkPractice);
+
+    document.getElementById("showHint").addEventListener("click", () => {
+      const hints = getHints(currentQuestion);
+      const hint = hints[Math.min(hintIndex, hints.length - 1)];
+      hintIndex += 1;
+      showFeedback("warning", `<strong>Hint:</strong> ${hint}`);
+    });
+
+    document.getElementById("newQuestion").addEventListener("click", pickQuestion);
+
+    document.querySelectorAll(".level-button").forEach(button => {
+      button.addEventListener("click", () => {
+        currentLevel = Number(button.dataset.level);
+        document.querySelectorAll(".level-button").forEach(b => b.classList.toggle("active", b === button));
+        pickQuestion();
+      });
+    });
+
+    practiceTab.addEventListener("click", () => switchMode("practice"));
+    ownTab.addEventListener("click", () => switchMode("own"));
+    assignmentTab.addEventListener("click", () => switchMode("assignment"));
+
+
+    // Guided Assignment mode
+    const assignmentSetup = document.getElementById("assignmentSetup");
+    const assignmentActivity = document.getElementById("assignmentActivity");
+    const assignmentReport = document.getElementById("assignmentReport");
+    const assignmentQuestionText = document.getElementById("assignmentQuestionText");
+    const assignmentRoundingRequirement = document.getElementById("assignmentRoundingRequirement");
+    const assignmentDiagram = document.getElementById("assignmentDiagram");
+    const assignmentAreaStep = document.getElementById("assignmentAreaStep");
+    const assignmentAreaInstruction = document.getElementById("assignmentAreaInstruction");
+    const assignmentAreaAnswer = document.getElementById("assignmentAreaAnswer");
+    const assignmentAreaUnit = document.getElementById("assignmentAreaUnit");
+    const assignmentStressAnswer = document.getElementById("assignmentStressAnswer");
+    const assignmentStressUnit = document.getElementById("assignmentStressUnit");
+    const assignmentFeedback = document.getElementById("assignmentFeedback");
+    const assignmentWorked = document.getElementById("assignmentWorked");
+    const assignmentNext = document.getElementById("assignmentNext");
+
+    let assignmentState = null;
+
+    function cloneQuestion(q) {
+      return JSON.parse(JSON.stringify(q));
+    }
+
+    function questionBrief(q) {
+      const d = q.dims || {};
+      const force = `${q.force} ${q.forceUnit}`;
+      switch (q.shape) {
+        case "direct": return `${force}; area ${q.area} ${formatAreaUnit(q.areaUnit)}`;
+        case "rectangle": return `${force}; rectangle ${d.b} × ${d.h} mm`;
+        case "square": return `${force}; square side ${d.s} mm`;
+        case "circle": return `${force}; solid circle diameter ${d.d} mm`;
+        case "hollowCircle": return `${force}; hollow circle D ${d.D} mm, d ${d.d} mm`;
+        case "hollowRectangle": return `${force}; hollow rectangle outer ${d.B} × ${d.H} mm, inner ${d.b} × ${d.h} mm`;
+        case "hollowSquare": return `${force}; hollow square outer ${d.S} mm, inner ${d.s} mm`;
+        case "rectCircleHole": return `${force}; plate ${d.B} × ${d.H} mm with ${d.d} mm hole`;
+        case "squareCircleHole": return `${force}; square ${d.S} mm with ${d.d} mm hole`;
+        default: return q.text;
+      }
+    }
+
+    function assignmentHintCategory(q, hint) {
+      const lower = hint.toLowerCase();
+      if (lower.includes("subtract") || lower.includes("hollow") || lower.includes("cut-out") || lower.includes("outside")) return "Finding net area";
+      if (lower.includes("diameter") || lower.includes("radius")) return "Radius and diameter";
+      if (lower.includes("width") || lower.includes("side²") || lower.includes("area is already")) return "Finding area";
+      if (lower.includes("newtons") || lower.includes("force")) return "Force units";
+      if (lower.includes("mpa") || lower.includes("n/mm")) return "Stress units";
+      if (lower.includes("σ = f/a") || lower.includes("stress is calculated")) return "Formula selection";
+      return "General problem setup";
+    }
+
+    function classifyAssignmentAttempt(q, areaCorrect, stressCorrect, userStressPa) {
+      const issues = [];
+      if (!areaCorrect) {
+        if (["hollowCircle", "hollowRectangle", "hollowSquare", "rectCircleHole", "squareCircleHole"].includes(q.shape)) {
+          issues.push("Finding net area");
+        } else if (q.shape === "circle") {
+          issues.push("Circle area or radius/diameter");
+        } else {
+          issues.push("Finding area");
+        }
+      }
+
+      if (!stressCorrect) {
+        const correctStressPa = stressPa(q);
+        const ratio = userStressPa / correctStressPa;
+        if (Number.isFinite(ratio) && (
+          isClose(Math.abs(ratio), 1000, 0.03) ||
+          isClose(Math.abs(ratio), 0.001, 0.03) ||
+          isClose(Math.abs(ratio), 1e6, 0.03) ||
+          isClose(Math.abs(ratio), 1e-6, 0.03)
+        )) {
+          issues.push("Units");
+        } else if (areaCorrect) {
+          issues.push("Force conversion or total calculation");
+        }
+      }
+
+      if (!issues.length && areaCorrect && stressCorrect) issues.push("Independent completion");
+      return [...new Set(issues)];
+    }
+
+
+    function shuffleArray(items) {
+      const copy = [...items];
+      for (let i = copy.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function buildAssignmentQuestionText(q) {
+      const d = q.dims || {};
+      const force = `${q.force} ${q.forceUnit}`;
+      switch (q.shape) {
+        case "direct":
+          return `A tensile member carries a force of ${force}. Its cross-sectional area is ${q.area} ${formatAreaUnit(q.areaUnit)}. Calculate the normal stress.`;
+        case "rectangle":
+          return `A rectangular steel tie is ${d.b} mm wide and ${d.h} mm thick. It carries a tensile force of ${force}. Calculate the normal stress.`;
+        case "square":
+          return `A square steel member has a side length of ${d.s} mm and carries a tensile force of ${force}. Calculate the normal stress.`;
+        case "circle":
+          return `A solid circular tie rod has a diameter of ${d.d} mm and carries a tensile force of ${force}. Calculate the normal stress.`;
+        case "hollowCircle":
+          return `A hollow circular steel member has an outside diameter of ${d.D} mm and an inside diameter of ${d.d} mm. It carries a tensile force of ${force}. Calculate the normal stress.`;
+        case "hollowRectangle":
+          return `A hollow rectangular member has outside dimensions of ${d.B} mm by ${d.H} mm and inside dimensions of ${d.b} mm by ${d.h} mm. It carries a tensile force of ${force}. Calculate the normal stress.`;
+        case "hollowSquare":
+          return `A hollow square member has an outside side length of ${d.S} mm and an inside side length of ${d.s} mm. It carries a tensile force of ${force}. Calculate the normal stress.`;
+        case "rectCircleHole":
+          return `A rectangular plate is ${d.B} mm wide and ${d.H} mm thick, with a circular hole of diameter ${d.d} mm through its centre. It carries a tensile force of ${force}. Calculate the normal stress using the net cross-sectional area.`;
+        case "squareCircleHole":
+          return `A square plate has a side length of ${d.S} mm and a central circular hole of diameter ${d.d} mm. It carries a tensile force of ${force}. Calculate the normal stress using the net cross-sectional area.`;
+        default:
+          return q.text;
+      }
+    }
+
+    function buildAssignmentDeck(level, total) {
+      const deck = [];
+      const seen = new Set();
+      let guard = 0;
+
+      while (deck.length < total && guard < 500) {
+        guard += 1;
+        const q = generateQuestion(level);
+        const key = questionBrief(q);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        deck.push(q);
+      }
+
+      if (deck.length < total) throw new Error("Unable to generate enough unique questions.");
+      return deck;
+    }
+
+    function startAssignment() {
+      const level = Number(document.getElementById("assignmentLevel").value);
+      const total = Number(document.getElementById("assignmentCount").value);
+      assignmentState = {
+        student: document.getElementById("assignmentStudent").value.trim(),
+        level,
+        total,
+        index: 0,
+        deck: buildAssignmentDeck(level, total),
+        records: [],
+        startedAt: new Date(),
+        question: null,
+        attempts: 0,
+        hints: [],
+        hintCategories: [],
+        hintHelped: [],
+        previousIssues: [],
+        encounteredIssues: [],
+        solutionViewed: false,
+        completed: false
+      };
+
+      assignmentSetup.classList.add("hidden");
+      assignmentReport.classList.add("hidden");
+      assignmentActivity.classList.remove("hidden");
+      loadAssignmentQuestion();
+    }
+
+    function loadAssignmentQuestion() {
+      const q = cloneQuestion(assignmentState.deck[assignmentState.index]);
+      assignmentState.question = q;
+      assignmentState.attempts = 0;
+      assignmentState.hints = [];
+      assignmentState.hintCategories = [];
+      assignmentState.hintHelped = [];
+      assignmentState.previousIssues = [];
+      assignmentState.encounteredIssues = [];
+      assignmentState.solutionViewed = false;
+      assignmentState.completed = false;
+
+      assignmentAreaAnswer.value = "";
+      assignmentAreaUnit.value = "mm2";
+      assignmentStressAnswer.value = "";
+      assignmentStressUnit.value = "MPa";
+      assignmentFeedback.className = "feedback";
+      assignmentFeedback.innerHTML = "";
+      assignmentWorked.className = "worked-solution";
+      assignmentWorked.innerHTML = "";
+      assignmentNext.classList.add("hidden");
+      document.getElementById("assignmentCheck").disabled = false;
+      document.getElementById("assignmentHint").disabled = false;
+
+      document.getElementById("assignmentProgress").textContent =
+        `Question ${assignmentState.index + 1} of ${assignmentState.total}`;
+      document.getElementById("assignmentLevelChip").textContent =
+        `Level ${assignmentState.level}`;
+
+      assignmentQuestionText.textContent = q.text;
+      assignmentRoundingRequirement.textContent =
+        `Answer required: MPa, rounded to ${roundingInstruction(q)}.`;
+      assignmentAreaStep.classList.toggle("hidden", assignmentState.level === 1);
+      assignmentAreaInstruction.textContent = assignmentState.level === 2
+        ? "Calculate the solid cross-sectional area before calculating stress."
+        : assignmentState.level === 3
+          ? "Calculate the net material area by subtracting any hollow or cut-out section."
+          : "";
+      renderDiagram(q, assignmentDiagram);
+    }
+
+    function assignmentMessage(type, message) {
+      assignmentFeedback.className = `feedback show ${type}`;
+      assignmentFeedback.innerHTML = message;
+    }
+
+    function checkAssignmentAnswer() {
+      if (!assignmentState || assignmentState.completed) return;
+
+      assignmentState.attempts += 1;
+      const q = assignmentState.question;
+      const correctAreaMm2 = calculateAreaMm2(q);
+      const userAreaMm2 = Number(assignmentAreaAnswer.value) *
+        areaFactorsToM2[assignmentAreaUnit.value] / 1e-6;
+      const correctStressPa = stressPa(q);
+      const userStressPa = Number(assignmentStressAnswer.value) *
+        stressFactorsToPa[assignmentStressUnit.value];
+
+      const areaCorrect = assignmentState.level === 1 || isClose(userAreaMm2, correctAreaMm2);
+      const correctStressMpa = correctStressPa / 1e6;
+      const stressCorrect = assignmentStressUnit.value === "MPa" &&
+        answerMatchesRequiredRounding(assignmentStressAnswer, correctStressMpa, q.rounding);
+      const issues = classifyAssignmentAttempt(q, areaCorrect, stressCorrect, userStressPa);
+
+      if (!stressCorrect && assignmentStressUnit.value === "MPa" &&
+          isClose(Number(assignmentStressAnswer.value), correctStressMpa, 0.0005)) {
+        issues.push("Rounding to the required precision");
+      }
+
+      if (!(areaCorrect && stressCorrect)) {
+        assignmentState.encounteredIssues.push(
+          ...issues.filter(issue => issue !== "Independent completion")
+        );
+      }
+
+      if (assignmentState.hints.length && assignmentState.previousIssues.length) {
+        const resolved = assignmentState.previousIssues.filter(issue => !issues.includes(issue));
+        if (resolved.length) {
+          const lastHintIndex = assignmentState.hints.length - 1;
+          assignmentState.hintHelped[lastHintIndex] = resolved.join(", ");
+        }
+      }
+      assignmentState.previousIssues = issues.filter(issue => issue !== "Independent completion");
+
+      if (areaCorrect && stressCorrect) {
+        assignmentMessage("success", "<strong>Correct.</strong> Review the worked solution, then continue.");
+        assignmentWorked.innerHTML = buildWorkedSolution(q);
+        assignmentWorked.className = "worked-solution show";
+        finishAssignmentQuestion(true, issues);
+        return;
+      }
+
+      let message = "<strong>Not quite.</strong> ";
+      if (!areaCorrect) {
+        message += "Check the cross-sectional area first.";
+      } else if (assignmentStressUnit.value !== "MPa") {
+        message += "Your area is correct. This question requires the final answer in MPa.";
+      } else if (isClose(Number(assignmentStressAnswer.value), correctStressPa / 1e6, 0.0005)) {
+        message += `Your calculation is close. Round the final answer to ${roundingInstruction(q)}.`;
+      } else {
+        message += "Your area is correct. Check the force conversion and stress calculation.";
+      }
+
+      if (assignmentState.attempts >= 2) {
+        message += " The worked solution is shown below so you can correct the misunderstanding now.";
+        assignmentWorked.innerHTML = buildWorkedSolution(q);
+        assignmentWorked.className = "worked-solution show";
+        assignmentState.solutionViewed = true;
+        finishAssignmentQuestion(false, issues);
+      } else {
+        message += " Try again, or use a hint.";
+        assignmentMessage("warning", message);
+      }
+    }
+
+    function finishAssignmentQuestion(correct, issues) {
+      assignmentState.completed = true;
+      const q = assignmentState.question;
+      const finalDiagnostics = [
+        ...assignmentState.encounteredIssues,
+        ...issues.filter(issue => issue !== "Independent completion")
+      ];
+
+      if (correct && assignmentState.attempts === 1 && assignmentState.hints.length === 0) {
+        finalDiagnostics.push("Independent completion");
+      } else if (correct && finalDiagnostics.length) {
+        finalDiagnostics.push("Resolved after feedback");
+      }
+
+      assignmentState.records.push({
+        number: assignmentState.index + 1,
+        brief: questionBrief(q),
+        rounding: roundingInstruction(q),
+        correctAnswer: `${formattedRequiredAnswer(stressPa(q) / 1e6, q.rounding)} MPa`,
+        attempts: assignmentState.attempts,
+        hints: [...assignmentState.hints],
+        hintCategories: [...assignmentState.hintCategories],
+        hintHelped: [...assignmentState.hintHelped],
+        correct,
+        solutionViewed: assignmentState.solutionViewed || assignmentState.attempts >= 2,
+        diagnostics: [...new Set(finalDiagnostics)]
+      });
+
+      document.getElementById("assignmentCheck").disabled = true;
+      document.getElementById("assignmentHint").disabled = true;
+      assignmentNext.textContent =
+        assignmentState.index + 1 >= assignmentState.total
+          ? "View Learning Record"
+          : "Next Question";
+      assignmentNext.classList.remove("hidden");
+    }
+
+    function useAssignmentHint() {
+      if (!assignmentState || assignmentState.completed) return;
+      const hints = getHints(assignmentState.question);
+      const index = Math.min(assignmentState.hints.length, hints.length - 1);
+      const hint = hints[index];
+      assignmentState.hints.push(hint);
+      assignmentState.hintCategories.push(assignmentHintCategory(assignmentState.question, hint));
+      assignmentState.hintHelped.push("");
+      assignmentMessage("warning", `<strong>Hint ${assignmentState.hints.length}:</strong> ${hint}`);
+    }
+
+    function advanceAssignment() {
+      if (assignmentState.index + 1 >= assignmentState.total) {
+        showAssignmentReport();
+      } else {
+        assignmentState.index += 1;
+        loadAssignmentQuestion();
+      }
+    }
+
+    function diagnosticCounts(records) {
+      const counts = {};
+      records.forEach(record => {
+        record.diagnostics.forEach(issue => {
+          if (issue !== "Independent completion") counts[issue] = (counts[issue] || 0) + 1;
+        });
+        record.hintCategories.forEach(issue => {
+          counts[issue] = (counts[issue] || 0) + 1;
+        });
+      });
+      return counts;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function showAssignmentReport() {
+      assignmentActivity.classList.add("hidden");
+      assignmentReport.classList.remove("hidden");
+
+      const records = assignmentState.records;
+      const firstAttempt = records.filter(r => r.correct && r.attempts === 1 && !r.hints.length).length;
+      const afterSupport = records.filter(r => r.correct && (r.attempts > 1 || r.hints.length)).length;
+      const incorrect = records.filter(r => !r.correct).length;
+      const solutionCount = records.filter(r => r.solutionViewed).length;
+      const totalHints = records.reduce((sum, r) => sum + r.hints.length, 0);
+      const elapsedSeconds = Math.round((new Date() - assignmentState.startedAt) / 1000);
+      const elapsedMinutes = Math.floor(elapsedSeconds / 60);
+      const remainingSeconds = elapsedSeconds % 60;
+
+      document.getElementById("assignmentReportHeader").innerHTML = `
+        <p><strong>Student:</strong> ${escapeHtml(assignmentState.student || "Not entered")}<br>
+        <strong>Date:</strong> ${new Date().toLocaleDateString("en-AU")}<br>
+        <strong>Assignment:</strong> Level ${assignmentState.level}, ${assignmentState.total} questions<br>
+        <strong>Time:</strong> ${elapsedMinutes} min ${remainingSeconds} s</p>
+        <div class="assignment-status">
+          <span class="status-chip">Correct independently: ${firstAttempt}</span>
+          <span class="status-chip">Correct after support: ${afterSupport}</span>
+          <span class="status-chip">Incorrect at completion: ${incorrect}</span>
+          <span class="status-chip">Worked solutions shown: ${solutionCount}</span>
+          <span class="status-chip">Hints used: ${totalHints}</span>
+        </div>
+      `;
+
+      document.getElementById("assignmentReportRows").innerHTML = records.map(record => {
+        const hints = record.hints.length
+          ? record.hints.map((hint, i) => `${i + 1}. ${escapeHtml(hint)}`).join("<br>")
+          : "None";
+        const helped = record.hintHelped.some(Boolean)
+          ? record.hintHelped.map((item, i) => item ? `Hint ${i + 1}: ${escapeHtml(item)}` : "").filter(Boolean).join("<br>")
+          : record.hints.length ? "No clear improvement detected after a hint" : "Not required";
+        const result = record.correct
+          ? (record.attempts === 1 && !record.hints.length ? "Correct independently" : "Correct after support")
+          : `Incorrect at completion${record.solutionViewed ? "; worked solution reviewed" : ""}`;
+        const diagnostic = record.diagnostics.length
+          ? record.diagnostics.map(escapeHtml).join(", ")
+          : "No recurring issue identified";
+
+        return `
+          <tr>
+            <td>${record.number}</td>
+            <td>${escapeHtml(record.brief)}</td>
+            <td>${record.attempts}</td>
+            <td>${hints}</td>
+            <td>${helped}</td>
+            <td>${result}</td>
+            <td>${diagnostic}</td>
+          </tr>
+        `;
+      }).join("");
+
+      const counts = diagnosticCounts(records);
+      const repeated = Object.entries(counts)
+        .filter(([, count]) => count >= 2)
+        .sort((a, b) => b[1] - a[1]);
+      const allIssues = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+      let summary = "";
+      if (repeated.length) {
+        summary = `
+          <h3>Learning summary</h3>
+          <p>Next learning focus:</p>
+          <ul>
+            ${repeated.map(([issue, count]) => `<li>${escapeHtml(issue)} appeared in ${count} recorded instances.</li>`).join("")}
+          </ul>
+        `;
+      } else if (allIssues.length) {
+        summary = `
+          <h3>Learning summary</h3>
+          <p>No difficulty repeated across multiple questions. The main isolated issue was ${escapeHtml(allIssues[0][0]).toLowerCase()}.</p>
+        `;
+      } else {
+        summary = `
+          <h3>Learning summary</h3>
+          <p>The student completed the assignment without a repeated diagnostic difficulty.</p>
+        `;
+      }
+
+      const laterIndependent = records.slice(Math.ceil(records.length / 2))
+        .filter(r => r.correct && r.attempts === 1 && !r.hints.length).length;
+      const earlyIndependent = records.slice(0, Math.ceil(records.length / 2))
+        .filter(r => r.correct && r.attempts === 1 && !r.hints.length).length;
+
+      if (laterIndependent > earlyIndependent) {
+        summary += `<p>The student became more independent during the assignment, suggesting that the immediate hints and worked feedback supported learning.</p>`;
+      }
+
+      document.getElementById("assignmentOverallSummary").innerHTML = summary;
+    }
+
+    function reportAsPlainText() {
+      const records = assignmentState.records;
+      const counts = diagnosticCounts(records);
+      const recurring = Object.entries(counts)
+        .filter(([, count]) => count >= 2)
+        .sort((a, b) => b[1] - a[1]);
+
+      const lines = [
+        "ENGINEERING STRESS DIAGNOSTIC REPORT",
+        "",
+        `Student: ${assignmentState.student || "Not entered"}`,
+        `Date: ${new Date().toLocaleDateString("en-AU")}`,
+        `Assignment: Level ${assignmentState.level}, ${assignmentState.total} questions`,
+        "",
+        "QUESTION SUMMARY"
+      ];
+
+      records.forEach(record => {
+        lines.push(
+          "",
+          `Question ${record.number}: ${record.brief}`,
+          `Attempts: ${record.attempts}`,
+          `Hints used: ${record.hints.length ? record.hints.join(" | ") : "None"}`,
+          `Hint that helped: ${record.hintHelped.some(Boolean) ? record.hintHelped.filter(Boolean).join(" | ") : (record.hints.length ? "No clear improvement detected" : "Not required")}`,
+          `Final result: ${record.correct ? "Correct" : "Incorrect at completion"}`,
+          `Worked solution shown: ${record.solutionViewed ? "Yes" : "No"}`,
+          `Diagnostic: ${record.diagnostics.length ? record.diagnostics.join(", ") : "No issue identified"}`
+        );
+      });
+
+      lines.push("", "OVERALL SUMMARY");
+      if (recurring.length) {
+        recurring.forEach(([issue, count]) => lines.push(`- ${issue}: ${count} recorded instances`));
+      } else {
+        lines.push("- No difficulty repeated across multiple questions.");
+      }
+      return lines.join("\n");
+    }
+
+    function reportActionMessage(type, message) {
+      const box = document.getElementById("reportActionMessage");
+      box.className = `feedback show ${type} no-print`;
+      box.textContent = message;
+    }
+
+    function downloadPdfLearningRecord() {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        reportActionMessage("warning", "The PDF library could not load. Check the internet connection, then try again.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ unit: "mm", format: "a4" });
+      const margin = 18;
+      const pageWidth = 210;
+      const usableWidth = pageWidth - margin * 2;
+      let y = 18;
+
+      function newPageIfNeeded(height = 10) {
+        if (y + height > 280) {
+          doc.addPage();
+          y = 18;
+        }
+      }
+
+      function heading(text, size = 13) {
+        newPageIfNeeded(10);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(size);
+        doc.text(text, margin, y);
+        y += size * 0.48 + 3;
+      }
+
+      function body(text, indent = 0, spacing = 5) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        const lines = doc.splitTextToSize(String(text), usableWidth - indent);
+        newPageIfNeeded(lines.length * 5 + 2);
+        doc.text(lines, margin + indent, y);
+        y += lines.length * 5 + spacing;
+      }
+
+      function labelValue(label, value) {
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(10);
+        newPageIfNeeded(6);
+        doc.text(`${label}: ${value}`, margin, y);
+        y += 5.5;
+      }
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(17);
+      doc.text("Engineering Stress Learning Tool", margin, y);
+      y += 9;
+
+      doc.setFontSize(13);
+      doc.text("Student Learning Record", margin, y);
+      y += 9;
+
+      doc.setDrawColor(180);
+      doc.line(margin, y, pageWidth - margin, y);
+      y += 8;
+
+      labelValue("Student", assignmentState.student || "Not entered");
+      labelValue("Date", new Date().toLocaleDateString("en-AU"));
+      labelValue("Assignment", `Level ${assignmentState.level}, ${assignmentState.total} questions`);
+
+      const elapsedSeconds = Math.round((new Date() - assignmentState.startedAt) / 1000);
+      labelValue("Time taken", `${Math.floor(elapsedSeconds / 60)} min ${elapsedSeconds % 60} s`);
+      y += 3;
+
+      const records = assignmentState.records;
+      const independent = records.filter(r => r.correct && r.attempts === 1 && !r.hints.length).length;
+      const afterHint = records.filter(r => r.correct && r.hints.length && !r.solutionViewed).length;
+      const afterWorked = records.filter(r => r.solutionViewed).length;
+
+      heading("Learning summary");
+      body(`Questions completed: ${records.length}`, 0, 2);
+      body(`Independent solutions: ${independent}`, 0, 2);
+      body(`Solutions after a hint: ${afterHint}`, 0, 2);
+      body(`Solutions after a worked solution: ${afterWorked}`);
+
+      const counts = diagnosticCounts(records);
+      const focus = Object.entries(counts)
+        .filter(([issue]) => issue !== "Independent completion" && issue !== "Resolved after feedback")
+        .sort((a, b) => b[1] - a[1]);
+
+      heading("Skills and next learning focus");
+      if (!focus.length) {
+        body("The student completed the questions without a repeated learning difficulty.");
+      } else {
+        focus.slice(0, 5).forEach(([issue, count]) => {
+          body(`${issue}: observed in ${count} recorded instance${count === 1 ? "" : "s"}.`, 4, 3);
+        });
+      }
+
+      heading("Question-by-question learning record");
+      records.forEach(record => {
+        newPageIfNeeded(38);
+        heading(`Question ${record.number}`, 11);
+        body(record.brief, 0, 3);
+        labelValue("Required precision", record.rounding);
+        labelValue("Correct answer", record.correctAnswer);
+        labelValue("Attempts", record.attempts);
+        labelValue("Hints used", record.hints.length ? record.hints.length : "None");
+        labelValue(
+          "Learning outcome",
+          record.correct
+            ? (record.attempts === 1 && !record.hints.length
+                ? "Completed independently"
+                : "Completed after support")
+            : "Worked solution reviewed"
+        );
+        body(
+          `Learning notes: ${record.diagnostics.length
+            ? record.diagnostics.join(", ")
+            : "No recurring issue identified"}`,
+          0,
+          5
+        );
+        doc.setDrawColor(220);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 6;
+      });
+
+      newPageIfNeeded(28);
+      heading("Teacher comments");
+      for (let i = 0; i < 4; i += 1) {
+        doc.setDrawColor(190);
+        doc.line(margin, y, pageWidth - margin, y);
+        y += 9;
+      }
+
+      const pageCount = doc.getNumberOfPages();
+      for (let page = 1; page <= pageCount; page += 1) {
+        doc.setPage(page);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(100);
+        doc.text("Engineering Stress Learning Tool", margin, 290);
+        doc.text(`Page ${page} of ${pageCount}`, pageWidth - margin, 290, { align: "right" });
+      }
+
+      const safeName = (assignmentState.student || "student")
+        .replace(/[^a-z0-9]+/gi, "-")
+        .replace(/^-|-$/g, "")
+        .toLowerCase();
+
+      doc.save(`engineering-stress-learning-record-${safeName || "student"}.pdf`);
+      reportActionMessage("success", "The PDF learning record has been downloaded.");
+    }
+
+    function resetAssignment() {
+      assignmentState = null;
+      assignmentReport.classList.add("hidden");
+      assignmentActivity.classList.add("hidden");
+      assignmentSetup.classList.remove("hidden");
+    }
+
+    document.getElementById("startAssignment").addEventListener("click", startAssignment);
+    document.getElementById("assignmentCheck").addEventListener("click", checkAssignmentAnswer);
+    document.getElementById("assignmentHint").addEventListener("click", useAssignmentHint);
+    assignmentNext.addEventListener("click", advanceAssignment);
+    document.getElementById("downloadPdfReport").addEventListener("click", downloadPdfLearningRecord);
+    document.getElementById("printReport").addEventListener("click", () => window.print());
+    document.getElementById("restartAssignment").addEventListener("click", resetAssignment);
+
+
+    const ownShape = document.getElementById("ownShape");
+    const ownDimensions = document.getElementById("ownDimensions");
+    const ownFeedback = document.getElementById("ownFeedback");
+    const ownWorked = document.getElementById("ownWorked");
+
+    const ownFields = {
+      direct: [
+        ["area", "Area", "number"],
+        ["areaUnit", "Area unit", "areaUnit"]
+      ],
+      rectangle: [
+        ["b", "Width", "number"],
+        ["h", "Thickness", "number"],
+        ["dimUnit", "Dimension unit", "dimUnit"]
+      ],
+      square: [
+        ["s", "Side length", "number"],
+        ["dimUnit", "Dimension unit", "dimUnit"]
+      ],
+      circle: [
+        ["d", "Diameter", "number"],
+        ["dimUnit", "Dimension unit", "dimUnit"]
+      ],
+      hollowRectangle: [
+        ["B", "Outside width", "number"],
+        ["H", "Outside height", "number"],
+        ["b", "Inside width", "number"],
+        ["h", "Inside height", "number"],
+        ["dimUnit", "Dimension unit", "dimUnit"]
+      ],
+      hollowSquare: [
+        ["S", "Outside side", "number"],
+        ["s", "Inside side", "number"],
+        ["dimUnit", "Dimension unit", "dimUnit"]
+      ],
+      hollowCircle: [
+        ["D", "Outside diameter", "number"],
+        ["d", "Inside diameter", "number"],
+        ["dimUnit", "Dimension unit", "dimUnit"]
+      ],
+      rectCircleHole: [
+        ["B", "Rectangle width", "number"],
+        ["H", "Rectangle height", "number"],
+        ["d", "Hole diameter", "number"],
+        ["dimUnit", "Dimension unit", "dimUnit"]
+      ],
+      squareCircleHole: [
+        ["S", "Square side", "number"],
+        ["d", "Hole diameter", "number"],
+        ["dimUnit", "Dimension unit", "dimUnit"]
+      ]
+    };
+
+    function renderOwnFields() {
+      const fields = ownFields[ownShape.value];
+      ownDimensions.innerHTML = fields.map(([id, label, type]) => {
+        if (type === "number") {
+          return `
+            <div>
+              <label for="own_${id}">${label}</label>
+              <input id="own_${id}" data-key="${id}" type="number" step="any" inputmode="decimal" />
+            </div>
+          `;
+        }
+
+        if (type === "areaUnit") {
+          return `
+            <div>
+              <label for="own_${id}">${label}</label>
+              <select id="own_${id}" data-key="${id}">
+                <option value="mm2">mm²</option>
+                <option value="cm2">cm²</option>
+                <option value="m2">m²</option>
+              </select>
+            </div>
+          `;
+        }
+
+        return `
+          <div>
+            <label for="own_${id}">${label}</label>
+            <select id="own_${id}" data-key="${id}">
+              <option value="mm">mm</option>
+              <option value="cm">cm</option>
+              <option value="m">m</option>
+            </select>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function readOwnQuestion() {
+      const shape = ownShape.value;
+      const force = Number(document.getElementById("ownForce").value);
+      const forceUnit = document.getElementById("ownForceUnit").value;
+      const values = {};
+
+      ownDimensions.querySelectorAll("[data-key]").forEach(el => {
+        values[el.dataset.key] = el.tagName === "SELECT" ? el.value : Number(el.value);
+      });
+
+      if (!Number.isFinite(force) || force <= 0) throw new Error("Enter a valid force greater than zero.");
+
+      if (shape === "direct") {
+        if (!Number.isFinite(values.area) || values.area <= 0) throw new Error("Enter a valid cross-sectional area.");
+        return {
+          shape,
+          force,
+          forceUnit,
+          area: values.area,
+          areaUnit: values.areaUnit
+        };
+      }
+
+      const dimFactorToMm = values.dimUnit === "mm" ? 1 : values.dimUnit === "cm" ? 10 : 1000;
+      const dims = {};
+
+      Object.entries(values).forEach(([key, value]) => {
+        if (key !== "dimUnit") {
+          if (!Number.isFinite(value) || value <= 0) throw new Error("Enter all required dimensions as values greater than zero.");
+          dims[key] = value * dimFactorToMm;
+        }
+      });
+
+      if (shape === "hollowCircle" && dims.d >= dims.D) throw new Error("The inside diameter must be smaller than the outside diameter.");
+      if (shape === "hollowSquare" && dims.s >= dims.S) throw new Error("The inside side must be smaller than the outside side.");
+      if (shape === "hollowRectangle" && (dims.b >= dims.B || dims.h >= dims.H)) throw new Error("The inside dimensions must be smaller than the outside dimensions.");
+      if (shape === "rectCircleHole" && (dims.d >= dims.B || dims.d >= dims.H)) throw new Error("The hole diameter must fit inside the rectangle.");
+      if (shape === "squareCircleHole" && dims.d >= dims.S) throw new Error("The hole diameter must fit inside the square.");
+
+      return { shape, force, forceUnit, dims, dimUnit: "mm" };
+    }
+
+    function ownMessage(type, text) {
+      ownFeedback.className = `feedback show ${type}`;
+      ownFeedback.innerHTML = text;
+    }
+
+    document.getElementById("checkOwn").addEventListener("click", () => {
+      try {
+        const q = readOwnQuestion();
+        const userStress = Number(document.getElementById("ownStress").value);
+        const unit = document.getElementById("ownStressUnit").value;
+
+        if (!Number.isFinite(userStress)) throw new Error("Enter your calculated stress.");
+
+        const correctPa = stressPa(q);
+        const userPa = userStress * stressFactorsToPa[unit];
+
+        if (isClose(userPa, correctPa)) {
+          ownMessage("success", "<strong>Correct.</strong> Your stress value and unit are consistent with the entered force and cross-section.");
+        } else {
+          ownMessage("warning", "<strong>Not quite.</strong> Check the net area, force conversion, and selected stress unit.");
+        }
+
+        ownWorked.innerHTML = buildWorkedSolution(q);
+        ownWorked.className = "worked-solution show";
+      } catch (error) {
+        ownMessage("danger", `<strong>Check your entries.</strong> ${error.message}`);
+        ownWorked.className = "worked-solution";
+      }
+    });
+
+    document.getElementById("hintOwn").addEventListener("click", () => {
+      const shape = ownShape.value;
+      const hints = {
+        direct: "Use the supplied area directly in σ = F/A.",
+        rectangle: "Calculate A = width × thickness.",
+        square: "Calculate A = side².",
+        circle: "Use A = πd²/4 because the entered measurement is the diameter.",
+        hollowRectangle: "Calculate outer rectangle area minus inner rectangle area.",
+        hollowSquare: "Calculate outer square area minus inner square area.",
+        hollowCircle: "Use A = π(D² − d²)/4.",
+        rectCircleHole: "Calculate rectangular area minus circular hole area.",
+        squareCircleHole: "Calculate square area minus circular hole area."
+      };
+      ownMessage("warning", `<strong>Hint:</strong> ${hints[shape]} For an answer in MPa, use newtons and mm².`);
+    });
+
+    document.getElementById("resetOwn").addEventListener("click", () => {
+      document.getElementById("ownForce").value = "";
+      document.getElementById("ownStress").value = "";
+      ownShape.value = "direct";
+      renderOwnFields();
+      ownFeedback.className = "feedback";
+      ownWorked.className = "worked-solution";
+    });
+
+    ownShape.addEventListener("change", () => {
+      renderOwnFields();
+      ownFeedback.className = "feedback";
+      ownWorked.className = "worked-solution";
+    });
+
+    renderOwnFields();
+    pickQuestion();
+  </script>
+</body>
+</html>
