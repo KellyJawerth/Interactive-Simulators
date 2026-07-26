@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Teaching Tools</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #5f6b7a;
+      --border: #d7dee8;
+      --primary: #1769aa;
+      --primary-dark: #0f4f83;
+      --primary-soft: #eaf3fb;
+      --chemistry: #2f7d63;
+      --chemistry-soft: #eaf6f1;
+      --shadow: 0 8px 24px rgba(31, 41, 55, 0.08);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    a { color: inherit; }
+
+    .page {
+      width: min(1180px, calc(100% - 28px));
+      margin: 24px auto 48px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #0f4f83, #1769aa);
+      color: white;
+      border-radius: 22px;
+      padding: 32px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 820px;
+      font-size: 1.08rem;
+    }
+
+    .intro {
+      margin: 22px 0 30px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .intro p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .subject-section { margin-top: 30px; }
+
+    .subject-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .subject-heading h2 {
+      margin: 0;
+      font-size: 1.55rem;
+    }
+
+    .subject-line {
+      height: 3px;
+      flex: 1;
+      border-radius: 999px;
+    }
+
+    .subject-line.engineering { background: var(--primary); }
+    .subject-line.chemistry { background: var(--chemistry); }
+
+    .tool-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .tool-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 220px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .tool-card:hover,
+    .tool-card:focus-visible {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(31, 41, 55, 0.12);
+      outline: none;
+    }
+
+    .tool-card.engineering:hover,
+    .tool-card.engineering:focus-visible { border-color: var(--primary); }
+
+    .tool-card.chemistry:hover,
+    .tool-card.chemistry:focus-visible { border-color: var(--chemistry); }
+
+    .card-label {
+      align-self: flex-start;
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.82rem;
+      margin-bottom: 14px;
+    }
+
+    .card-label.engineering {
+      color: var(--primary-dark);
+      background: var(--primary-soft);
+    }
+
+    .card-label.chemistry {
+      color: #245f4d;
+      background: var(--chemistry-soft);
+    }
+
+    .tool-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.22rem;
+    }
+
+    .tool-card p {
+      margin: 0 0 18px;
+      color: var(--muted);
+    }
+
+    .card-arrow {
+      margin-top: auto;
+      align-self: flex-end;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.15rem;
+      line-height: 1;
+      transition: transform 0.18s ease, filter 0.18s ease;
+    }
+
+    .engineering .card-arrow {
+      background: var(--primary);
+    }
+
+    .chemistry .card-arrow {
+      background: var(--chemistry);
+    }
+
+    .tool-card:hover .card-arrow,
+    .tool-card:focus-visible .card-arrow {
+      transform: translateX(3px);
+      filter: brightness(0.92);
+    }
+
+    footer {
+      margin-top: 34px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      .page {
+        width: min(100% - 16px, 1180px);
+        margin-top: 8px;
+      }
+
+      .hero { padding: 24px 20px; }
+      .intro, .tool-card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <h1>Interactive Teaching Tools</h1>
+      <p>Interactive learning tools designed to help students explore concepts, practise calculations, identify misconceptions, and compare their working with clear explanations.</p>
+    </section>
+
+    <section class="intro">
+      <p>Choose a tool below. Each simulator runs directly in the browser and is designed for classroom teaching, guided practice, or independent revision.</p>
+    </section>
+
+    <section class="subject-section" aria-labelledby="engineering-heading">
+      <div class="subject-heading">
+        <h2 id="engineering-heading">Engineering Studies</h2>
+        <div class="subject-line engineering"></div>
+      </div>
+
+      <div class="tool-grid">
+        <a class="tool-card engineering" href="engineering-stress/">
+          <span class="card-label engineering">Engineering Studies</span>
+          <h3>Engineering Stress Learning Tool</h3>
+          <p>Calculate normal stress from force and cross-sectional area, with scaffolded hints, worked solutions, varied question levels, and a guided assignment mode.</p>
+          <span class="card-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tool-card engineering" href="ohms-law/">
+          <span class="card-label engineering">Engineering Studies</span>
+          <h3>Ohm's Law Simulator</h3>
+          <p>Explore the relationship between voltage, current, resistance, and power using adjustable values and a live circuit display.</p>
+          <span class="card-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tool-card engineering" href="series-circuit/">
+          <span class="card-label engineering">Engineering Studies</span>
+          <h3>Series Circuit Simulator</h3>
+          <p>Investigate equivalent resistance, current, voltage drops, and power in a series circuit with three resistors.</p>
+          <span class="card-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tool-card engineering" href="parallel-circuit/">
+          <span class="card-label engineering">Engineering Studies</span>
+          <h3>Parallel Circuit Simulator</h3>
+          <p>Explore branch currents, total current, equivalent resistance, voltage, and the behaviour of parallel resistor networks.</p>
+          <span class="card-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="subject-section" aria-labelledby="chemistry-heading">
+      <div class="subject-heading">
+        <h2 id="chemistry-heading">Chemistry</h2>
+        <div class="subject-line chemistry"></div>
+      </div>
+
+      <div class="tool-grid">
+        <a class="tool-card chemistry" href="chemistry/solubility-equilibrium-explorer/">
+          <span class="card-label chemistry">HSC Chemistry</span>
+          <h3>Solubility Equilibrium Explorer</h3>
+          <p>Visualise dissolving, saturation, undissolved solute, and dynamic equilibrium at the particle level.</p>
+          <span class="card-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tool-card chemistry" href="chemistry/ksp-calculation-explorer/">
+          <span class="card-label chemistry">HSC Chemistry</span>
+          <h3>Ksp Calculation Explorer</h3>
+          <p>Practise calculating molar solubility and ion concentrations using common HSC solubility product expressions.</p>
+          <span class="card-arrow" aria-hidden="true">→</span>
+        </a>
+
+        <a class="tool-card chemistry" href="chemistry/q-vs-ksp-explorer/">
+          <span class="card-label chemistry">HSC Chemistry</span>
+          <h3>Q vs Ksp Explorer</h3>
+          <p>Mix ionic solutions, calculate the reaction quotient, compare Q with Ksp, and predict whether a precipitate forms.</p>
+          <span class="card-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+
+    <footer>Created by Dr Kelly-Anne Jawerth</footer>
+  </main>
+</body>
+</html>
