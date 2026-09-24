@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vectors: Foundations</title>
+<style>
+:root{
+  --aqua:#087f8c; --aqua-dark:#066a75; --pale:#e8f5f6; --paler:#f4fafb;
+  --text:#1f2937; --muted:#64748b; --border:#d7e0e5; --card:#ffffff; --panel:#f8fafc;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f6f7;color:var(--text);font-family:Arial,Helvetica,sans-serif;line-height:1.45}
+main{max-width:1180px;margin:28px auto;padding:0 18px}
+h1{font-size:2rem;margin:0 0 5px} h2{font-size:1.55rem;margin:0 0 4px} h3{margin:0 0 8px}
+.subtitle{color:var(--muted);margin:0 0 20px}
+.topnav{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+.navbtn{min-height:46px;padding:10px 18px;border:1px solid var(--border);border-radius:999px;background:var(--card);font-weight:700;cursor:pointer;font-size:1rem}
+.navbtn.active{background:var(--aqua);border-color:var(--aqua);color:white}
+button:focus-visible{outline:3px solid #54aab3;outline-offset:2px}
+.panel{border:1px solid var(--border);border-radius:18px;padding:20px;background:var(--card)}
+.intro{background:var(--paler);border-left:5px solid var(--aqua);border-radius:10px;padding:15px 16px;margin:14px 0 18px}
+.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(260px,.85fr);gap:22px;align-items:start}
+.diagram{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px}
+.notation-list{display:grid;gap:10px}
+.notation{border:1px solid var(--border);border-radius:12px;padding:12px 14px;background:var(--card);cursor:pointer;text-align:left;width:100%;font-size:1rem}
+.notation.selected{border:2px solid var(--aqua);background:var(--pale)}
+.math{font-family:Georgia,"Times New Roman",serif;font-size:1.25rem}
+.vec{display:inline-block;position:relative;padding-top:.22em;line-height:1}
+.vec::before{content:"";position:absolute;left:3%;right:4%;top:.03em;border-top:1.5px solid currentColor}
+.vec::after{content:"";position:absolute;right:3%;top:-.07em;width:.32em;height:.32em;border-top:1.5px solid currentColor;border-right:1.5px solid currentColor;transform:rotate(45deg)}
+.colvec{display:inline-grid;grid-template-columns:auto;line-height:1.08;text-align:center;padding:1px 10px;position:relative;vertical-align:middle}
+.colvec::before,.colvec::after{content:"";position:absolute;top:-2px;bottom:-2px;width:7px}
+.colvec::before{left:0;border-left:1.5px solid currentColor;border-radius:50% 0 0 50%}
+.colvec::after{right:0;border-right:1.5px solid currentColor;border-radius:0 50% 50% 0}
+.concept{margin-top:18px;padding:16px;border-radius:12px;background:var(--pale)}
+.foundation{margin-top:12px;padding:16px;border:1px solid var(--border);border-left:5px solid var(--aqua);border-radius:12px;background:var(--card)}
+.example-row{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.875rem;color:var(--muted);margin-top:8px}
+.small{font-size:.9rem;color:var(--muted)}
+.placeholder{padding:32px 10px;text-align:center;color:var(--muted)}
+.find-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(310px,.85fr);gap:22px;align-items:start;margin-top:18px}
+.stagebar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.stage{border:1px solid var(--border);border-radius:999px;background:#fff;padding:8px 11px;font-size:.86rem;font-weight:700;color:var(--muted)}
+.stage.active{background:var(--aqua);border-color:var(--aqua);color:#fff}
+.working{border:1px solid var(--border);border-radius:14px;padding:17px;background:#fff;min-height:390px}
+.stepbox{padding:14px;border-radius:11px;background:var(--paler);margin:12px 0}
+.stepbox.locked{background:#f8fafc;color:var(--muted)}
+.revealrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.revealbtn{border:1px solid var(--aqua);border-radius:999px;background:#fff;color:var(--aqua-dark);padding:8px 13px;font-weight:700;cursor:pointer}
+.answer-content{margin-top:10px}
+.answer-content.hidden-answer{display:none}
+.bigmath{font-family:Georgia,"Times New Roman",serif;font-size:1.35rem;line-height:1.7}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.action{border:0;border-radius:999px;padding:11px 16px;background:var(--aqua);color:#fff;font-weight:700;cursor:pointer;font-size:.95rem}
+.action.secondary{background:#fff;color:var(--aqua-dark);border:1px solid var(--aqua)}
+.drag-note{margin-top:8px;text-align:center;color:var(--muted);font-size:.88rem}
+.coord{font-family:Georgia,"Times New Roman",serif}
+.add-legend{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 2px;font-size:.88rem;color:var(--muted)}
+.add-key{display:flex;align-items:center;gap:6px}
+.add-swatch{width:24px;height:4px;border-radius:4px;display:inline-block}
+.add-swatch.one{background:#087f8c}.add-swatch.two{background:#7c5c9e}.add-swatch.result{background:#1f2937}
+.mode-note{padding:10px 12px;border-radius:10px;background:var(--paler);margin-top:10px}
+@media(max-width:700px){.find-grid{grid-template-columns:1fr}}
+.hidden{display:none}
+svg{width:100%;height:auto;display:block}
+@media(max-width:700px){.layout{grid-template-columns:1fr}.panel{padding:15px}.navbtn{flex:1 1 145px}}
+</style>
+</head>
+<body>
+<main>
+<h1>Vectors: Foundations</h1>
+<p class="subtitle">Explore vector notation, position, direction, and representation.</p>
+
+<nav class="topnav" aria-label="Vector foundations sections">
+<button type="button" class="navbtn active" data-section="notation">Vector Notation</button>
+<button type="button" class="navbtn" data-section="finding">Finding a Vector</button>
+<button type="button" class="navbtn" data-section="addition">Addition</button>
+<button type="button" class="navbtn" data-section="subtraction">Subtraction</button>
+</nav>
+
+<section class="panel" id="notation-section">
+<h2>Vector Notation</h2>
+<p class="small">One vector can be represented in several different ways.</p>
+<div class="intro"><strong>A vector describes a movement with both magnitude and direction.</strong> The notation may change, but the vector itself does not.</div>
+
+<div class="layout">
+<div>
+<div class="diagram">
+<svg viewBox="0 0 560 500" role="img" aria-label="Cartesian plane showing vector AB from A at 1,1 to B at 5,4">
+<defs>
+<marker id="vectorArrow" markerWidth="6" markerHeight="6" refX="5.2" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#087f8c"/></marker>
+<marker id="axisArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1f2937"/></marker>
+</defs>
+<rect width="560" height="500" rx="10" fill="#fff"/>
+<g stroke="#d7e0e5" stroke-width="1">
+<path d="M55 45V455 M100 45V455 M145 45V455 M190 45V455 M235 45V455 M280 45V455 M325 45V455 M370 45V455 M415 45V455 M460 45V455 M505 45V455"/>
+<path d="M55 70H505 M55 115H505 M55 160H505 M55 205H505 M55 250H505 M55 295H505 M55 340H505 M55 385H505 M55 430H505"/>
+</g>
+<g stroke="#1f2937" stroke-width="2">
+<path d="M55 250H520" marker-end="url(#axisArrow)"/>
+<path d="M280 455V35" marker-end="url(#axisArrow)"/>
+</g>
+<g fill="#64748b" font-size="12" text-anchor="middle">
+<text x="55" y="270">−5</text><text x="100" y="270">−4</text><text x="145" y="270">−3</text><text x="190" y="270">−2</text><text x="235" y="270">−1</text>
+<text x="325" y="270">1</text><text x="370" y="270">2</text><text x="415" y="270">3</text><text x="460" y="270">4</text><text x="505" y="270">5</text>
+</g>
+<g fill="#64748b" font-size="12" text-anchor="end">
+<text x="270" y="434">−4</text><text x="270" y="389">−3</text><text x="270" y="344">−2</text><text x="270" y="299">−1</text>
+<text x="270" y="209">1</text><text x="270" y="164">2</text><text x="270" y="119">3</text><text x="270" y="74">4</text>
+</g>
+<text x="265" y="270" fill="#64748b" font-size="12">O</text>
+<text x="524" y="243" fill="#1f2937" font-size="14" font-style="italic">x</text>
+<text x="289" y="35" fill="#1f2937" font-size="14" font-style="italic">y</text>
+<path d="M325 205 L505 205 L505 70" fill="none" stroke="#8397a5" stroke-width="2.5" stroke-dasharray="7 6"/>
+<path d="M325 205 L505 70" fill="none" stroke="#087f8c" stroke-width="4" marker-end="url(#vectorArrow)"/>
+<circle cx="325" cy="205" r="6" fill="#1f2937"/><circle cx="505" cy="70" r="6" fill="#1f2937"/>
+<g fill="#1f2937" font-size="14" font-weight="700"><text x="300" y="193">A (1, 1)</text><text x="438" y="55">B (5, 4)</text></g>
+<g fill="#64748b" font-size="14" font-weight="600"><text x="405" y="226">4 right</text><text x="515" y="143">3 up</text></g>
+<text id="diagram-label" x="374" y="122" fill="#087f8c" font-size="18" font-weight="700">vector AB</text>
+</svg>
+</div>
+<div class="legend"><span>A = starting position</span><span>B = finishing position</span><span>Dashed lines = horizontal and vertical change</span></div>
+</div>
+
+<div>
+<p><strong>Select each form to see what the notation tells us.</strong></p>
+<div class="notation-list">
+<button type="button" class="notation selected" data-kind="ab"><div class="math"><span class="vec">AB</span></div><div class="small">Vector from A to B</div></button>
+<button type="button" class="notation" data-kind="column"><div class="math"><span class="colvec"><span>4</span><span>3</span></span></div><div class="small">Column vector: 4 right and 3 up</div></button>
+<button type="button" class="notation" data-kind="ij"><div class="math">4i + 3j</div><div class="small">Unit vector notation</div></button>
+<button type="button" class="notation" data-kind="named">
+<div class="math"><strong>a</strong> &nbsp;&nbsp; <span class="vec">a</span></div>
+<div class="small"><strong>Bold lowercase letter or a letter with an arrow above it</strong></div>
+<div class="small" style="margin-top:6px">The letter is simply a name for the vector. There is nothing special about <strong>a</strong>. A vector can be given any name.</div>
+<div class="math" style="margin-top:10px"><strong>kelly</strong> &nbsp;&nbsp; <span class="vec">kelly</span></div>
+<div class="small">We could even call a vector <strong>kelly</strong>, as long as we define what the name represents.</div>
+</button>
+</div>
+</div>
+</div>
+
+<div class="concept">
+<h3>A position is not a vector</h3>
+<p><span class="math">A = (1, 1)</span> tells us <strong>where point A is</strong>.</p>
+<p><span class="math"><span class="vec">AB</span> = <span class="colvec"><span>4</span><span>3</span></span></span> tells us <strong>how to move from A to B</strong>: 4 units right and 3 units up.</p>
+</div>
+
+<div class="foundation">
+<h3>Direction can be negative. Magnitude cannot.</h3>
+<p>A vector can have <strong>negative components</strong> because it may point left or down.</p>
+<div class="example-row"><span class="math"><span class="colvec"><span>−4</span><span>−3</span></span></span><span>means <strong>4 units left</strong> and <strong>3 units down</strong>.</span></div>
+<p>The <strong>magnitude (size)</strong> of a vector is a distance. It is therefore always positive, except for the zero vector, which has magnitude 0.</p>
+<p class="small">We will learn how to calculate magnitude later. For now, remember: components tell us direction as well as movement; magnitude tells us size.</p>
+</div>
+</section>
+
+<section class="panel hidden" id="finding-section">
+<h2>Finding a Vector</h2>
+<p class="small">A vector tells us how to move from a starting point to a finishing point.</p>
+<div class="intro"><strong>Drag A or B.</strong> Watch what happens to the horizontal and vertical movement. The calculation changes because the vector depends on both its starting point and finishing point.</div>
+
+<div class="stagebar">
+<span class="stage active">1. Start and finish</span>
+<span class="stage">2. Horizontal change</span>
+<span class="stage">3. Vertical change</span>
+<span class="stage">4. Write the vector</span>
+</div>
+
+<div class="find-grid">
+<div>
+<div class="diagram">
+<svg id="find-svg" viewBox="0 0 560 500" role="img" aria-label="Interactive Cartesian plane for finding a vector">
+<defs>
+<marker id="findVectorArrow" markerWidth="6" markerHeight="6" refX="5.2" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#087f8c"/></marker>
+<marker id="findAxisArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1f2937"/></marker>
+</defs>
+<rect x="0" y="0" width="560" height="500" rx="10" fill="#fff"/>
+<g id="find-grid-lines" stroke="#d7e0e5" stroke-width="1"></g>
+<g stroke="#1f2937" stroke-width="2">
+<path d="M55 250H520" marker-end="url(#findAxisArrow)"/>
+<path d="M280 475V25" marker-end="url(#findAxisArrow)"/>
+</g>
+<g id="find-ticks" fill="#64748b" font-size="12"></g>
+<text x="265" y="270" fill="#64748b" font-size="12">O</text>
+<text x="524" y="243" fill="#1f2937" font-size="14" font-style="italic">x</text>
+<text x="289" y="30" fill="#1f2937" font-size="14" font-style="italic">y</text>
+
+<path id="find-horizontal" fill="none" stroke="#8397a5" stroke-width="2.5" stroke-dasharray="7 6"/>
+<path id="find-vertical" fill="none" stroke="#8397a5" stroke-width="2.5" stroke-dasharray="7 6"/>
+<path id="find-vector" fill="none" stroke="#087f8c" stroke-width="4" marker-end="url(#findVectorArrow)"/>
+
+<text id="find-h-label" fill="#64748b" font-size="14" font-weight="600"></text>
+<text id="find-v-label" fill="#64748b" font-size="14" font-weight="600"></text>
+
+<circle id="point-a" r="9" fill="#1f2937" style="cursor:grab"/>
+<circle id="point-b" r="9" fill="#087f8c" style="cursor:grab"/>
+<text id="label-a" fill="#1f2937" font-size="14" font-weight="700"></text>
+<text id="label-b" fill="#066a75" font-size="14" font-weight="700"></text>
+</svg>
+</div>
+<div class="drag-note">Drag either point to a grid intersection. Try moving a point into a negative quadrant too.</div>
+</div>
+
+<div class="working">
+<h3 id="find-direction-title">Find vector AB</h3>
+<div class="stepbox" id="find-step1"></div>
+<div class="stepbox" id="find-step2"></div>
+<div class="stepbox" id="find-step3"></div>
+<div class="stepbox" id="find-step4"></div>
+<div class="controls">
+<button type="button" class="action" id="reverse-vector">Reverse direction: Find BA</button>
+<button type="button" class="action secondary" id="reset-vector">Reset points</button>
+</div>
+</div>
+</div>
+
+<div class="foundation">
+<h3>The rule now has a reason</h3>
+<p>To find the vector from a starting point to a finishing point, calculate the change in each coordinate.</p>
+<div class="bigmath"><span class="vec">AB</span> = B − A = <span class="colvec"><span>x<sub>B</sub> − x<sub>A</sub></span><span>y<sub>B</sub> − y<sub>A</sub></span></span></div>
+<p><strong>Finish − Start.</strong> This is not a separate trick to memorise. It is exactly the horizontal and vertical movement shown on the diagram.</p>
+</div>
+</section>
+
+<section class="panel hidden" id="addition-section">
+<h2>Vector Addition</h2>
+<p class="small">Adding vectors combines movements. Follow the journey from A to B, then from B to C.</p>
+<div class="intro"><strong>Work before you reveal.</strong> Use the grid to find each vector. The final direct vector from A to C stays hidden until the last stage.</div>
+
+<div class="stagebar" id="add-stagebar">
+<span class="stage active">1. First vector</span>
+<span class="stage">2. Second vector</span>
+<span class="stage">3. Add the vectors</span>
+<span class="stage">4. Resultant vector</span>
+</div>
+
+<div class="find-grid">
+<div>
+<div class="diagram">
+<svg id="add-svg" viewBox="0 0 560 500" role="img" aria-label="Interactive Cartesian plane showing vector addition">
+<defs>
+<marker id="addArrow1" markerWidth="6" markerHeight="6" refX="5.2" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#087f8c"/></marker>
+<marker id="addArrow2" markerWidth="6" markerHeight="6" refX="5.2" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7c5c9e"/></marker>
+<marker id="addArrowR" markerWidth="6" markerHeight="6" refX="5.2" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1f2937"/></marker>
+<marker id="addAxisArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1f2937"/></marker>
+</defs>
+<rect x="0" y="0" width="560" height="500" rx="10" fill="#fff"/>
+<g id="add-grid-lines" stroke="#d7e0e5" stroke-width="1"></g>
+<g stroke="#1f2937" stroke-width="2">
+<path d="M55 250H520" marker-end="url(#addAxisArrow)"/>
+<path d="M280 475V25" marker-end="url(#addAxisArrow)"/>
+</g>
+<g id="add-ticks" fill="#64748b" font-size="12"></g>
+<text x="265" y="270" fill="#64748b" font-size="12">O</text>
+<text x="524" y="243" fill="#1f2937" font-size="14" font-style="italic">x</text>
+<text x="289" y="30" fill="#1f2937" font-size="14" font-style="italic">y</text>
+
+<path id="add-ab" fill="none" stroke="#087f8c" stroke-width="4" marker-end="url(#addArrow1)"/>
+<path id="add-bc" fill="none" stroke="#7c5c9e" stroke-width="4" marker-end="url(#addArrow2)"/>
+<path id="add-ac" fill="none" stroke="#1f2937" stroke-width="4" stroke-dasharray="9 6" marker-end="url(#addArrowR)"/>
+
+<circle id="add-a" r="9" fill="#1f2937" style="cursor:grab"/>
+<circle id="add-b" r="9" fill="#087f8c" style="cursor:grab"/>
+<circle id="add-c" r="9" fill="#7c5c9e" style="cursor:grab"/>
+<text id="add-label-a" fill="#1f2937" font-size="14" font-weight="700"></text>
+<text id="add-label-b" fill="#066a75" font-size="14" font-weight="700"></text>
+<text id="add-label-c" fill="#694d87" font-size="14" font-weight="700"></text>
+</svg>
+</div>
+<div class="add-legend">
+<span class="add-key"><span class="add-swatch one"></span><span class="vec">AB</span></span>
+<span class="add-key"><span class="add-swatch two"></span><span class="vec">BC</span></span>
+<span class="add-key"><span class="add-swatch result"></span><span class="vec">AC</span> revealed last</span>
+</div>
+<div class="drag-note">Drag A, B, or C to any grid intersection. Every move hides the answers again.</div>
+</div>
+
+<div class="working">
+<h3>Follow the journey A → B → C</h3>
+<div class="stepbox" id="add-step1"></div>
+<div class="stepbox" id="add-step2"></div>
+<div class="stepbox" id="add-step3"></div>
+<div class="stepbox" id="add-step4"></div>
+<div class="controls">
+<button type="button" class="action secondary" id="add-reset">Reset points</button>
+</div>
+</div>
+</div>
+
+<div class="foundation">
+<h3>What vector addition means</h3>
+<p>If one vector takes us from A to B, and the next takes us from B to C, their combined movement takes us directly from A to C.</p>
+<div class="bigmath"><span class="vec">AB</span> + <span class="vec">BC</span> = <span class="vec">AC</span></div>
+<p>That is why we add corresponding components. We are combining the total horizontal movement and the total vertical movement.</p>
+</div>
+</section>
+
+<section class="panel hidden" id="placeholder-section" aria-live="polite">
+<div class="placeholder"><h2 id="placeholder-title"></h2><p>We have the section in place. We will build this part later.</p></div>
+</section>
+</main>
+
+<script>
+const navs=[...document.querySelectorAll(".navbtn")];
+const notationSection=document.getElementById("notation-section");
+const findingSection=document.getElementById("finding-section");
+const additionSection=document.getElementById("addition-section");
+const placeholder=document.getElementById("placeholder-section");
+const placeholderTitle=document.getElementById("placeholder-title");
+const notationButtons=[...document.querySelectorAll(".notation")];
+const diagramLabel=document.getElementById("diagram-label");
+const labels={ab:"vector AB",column:"(4, 3)",ij:"4i + 3j",named:"vector a"};
+
+navs.forEach(btn=>btn.addEventListener("click",()=>{
+  navs.forEach(b=>b.classList.toggle("active",b===btn));
+  notationSection.classList.add("hidden");
+  findingSection.classList.add("hidden");
+  additionSection.classList.add("hidden");
+  placeholder.classList.add("hidden");
+  if(btn.dataset.section==="notation"){
+    notationSection.classList.remove("hidden");
+  }else if(btn.dataset.section==="finding"){
+    findingSection.classList.remove("hidden");
+  }else if(btn.dataset.section==="addition"){
+    additionSection.classList.remove("hidden");
+  }else{
+    placeholder.classList.remove("hidden");
+    placeholderTitle.textContent=btn.textContent;
+  }
+}));
+
+notationButtons.forEach(btn=>btn.addEventListener("click",()=>{
+  notationButtons.forEach(b=>b.classList.toggle("selected",b===btn));
+  diagramLabel.textContent=labels[btn.dataset.kind]||"vector AB";
+}));
+
+// Finding a Vector interaction
+const svg=document.getElementById("find-svg");
+const grid=document.getElementById("find-grid-lines");
+const ticks=document.getElementById("find-ticks");
+const pointA=document.getElementById("point-a");
+const pointB=document.getElementById("point-b");
+const labelA=document.getElementById("label-a");
+const labelB=document.getElementById("label-b");
+const vectorLine=document.getElementById("find-vector");
+const horizontalLine=document.getElementById("find-horizontal");
+const verticalLine=document.getElementById("find-vertical");
+const hLabel=document.getElementById("find-h-label");
+const vLabel=document.getElementById("find-v-label");
+const directionTitle=document.getElementById("find-direction-title");
+const step1=document.getElementById("find-step1");
+const step2=document.getElementById("find-step2");
+const step3=document.getElementById("find-step3");
+const step4=document.getElementById("find-step4");
+const reverseBtn=document.getElementById("reverse-vector");
+const resetBtn=document.getElementById("reset-vector");
+
+const originX=280, originY=250, unit=45;
+let A={x:1,y:1}, B={x:4,y:3}, reversed=false, dragging=null, revealed=[true,false,false,false];
+
+function sx(x){return originX+x*unit}
+function sy(y){return originY-y*unit}
+function movementText(value,axis){
+  if(value===0) return "no movement";
+  if(axis==="x") return Math.abs(value)+" "+(value>0?"right":"left");
+  return Math.abs(value)+" "+(value>0?"up":"down");
+}
+function signed(n){return n<0?"−"+Math.abs(n):String(n)}
+function coord(n){return n<0?"−"+Math.abs(n):String(n)}
+
+for(let i=-5;i<=5;i++){
+  const x=sx(i);
+  const v=document.createElementNS("http://www.w3.org/2000/svg","path");
+  v.setAttribute("d",`M${x} 25V475`); grid.appendChild(v);
+  const y=sy(i);
+  const h=document.createElementNS("http://www.w3.org/2000/svg","path");
+  h.setAttribute("d",`M55 ${y}H505`); grid.appendChild(h);
+  if(i!==0){
+    const tx=document.createElementNS("http://www.w3.org/2000/svg","text");
+    tx.setAttribute("x",x); tx.setAttribute("y",270); tx.setAttribute("text-anchor","middle");
+    tx.textContent=coord(i); ticks.appendChild(tx);
+    const ty=document.createElementNS("http://www.w3.org/2000/svg","text");
+    ty.setAttribute("x",270); ty.setAttribute("y",y+4); ty.setAttribute("text-anchor","end");
+    ty.textContent=coord(i); ticks.appendChild(ty);
+  }
+}
+
+function renderFinding(){
+  const start=reversed?B:A, finish=reversed?A:B;
+  const dx=finish.x-start.x, dy=finish.y-start.y;
+  const sX=sx(start.x), sY=sy(start.y), fX=sx(finish.x), fY=sy(finish.y);
+
+  pointA.setAttribute("cx",sx(A.x)); pointA.setAttribute("cy",sy(A.y));
+  pointB.setAttribute("cx",sx(B.x)); pointB.setAttribute("cy",sy(B.y));
+  labelA.setAttribute("x",sx(A.x)-8); labelA.setAttribute("y",sy(A.y)-15);
+  labelA.textContent=`A (${coord(A.x)}, ${coord(A.y)})`;
+  labelB.setAttribute("x",sx(B.x)+12); labelB.setAttribute("y",sy(B.y)-12);
+  labelB.textContent=`B (${coord(B.x)}, ${coord(B.y)})`;
+
+  vectorLine.setAttribute("d",`M${sX} ${sY} L${fX} ${fY}`);
+  horizontalLine.setAttribute("d",`M${sX} ${sY} L${fX} ${sY}`);
+  verticalLine.setAttribute("d",`M${fX} ${sY} L${fX} ${fY}`);
+
+  // Keep the movement labels hidden until the relevant answers are revealed.
+  hLabel.setAttribute("x",(sX+fX)/2); hLabel.setAttribute("y",sY+(dy>=0?22:-10));
+  hLabel.setAttribute("text-anchor","middle");
+  hLabel.textContent=revealed[1]?movementText(dx,"x"):"";
+  vLabel.setAttribute("x",fX+10); vLabel.setAttribute("y",(sY+fY)/2);
+  vLabel.textContent=revealed[2]?movementText(dy,"y"):"";
+
+  const from=reversed?"B":"A", to=reversed?"A":"B";
+  directionTitle.innerHTML=`Find vector ${from}${to} (<span class="math"><span class="vec">${from}${to}</span></span>)`;
+  reverseBtn.innerHTML=reversed
+    ? `Reverse direction: Find AB (<span class="vec">AB</span>)`
+    : `Reverse direction: Find BA (<span class="vec">BA</span>)`;
+  reverseBtn.setAttribute("aria-label", reversed
+    ? "Reverse direction: Find vector A B"
+    : "Reverse direction: Find vector B A");
+
+  step1.innerHTML=`<strong>1. Start and finish</strong><br>
+  Start at <span class="coord">${from} = (${coord(start.x)}, ${coord(start.y)})</span><br>
+  Finish at <span class="coord">${to} = (${coord(finish.x)}, ${coord(finish.y)})</span><br>
+  <span class="small">We travel <strong>from ${from} to ${to}</strong>.</span>`;
+
+  step2.innerHTML=`<div class="revealrow"><strong>2. Horizontal change</strong>
+  <button type="button" class="revealbtn" data-reveal="1">${revealed[1]?"Hide answer":"Reveal answer"}</button></div>
+  <div class="answer-content ${revealed[1]?"":"hidden-answer"}">
+  <span class="bigmath">x<sub>${to}</sub> − x<sub>${from}</sub> = ${coord(finish.x)} − (${coord(start.x)}) = ${signed(dx)}</span><br>
+  <strong>${movementText(dx,"x")}</strong>${dx!==0?` → the x-component is ${signed(dx)}.`:" → the x-component is 0."}
+  </div>
+  ${revealed[1]?"":`<div class="small" style="margin-top:8px">Work out the horizontal movement first. Is it left or right?</div>`}`;
+
+  step3.innerHTML=`<div class="revealrow"><strong>3. Vertical change</strong>
+  <button type="button" class="revealbtn" data-reveal="2">${revealed[2]?"Hide answer":"Reveal answer"}</button></div>
+  <div class="answer-content ${revealed[2]?"":"hidden-answer"}">
+  <span class="bigmath">y<sub>${to}</sub> − y<sub>${from}</sub> = ${coord(finish.y)} − (${coord(start.y)}) = ${signed(dy)}</span><br>
+  <strong>${movementText(dy,"y")}</strong>${dy!==0?` → the y-component is ${signed(dy)}.`:" → the y-component is 0."}
+  </div>
+  ${revealed[2]?"":`<div class="small" style="margin-top:8px">Now work out the vertical movement. Is it up or down?</div>`}`;
+
+  step4.innerHTML=`<div class="revealrow"><strong>4. Write the vector</strong>
+  <button type="button" class="revealbtn" data-reveal="3">${revealed[3]?"Hide answer":"Reveal answer"}</button></div>
+  <div class="answer-content ${revealed[3]?"":"hidden-answer"}">
+  <div class="bigmath"><span class="vec">${from}${to}</span> = ${to} − ${from} =
+  <span class="colvec"><span>${signed(dx)}</span><span>${signed(dy)}</span></span></div>
+  <span class="small"><strong>Finish − Start</strong></span>
+  </div>
+  ${revealed[3]?"":`<div class="small" style="margin-top:8px">Use your horizontal answer as the top component and your vertical answer as the bottom component.</div>`}`;
+
+  document.querySelectorAll(".stage").forEach((s,i)=>s.classList.toggle("active",i===0 || revealed[i]));
+
+  document.querySelectorAll("[data-reveal]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const i=Number(btn.dataset.reveal);
+      revealed[i]=!revealed[i];
+      renderFinding();
+    });
+  });
+}
+function svgPoint(evt){
+  const pt=svg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY;
+  const local=pt.matrixTransform(svg.getScreenCTM().inverse());
+  return {
+    x:Math.max(-5,Math.min(5,Math.round((local.x-originX)/unit))),
+    y:Math.max(-5,Math.min(5,Math.round((originY-local.y)/unit)))
+  };
+}
+function beginDrag(which,e){
+  dragging=which; e.preventDefault();
+  (which==="A"?pointA:pointB).style.cursor="grabbing";
+  if(e.pointerId!==undefined) svg.setPointerCapture(e.pointerId);
+}
+pointA.addEventListener("pointerdown",e=>beginDrag("A",e));
+pointB.addEventListener("pointerdown",e=>beginDrag("B",e));
+svg.addEventListener("pointermove",e=>{
+  if(!dragging) return;
+  const p=svgPoint(e);
+  if(dragging==="A"){A=p}else{B=p}
+  revealed=[true,false,false,false];
+  renderFinding();
+});
+function stopDrag(){
+  pointA.style.cursor="grab"; pointB.style.cursor="grab"; dragging=null;
+}
+svg.addEventListener("pointerup",stopDrag);
+svg.addEventListener("pointercancel",stopDrag);
+
+reverseBtn.addEventListener("click",()=>{reversed=!reversed;revealed=[true,false,false,false];renderFinding()});
+resetBtn.addEventListener("click",()=>{A={x:1,y:1};B={x:4,y:3};reversed=false;revealed=[true,false,false,false];renderFinding()});
+
+renderFinding();
+
+// Vector Addition interaction
+const addSvg=document.getElementById("add-svg");
+const addGrid=document.getElementById("add-grid-lines");
+const addTicks=document.getElementById("add-ticks");
+const addPointA=document.getElementById("add-a");
+const addPointB=document.getElementById("add-b");
+const addPointC=document.getElementById("add-c");
+const addLabelA=document.getElementById("add-label-a");
+const addLabelB=document.getElementById("add-label-b");
+const addLabelC=document.getElementById("add-label-c");
+const addAB=document.getElementById("add-ab");
+const addBC=document.getElementById("add-bc");
+const addAC=document.getElementById("add-ac");
+const addStep1=document.getElementById("add-step1");
+const addStep2=document.getElementById("add-step2");
+const addStep3=document.getElementById("add-step3");
+const addStep4=document.getElementById("add-step4");
+const addReset=document.getElementById("add-reset");
+
+let addA={x:-3,y:-2}, addB={x:0,y:1}, addC={x:4,y:3};
+let addDragging=null;
+let addRevealed=[false,false,false,false];
+
+for(let i=-5;i<=5;i++){
+  const x=sx(i);
+  const v=document.createElementNS("http://www.w3.org/2000/svg","path");
+  v.setAttribute("d",`M${x} 25V475`); addGrid.appendChild(v);
+  const y=sy(i);
+  const h=document.createElementNS("http://www.w3.org/2000/svg","path");
+  h.setAttribute("d",`M55 ${y}H505`); addGrid.appendChild(h);
+  if(i!==0){
+    const tx=document.createElementNS("http://www.w3.org/2000/svg","text");
+    tx.setAttribute("x",x); tx.setAttribute("y",270); tx.setAttribute("text-anchor","middle");
+    tx.textContent=coord(i); addTicks.appendChild(tx);
+    const ty=document.createElementNS("http://www.w3.org/2000/svg","text");
+    ty.setAttribute("x",270); ty.setAttribute("y",y+4); ty.setAttribute("text-anchor","end");
+    ty.textContent=coord(i); addTicks.appendChild(ty);
+  }
+}
+
+function vectorBetween(P,Q){return {x:Q.x-P.x,y:Q.y-P.y}}
+function cv(x,y){return `<span class="colvec"><span>${signed(x)}</span><span>${signed(y)}</span></span>`}
+function addRevealButton(i){
+  return `<button type="button" class="revealbtn" data-add-reveal="${i}">${addRevealed[i]?"Hide answer":"Reveal answer"}</button>`;
+}
+function renderAddition(){
+  const ab=vectorBetween(addA,addB);
+  const bc=vectorBetween(addB,addC);
+  const ac=vectorBetween(addA,addC);
+  const sum={x:ab.x+bc.x,y:ab.y+bc.y};
+
+  addPointA.setAttribute("cx",sx(addA.x)); addPointA.setAttribute("cy",sy(addA.y));
+  addPointB.setAttribute("cx",sx(addB.x)); addPointB.setAttribute("cy",sy(addB.y));
+  addPointC.setAttribute("cx",sx(addC.x)); addPointC.setAttribute("cy",sy(addC.y));
+  addLabelA.setAttribute("x",sx(addA.x)-8); addLabelA.setAttribute("y",sy(addA.y)-15);
+  addLabelB.setAttribute("x",sx(addB.x)+10); addLabelB.setAttribute("y",sy(addB.y)-13);
+  addLabelC.setAttribute("x",sx(addC.x)+10); addLabelC.setAttribute("y",sy(addC.y)-13);
+  addLabelA.textContent=`A (${coord(addA.x)}, ${coord(addA.y)})`;
+  addLabelB.textContent=`B (${coord(addB.x)}, ${coord(addB.y)})`;
+  addLabelC.textContent=`C (${coord(addC.x)}, ${coord(addC.y)})`;
+
+  addAB.setAttribute("d",`M${sx(addA.x)} ${sy(addA.y)} L${sx(addB.x)} ${sy(addB.y)}`);
+  addBC.setAttribute("d",`M${sx(addB.x)} ${sy(addB.y)} L${sx(addC.x)} ${sy(addC.y)}`);
+  addAC.setAttribute("d",`M${sx(addA.x)} ${sy(addA.y)} L${sx(addC.x)} ${sy(addC.y)}`);
+  addAC.style.display=addRevealed[3]?"":"none";
+
+  addStep1.innerHTML=`<div class="revealrow"><strong>1. Find vector AB (<span class="vec">AB</span>)</strong>${addRevealButton(0)}</div>
+  <div class="answer-content ${addRevealed[0]?"":"hidden-answer"}">
+  <div class="bigmath"><span class="vec">AB</span> = B − A =
+  ${cv(ab.x,ab.y)}</div>
+  <span class="small">${movementText(ab.x,"x")}; ${movementText(ab.y,"y")}.</span>
+  </div>
+  ${addRevealed[0]?"":`<div class="small" style="margin-top:8px">Work out the horizontal and vertical movement from A to B.</div>`}`;
+
+  addStep2.innerHTML=`<div class="revealrow"><strong>2. Find vector BC (<span class="vec">BC</span>)</strong>${addRevealButton(1)}</div>
+  <div class="answer-content ${addRevealed[1]?"":"hidden-answer"}">
+  <div class="bigmath"><span class="vec">BC</span> = C − B =
+  ${cv(bc.x,bc.y)}</div>
+  <span class="small">${movementText(bc.x,"x")}; ${movementText(bc.y,"y")}.</span>
+  </div>
+  ${addRevealed[1]?"":`<div class="small" style="margin-top:8px">Now work out the movement from B to C.</div>`}`;
+
+  addStep3.innerHTML=`<div class="revealrow"><strong>3. Add the vectors</strong>${addRevealButton(2)}</div>
+  <div style="margin-top:8px"><strong>We are finding the combined vector from A to C (<span class="vec">AC</span>).</strong></div>
+  <div class="bigmath" style="margin-top:6px"><span class="vec">AB</span> + <span class="vec">BC</span> = <span class="vec">AC</span></div>
+  <div class="answer-content ${addRevealed[2]?"":"hidden-answer"}">
+  <div class="bigmath"><span class="vec">AC</span> =
+  ${cv(ab.x,ab.y)} + ${cv(bc.x,bc.y)}
+  = ${cv(`${signed(ab.x)} + ${signed(bc.x)}`,`${signed(ab.y)} + ${signed(bc.y)}`)}
+  = ${cv(sum.x,sum.y)}</div>
+  <span class="small">Add the top components together, then add the bottom components together. The result is the vector from A to C.</span>
+  </div>
+  ${addRevealed[2]?"":`<div class="small" style="margin-top:8px">Now calculate the components of <span class="vec">AC</span> before revealing the answer.</div>`}`;
+
+  addStep4.innerHTML=`<div class="revealrow"><strong>4. Reveal the resultant vector</strong>${addRevealButton(3)}</div>
+  <div class="answer-content ${addRevealed[3]?"":"hidden-answer"}">
+  <div class="bigmath"><span class="vec">AB</span> + <span class="vec">BC</span>
+  = ${cv(sum.x,sum.y)} = <span class="vec">AC</span></div>
+  <div class="mode-note">The dashed vector now shown goes directly from A to C. The two-part journey and the direct journey have the same overall movement.</div>
+  </div>
+  ${addRevealed[3]?"":`<div class="small" style="margin-top:8px">What direct vector should take you from A to C?</div>`}`;
+
+  document.querySelectorAll("#add-stagebar .stage").forEach((s,i)=>s.classList.toggle("active",addRevealed[i]));
+
+  document.querySelectorAll("[data-add-reveal]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const i=Number(btn.dataset.addReveal);
+      addRevealed[i]=!addRevealed[i];
+      renderAddition();
+    });
+  });
+}
+
+function addSvgPoint(evt){
+  const pt=addSvg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY;
+  const local=pt.matrixTransform(addSvg.getScreenCTM().inverse());
+  return {
+    x:Math.max(-5,Math.min(5,Math.round((local.x-originX)/unit))),
+    y:Math.max(-5,Math.min(5,Math.round((originY-local.y)/unit)))
+  };
+}
+function beginAddDrag(which,e){
+  addDragging=which; e.preventDefault();
+  (which==="A"?addPointA:which==="B"?addPointB:addPointC).style.cursor="grabbing";
+  if(e.pointerId!==undefined) addSvg.setPointerCapture(e.pointerId);
+}
+addPointA.addEventListener("pointerdown",e=>beginAddDrag("A",e));
+addPointB.addEventListener("pointerdown",e=>beginAddDrag("B",e));
+addPointC.addEventListener("pointerdown",e=>beginAddDrag("C",e));
+addSvg.addEventListener("pointermove",e=>{
+  if(!addDragging) return;
+  const p=addSvgPoint(e);
+  if(addDragging==="A") addA=p;
+  else if(addDragging==="B") addB=p;
+  else addC=p;
+  addRevealed=[false,false,false,false];
+  renderAddition();
+});
+function stopAddDrag(){
+  addPointA.style.cursor="grab"; addPointB.style.cursor="grab"; addPointC.style.cursor="grab";
+  addDragging=null;
+}
+addSvg.addEventListener("pointerup",stopAddDrag);
+addSvg.addEventListener("pointercancel",stopAddDrag);
+addReset.addEventListener("click",()=>{
+  addA={x:-3,y:-2}; addB={x:0,y:1}; addC={x:4,y:3};
+  addRevealed=[false,false,false,false];
+  renderAddition();
+});
+renderAddition();
+</script>
+</body>
+</html>
