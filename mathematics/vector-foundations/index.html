@@ -59,11 +59,27 @@ button:focus-visible{outline:3px solid #54aab3;outline-offset:2px}
 .add-legend{display:flex;gap:14px;flex-wrap:wrap;margin:8px 0 2px;font-size:.88rem;color:var(--muted)}
 .add-key{display:flex;align-items:center;gap:6px}
 .add-swatch{width:24px;height:4px;border-radius:4px;display:inline-block}
-.add-swatch.one{background:#087f8c}.add-swatch.two{background:#7c5c9e}.add-swatch.result{background:#1f2937}
+.add-swatch.one{background:#087f8c}.add-swatch.two{background:#7c5c9e}.add-swatch.result{background:#1f2937}.add-swatch.negative{background:#c46b3c}
 .mode-note{padding:10px 12px;border-radius:10px;background:var(--paler);margin-top:10px}
 @media(max-width:700px){.find-grid{grid-template-columns:1fr}}
 .hidden{display:none}
 svg{width:100%;height:auto;display:block}
+
+/* Touch-friendly draggable points.
+   The visible point stays small, but the transparent stroke creates a larger
+   finger target. touch-action:none applies only when the gesture starts on
+   a draggable point, so the rest of the diagram/page can still scroll. */
+#point-a,#point-b,
+#add-a,#add-b,#add-c,
+#sub-a-point,#sub-b-point{
+  touch-action:none;
+  -webkit-user-select:none;
+  user-select:none;
+  pointer-events:all;
+  stroke:transparent;
+  stroke-width:44px;
+  paint-order:stroke fill;
+}
 @media(max-width:700px){.layout{grid-template-columns:1fr}.panel{padding:15px}.navbtn{flex:1 1 145px}}
 </style>
 </head>
@@ -296,9 +312,85 @@ svg{width:100%;height:auto;display:block}
 </div>
 </section>
 
-<section class="panel hidden" id="placeholder-section" aria-live="polite">
-<div class="placeholder"><h2 id="placeholder-title"></h2><p>We have the section in place. We will build this part later.</p></div>
+
+<section class="panel hidden" id="subtraction-section">
+<h2>Vector Subtraction</h2>
+<p class="small">Subtracting a vector means adding its opposite.</p>
+<div class="intro"><strong>The key idea:</strong> <span class="math">a − b = a + (−b)</span>. The vector <span class="math">−b</span> has the same magnitude as <span class="math">b</span>, but points in the opposite direction.</div>
+
+<div class="stagebar" id="sub-stagebar">
+<span class="stage">1. Identify the vectors</span>
+<span class="stage">2. Find the opposite vector</span>
+<span class="stage">3. Add the components</span>
+<span class="stage">4. Resultant vector</span>
+</div>
+
+<div class="find-grid">
+<div>
+<div class="diagram">
+<svg id="sub-svg" viewBox="0 0 560 500" role="img" aria-label="Interactive Cartesian plane showing vector subtraction as adding the opposite vector">
+<defs>
+<marker id="subArrowA" markerWidth="6" markerHeight="6" refX="5.2" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#087f8c"/></marker>
+<marker id="subArrowB" markerWidth="6" markerHeight="6" refX="5.2" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#7c5c9e"/></marker>
+<marker id="subArrowNeg" markerWidth="6" markerHeight="6" refX="5.2" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#c46b3c"/></marker>
+<marker id="subArrowR" markerWidth="6" markerHeight="6" refX="5.2" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1f2937"/></marker>
+<marker id="subAxisArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#1f2937"/></marker>
+</defs>
+<rect x="0" y="0" width="560" height="500" rx="10" fill="#fff"/>
+<g id="sub-grid-lines" stroke="#d7e0e5" stroke-width="1"></g>
+<g stroke="#1f2937" stroke-width="2">
+<path d="M55 250H520" marker-end="url(#subAxisArrow)"/>
+<path d="M280 475V25" marker-end="url(#subAxisArrow)"/>
+</g>
+<g id="sub-ticks" fill="#64748b" font-size="12"></g>
+<text x="265" y="270" fill="#64748b" font-size="12">O</text>
+<text x="524" y="243" fill="#1f2937" font-size="14" font-style="italic">x</text>
+<text x="289" y="30" fill="#1f2937" font-size="14" font-style="italic">y</text>
+
+<path id="sub-a-line" fill="none" stroke="#087f8c" stroke-width="4" marker-end="url(#subArrowA)"/>
+<path id="sub-b-line" fill="none" stroke="#7c5c9e" stroke-width="4" marker-end="url(#subArrowB)"/>
+<path id="sub-neg-origin-line" fill="none" stroke="#c46b3c" stroke-width="4" marker-end="url(#subArrowNeg)"/>
+<path id="sub-neg-line" fill="none" stroke="#c46b3c" stroke-width="4" stroke-dasharray="7 5" marker-end="url(#subArrowNeg)"/>
+<path id="sub-result-line" fill="none" stroke="#1f2937" stroke-width="4" stroke-dasharray="9 6" marker-end="url(#subArrowR)"/>
+
+<circle id="sub-a-point" r="9" fill="#087f8c" style="cursor:grab"/>
+<circle id="sub-b-point" r="9" fill="#7c5c9e" style="cursor:grab"/>
+<text id="sub-a-label" fill="#066a75" font-size="14" font-weight="700"></text>
+<text id="sub-b-label" fill="#694d87" font-size="14" font-weight="700"></text>
+<text id="sub-neg-origin-label" fill="#a5532b" font-size="14" font-weight="700"></text>
+<text id="sub-neg-label" fill="#a5532b" font-size="14" font-weight="700"></text>
+</svg>
+</div>
+
+<div class="add-legend">
+<span class="add-key"><span class="add-swatch one"></span><strong>a</strong></span>
+<span class="add-key"><span class="add-swatch two"></span><strong>b</strong></span>
+<span class="add-key"><span class="add-swatch negative"></span><strong>−b</strong> reverse shown first; dashed copy is translated for addition</span>
+<span class="add-key"><span class="add-swatch result"></span><strong>a − b</strong> revealed last</span>
+</div>
+<div class="drag-note">Drag the endpoints of a and b to change the vectors. Every move hides the answers again.</div>
+</div>
+
+<div class="working">
+<h3>Find a − b</h3>
+<div class="stepbox" id="sub-step1"></div>
+<div class="stepbox" id="sub-step2"></div>
+<div class="stepbox" id="sub-step3"></div>
+<div class="stepbox" id="sub-step4"></div>
+<div class="controls">
+<button type="button" class="action secondary" id="sub-reset">Reset vectors</button>
+</div>
+</div>
+</div>
+
+<div class="foundation">
+<h3>What vector subtraction means</h3>
+<p>We do not need a completely new operation for vector subtraction. Instead, reverse the vector being subtracted and then add it.</p>
+<div class="bigmath"><strong>a</strong> − <strong>b</strong> = <strong>a</strong> + (−<strong>b</strong>)</div>
+<p>Changing <strong>b</strong> to <strong>−b</strong> reverses every component. Then add corresponding components exactly as you did for vector addition.</p>
+</div>
 </section>
+
 </main>
 
 <script>
@@ -306,8 +398,7 @@ const navs=[...document.querySelectorAll(".navbtn")];
 const notationSection=document.getElementById("notation-section");
 const findingSection=document.getElementById("finding-section");
 const additionSection=document.getElementById("addition-section");
-const placeholder=document.getElementById("placeholder-section");
-const placeholderTitle=document.getElementById("placeholder-title");
+const subtractionSection=document.getElementById("subtraction-section");
 const notationButtons=[...document.querySelectorAll(".notation")];
 const diagramLabel=document.getElementById("diagram-label");
 const labels={ab:"vector AB",column:"(4, 3)",ij:"4i + 3j",named:"vector a"};
@@ -317,16 +408,15 @@ navs.forEach(btn=>btn.addEventListener("click",()=>{
   notationSection.classList.add("hidden");
   findingSection.classList.add("hidden");
   additionSection.classList.add("hidden");
-  placeholder.classList.add("hidden");
+  subtractionSection.classList.add("hidden");
   if(btn.dataset.section==="notation"){
     notationSection.classList.remove("hidden");
   }else if(btn.dataset.section==="finding"){
     findingSection.classList.remove("hidden");
   }else if(btn.dataset.section==="addition"){
     additionSection.classList.remove("hidden");
-  }else{
-    placeholder.classList.remove("hidden");
-    placeholderTitle.textContent=btn.textContent;
+  }else if(btn.dataset.section==="subtraction"){
+    subtractionSection.classList.remove("hidden");
   }
 }));
 
@@ -469,12 +559,13 @@ function svgPoint(evt){
 function beginDrag(which,e){
   dragging=which; e.preventDefault();
   (which==="A"?pointA:pointB).style.cursor="grabbing";
-  if(e.pointerId!==undefined) svg.setPointerCapture(e.pointerId);
+  if(e.pointerId!==undefined && e.currentTarget.setPointerCapture) e.currentTarget.setPointerCapture(e.pointerId);
 }
 pointA.addEventListener("pointerdown",e=>beginDrag("A",e));
 pointB.addEventListener("pointerdown",e=>beginDrag("B",e));
 svg.addEventListener("pointermove",e=>{
   if(!dragging) return;
+  e.preventDefault();
   const p=svgPoint(e);
   if(dragging==="A"){A=p}else{B=p}
   revealed=[true,false,false,false];
@@ -615,13 +706,14 @@ function addSvgPoint(evt){
 function beginAddDrag(which,e){
   addDragging=which; e.preventDefault();
   (which==="A"?addPointA:which==="B"?addPointB:addPointC).style.cursor="grabbing";
-  if(e.pointerId!==undefined) addSvg.setPointerCapture(e.pointerId);
+  if(e.pointerId!==undefined && e.currentTarget.setPointerCapture) e.currentTarget.setPointerCapture(e.pointerId);
 }
 addPointA.addEventListener("pointerdown",e=>beginAddDrag("A",e));
 addPointB.addEventListener("pointerdown",e=>beginAddDrag("B",e));
 addPointC.addEventListener("pointerdown",e=>beginAddDrag("C",e));
 addSvg.addEventListener("pointermove",e=>{
   if(!addDragging) return;
+  e.preventDefault();
   const p=addSvgPoint(e);
   if(addDragging==="A") addA=p;
   else if(addDragging==="B") addB=p;
@@ -641,6 +733,165 @@ addReset.addEventListener("click",()=>{
   renderAddition();
 });
 renderAddition();
+
+
+// Vector Subtraction interaction
+const subSvg=document.getElementById("sub-svg");
+const subGrid=document.getElementById("sub-grid-lines");
+const subTicks=document.getElementById("sub-ticks");
+const subAPoint=document.getElementById("sub-a-point");
+const subBPoint=document.getElementById("sub-b-point");
+const subALabel=document.getElementById("sub-a-label");
+const subBLabel=document.getElementById("sub-b-label");
+const subNegOriginLabel=document.getElementById("sub-neg-origin-label");
+const subNegLabel=document.getElementById("sub-neg-label");
+const subALine=document.getElementById("sub-a-line");
+const subBLine=document.getElementById("sub-b-line");
+const subNegOriginLine=document.getElementById("sub-neg-origin-line");
+const subNegLine=document.getElementById("sub-neg-line");
+const subResultLine=document.getElementById("sub-result-line");
+const subStep1=document.getElementById("sub-step1");
+const subStep2=document.getElementById("sub-step2");
+const subStep3=document.getElementById("sub-step3");
+const subStep4=document.getElementById("sub-step4");
+const subReset=document.getElementById("sub-reset");
+
+let subA={x:4,y:3}, subB={x:2,y:-1};
+let subDragging=null;
+let subRevealed=[false,false,false,false];
+
+for(let i=-5;i<=5;i++){
+  const x=sx(i);
+  const v=document.createElementNS("http://www.w3.org/2000/svg","path");
+  v.setAttribute("d",`M${x} 25V475`); subGrid.appendChild(v);
+  const y=sy(i);
+  const h=document.createElementNS("http://www.w3.org/2000/svg","path");
+  h.setAttribute("d",`M55 ${y}H505`); subGrid.appendChild(h);
+  if(i!==0){
+    const tx=document.createElementNS("http://www.w3.org/2000/svg","text");
+    tx.setAttribute("x",x); tx.setAttribute("y",270); tx.setAttribute("text-anchor","middle");
+    tx.textContent=coord(i); subTicks.appendChild(tx);
+    const ty=document.createElementNS("http://www.w3.org/2000/svg","text");
+    ty.setAttribute("x",270); ty.setAttribute("y",y+4); ty.setAttribute("text-anchor","end");
+    ty.textContent=coord(i); subTicks.appendChild(ty);
+  }
+}
+
+function subRevealButton(i){
+  return `<button type="button" class="revealbtn" data-sub-reveal="${i}">${subRevealed[i]?"Hide answer":"Reveal answer"}</button>`;
+}
+function renderSubtraction(){
+  const negB={x:-subB.x,y:-subB.y};
+  const result={x:subA.x-subB.x,y:subA.y-subB.y};
+
+  subAPoint.setAttribute("cx",sx(subA.x)); subAPoint.setAttribute("cy",sy(subA.y));
+  subBPoint.setAttribute("cx",sx(subB.x)); subBPoint.setAttribute("cy",sy(subB.y));
+  subALabel.setAttribute("x",sx(subA.x)+10); subALabel.setAttribute("y",sy(subA.y)-12);
+  subBLabel.setAttribute("x",sx(subB.x)+10); subBLabel.setAttribute("y",sy(subB.y)+20);
+  subALabel.textContent=`a = (${coord(subA.x)}, ${coord(subA.y)})`;
+  subBLabel.textContent=`b = (${coord(subB.x)}, ${coord(subB.y)})`;
+
+  subALine.setAttribute("d",`M${sx(0)} ${sy(0)} L${sx(subA.x)} ${sy(subA.y)}`);
+  subBLine.setAttribute("d",`M${sx(0)} ${sy(0)} L${sx(subB.x)} ${sy(subB.y)}`);
+
+  // Stage 2: show -b from the origin, directly opposite b.
+  subNegOriginLine.setAttribute("d",`M${sx(0)} ${sy(0)} L${sx(negB.x)} ${sy(negB.y)}`);
+  subNegOriginLine.style.display=subRevealed[1]||subRevealed[2]||subRevealed[3]?"":"none";
+  subNegOriginLabel.setAttribute("x",sx(negB.x)+10);
+  subNegOriginLabel.setAttribute("y",sy(negB.y)-10);
+  subNegOriginLabel.textContent=(subRevealed[1]||subRevealed[2]||subRevealed[3])?"−b":"";
+
+  // Stage 3: translate a parallel, equal copy of -b to the head of a.
+  subNegLine.setAttribute("d",`M${sx(subA.x)} ${sy(subA.y)} L${sx(result.x)} ${sy(result.y)}`);
+  subNegLine.style.display=subRevealed[2]||subRevealed[3]?"":"none";
+  subNegLabel.setAttribute("x",(sx(subA.x)+sx(result.x))/2+10);
+  subNegLabel.setAttribute("y",(sy(subA.y)+sy(result.y))/2-10);
+  subNegLabel.textContent=(subRevealed[2]||subRevealed[3])?"translated −b":"";
+
+  subResultLine.setAttribute("d",`M${sx(0)} ${sy(0)} L${sx(result.x)} ${sy(result.y)}`);
+  subResultLine.style.display=subRevealed[3]?"":"none";
+
+  subStep1.innerHTML=`<div class="revealrow"><strong>1. Identify the vectors</strong>${subRevealButton(0)}</div>
+  <div class="answer-content ${subRevealed[0]?"":"hidden-answer"}">
+    <div class="bigmath"><strong>a</strong> = ${cv(subA.x,subA.y)} &nbsp;&nbsp; <strong>b</strong> = ${cv(subB.x,subB.y)}</div>
+    <span class="small">Both vectors are drawn from the origin. Their components tell us their horizontal and vertical movement.</span>
+  </div>
+  ${subRevealed[0]?"":`<div class="small" style="margin-top:8px">Read the components of a and b from the grid before revealing them.</div>`}`;
+
+  subStep2.innerHTML=`<div class="revealrow"><strong>2. Find the opposite vector, −b</strong>${subRevealButton(1)}</div>
+  <div class="answer-content ${subRevealed[1]?"":"hidden-answer"}">
+    <div class="bigmath">−<strong>b</strong> = −${cv(subB.x,subB.y)} = ${cv(negB.x,negB.y)}</div>
+    <div class="mode-note">Every component changes sign. The orange vector <strong>−b</strong> is drawn from the origin so you can compare it directly with <strong>b</strong>. It has the same magnitude as <strong>b</strong>, lies on the same line, and points in the opposite direction.</div>
+  </div>
+  ${subRevealed[1]?"":`<div class="small" style="margin-top:8px">What happens to each component when b becomes −b?</div>`}`;
+
+  subStep3.innerHTML=`<div class="revealrow"><strong>3. Add a and −b</strong>${subRevealButton(2)}</div>
+  <div style="margin-top:8px"><strong>Rewrite the subtraction as addition:</strong></div>
+  <div class="bigmath"><strong>a</strong> − <strong>b</strong> = <strong>a</strong> + (−<strong>b</strong>)</div>
+  <div class="mode-note">To add the vectors head-to-tail, move a copy of <strong>−b</strong> so that it starts at the head of <strong>a</strong>. The dashed orange copy is <strong>parallel to and equal to −b</strong>. Translating a vector changes its position, not its magnitude or direction.</div>
+  <div class="answer-content ${subRevealed[2]?"":"hidden-answer"}">
+    <div class="bigmath">
+      ${cv(subA.x,subA.y)} + ${cv(negB.x,negB.y)}
+      = ${cv(`${signed(subA.x)} + (${signed(negB.x)})`,`${signed(subA.y)} + (${signed(negB.y)})`)}
+      = ${cv(result.x,result.y)}
+    </div>
+    <span class="small">Add the top components, then add the bottom components.</span>
+  </div>
+  ${subRevealed[2]?"":`<div class="small" style="margin-top:8px">Calculate the two components of a + (−b) before revealing the answer.</div>`}`;
+
+  subStep4.innerHTML=`<div class="revealrow"><strong>4. Reveal the resultant vector</strong>${subRevealButton(3)}</div>
+  <div class="answer-content ${subRevealed[3]?"":"hidden-answer"}">
+    <div class="bigmath"><strong>a</strong> − <strong>b</strong> = ${cv(result.x,result.y)}</div>
+    <div class="mode-note">The dashed vector goes directly from the origin to the end of the head-to-tail journey: first <strong>a</strong>, then <strong>−b</strong>.</div>
+  </div>
+  ${subRevealed[3]?"":`<div class="small" style="margin-top:8px">Predict where the resultant a − b will end on the grid.</div>`}`;
+
+  document.querySelectorAll("#sub-stagebar .stage").forEach((s,i)=>s.classList.toggle("active",subRevealed[i]));
+
+  document.querySelectorAll("[data-sub-reveal]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const i=Number(btn.dataset.subReveal);
+      subRevealed[i]=!subRevealed[i];
+      renderSubtraction();
+    });
+  });
+}
+
+function subSvgPoint(evt){
+  const pt=subSvg.createSVGPoint(); pt.x=evt.clientX; pt.y=evt.clientY;
+  const local=pt.matrixTransform(subSvg.getScreenCTM().inverse());
+  return {
+    x:Math.max(-5,Math.min(5,Math.round((local.x-originX)/unit))),
+    y:Math.max(-5,Math.min(5,Math.round((originY-local.y)/unit)))
+  };
+}
+function beginSubDrag(which,e){
+  subDragging=which; e.preventDefault();
+  (which==="A"?subAPoint:subBPoint).style.cursor="grabbing";
+  if(e.pointerId!==undefined && e.currentTarget.setPointerCapture) e.currentTarget.setPointerCapture(e.pointerId);
+}
+subAPoint.addEventListener("pointerdown",e=>beginSubDrag("A",e));
+subBPoint.addEventListener("pointerdown",e=>beginSubDrag("B",e));
+subSvg.addEventListener("pointermove",e=>{
+  if(!subDragging) return;
+  e.preventDefault();
+  const p=subSvgPoint(e);
+  if(subDragging==="A") subA=p; else subB=p;
+  subRevealed=[false,false,false,false];
+  renderSubtraction();
+});
+function stopSubDrag(){
+  subAPoint.style.cursor="grab"; subBPoint.style.cursor="grab"; subDragging=null;
+}
+subSvg.addEventListener("pointerup",stopSubDrag);
+subSvg.addEventListener("pointercancel",stopSubDrag);
+subReset.addEventListener("click",()=>{
+  subA={x:4,y:3}; subB={x:2,y:-1};
+  subRevealed=[false,false,false,false];
+  renderSubtraction();
+});
+renderSubtraction();
+
 </script>
 </body>
 </html>
