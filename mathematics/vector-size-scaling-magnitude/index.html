@@ -30,6 +30,10 @@ svg{width:100%;height:auto;display:block;touch-action:pan-y}.drag{touch-action:n
 .vec{font:italic 1.08em "Times New Roman";position:relative;display:inline-block;padding-top:.17em}.vec:before{content:"";position:absolute;left:0;right:0;top:.05em;border-top:1.2px solid}.vec:after{content:"";position:absolute;right:0;top:0;width:.2em;height:.2em;border-top:1.2px solid;border-right:1.2px solid;transform:rotate(45deg)}
 .col{display:inline-flex;align-items:center;vertical-align:middle}.col:before{content:"(";font-size:2em;line-height:.7}.col:after{content:")";font-size:2em;line-height:.7}.nums{display:flex;flex-direction:column;line-height:1;text-align:center;min-width:22px}
 .placeholder{text-align:center;padding:35px;border:2px dashed #b0bec5;border-radius:12px}
+
+#unit .whyunit{background:var(--pale);border-left:5px solid var(--aqua);padding:16px 18px;border-radius:10px;margin:16px 0 20px}
+#unit .hint{font-size:.95rem;color:#526568;margin-top:8px}
+#unit svg{width:100%;height:auto;display:block}
 </style></head><body>
 <header><div class="w"><h1>Vector Size and Scaling</h1><p>Explore how vectors change in size and how their magnitude is calculated.</p></div></header>
 <main class="w"><div class="tabs"><button class="tab" onclick="show('scalar',this)">Scalar Multiplication</button><button class="tab active" onclick="show('mag',this)">Magnitude</button><button class="tab" onclick="show('unit',this)">Unit Vectors</button></div>
@@ -113,7 +117,99 @@ The vector <span class="vec">AB</span> is the <strong>hypotenuse</strong>.</div>
 <p>Moving the same vector somewhere else on the coordinate plane does not change its length or direction. First find the horizontal and vertical changes using <strong>Finish − Start</strong>. Those changes form the sides of a right-angled triangle, and the vector is its hypotenuse.</p>
 <p>A component may be negative because it describes direction. Magnitude is a length, so it cannot be negative.</p><p><strong>Reverse the vector and compare:</strong> the signs of the components change, but the magnitude does not. For the starting example, <span class="vec">AB</span> = (3, 4), <span class="vec">BA</span> = (−3, −4), and |<span class="vec">AB</span>| = |<span class="vec">BA</span>| = 5.</p></div>
 </section>
-<section class="panel" hidden="" id="unit"><h2>Unit Vectors</h2><div class="placeholder">Coming next.</div></section></main>
+
+<section class="panel" hidden="" id="unit">
+<h2>Unit Vectors</h2>
+<p class="lead">A unit vector keeps the <strong>direction</strong> of a vector but gives it a magnitude of exactly <strong>1</strong>.</p>
+
+<div class="whyunit">
+<h3>Why do we want a unit vector?</h3>
+<p>Sometimes we want the <strong>direction</strong> of a vector without keeping its original magnitude. Once we have a vector of length 1 in the required direction, we can scale it to any magnitude we need.</p>
+<p class="big"><strong>Original vector → keep its direction → make its magnitude 1 → scale to the magnitude you want</strong></p>
+</div>
+
+<div class="work">
+<div class="graphcard">
+<svg id="u_g" viewBox="0 0 600 600" aria-label="Interactive unit vector graph">
+<defs>
+<marker id="u_arrA" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#087f8c"/></marker>
+<marker id="u_arrU" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#7c5c9e"/></marker>
+</defs>
+<g id="u_grid"></g><g id="u_axes"></g>
+<line id="u_original" stroke="#087f8c" stroke-width="5" marker-end="url(#u_arrA)"/>
+<line id="u_unit" stroke="#7c5c9e" stroke-width="5" marker-end="url(#u_arrU)" visibility="hidden"/>
+<circle id="u_origin" r="6" fill="#263238"/>
+<circle id="u_tip" r="10" fill="#087f8c" style="touch-action:none;-webkit-user-select:none;user-select:none;pointer-events:all;stroke:transparent;stroke-width:44px;paint-order:stroke fill;cursor:grab"/>
+<g id="u_alab">
+<text id="u_alab_text" font-size="18" font-weight="700" fill="#087f8c">a</text>
+<line id="u_alab_arrow" stroke="#087f8c" stroke-width="1.7"/>
+<path id="u_alab_head" fill="#087f8c"/>
+</g>
+<text id="u_ulab" font-size="18" font-weight="700" fill="#7c5c9e" visibility="hidden">unit vector</text>
+</svg>
+<p class="hint">Drag the aqua endpoint. The purple unit vector will keep the same direction but always have magnitude 1.</p>
+</div>
+
+<div class="steps">
+<div class="stage"><h3>1. Start with a vector</h3>
+<p>For this example, <span class="vec">a</span> = (<span id="u_x"></span>, <span id="u_y"></span>).</p>
+<button class="reveal" onclick="unitReveal(1)">Reveal its magnitude</button>
+<div class="ans" id="u_a1">|<span class="vec">a</span>| = √((<span id="u_xsqbase"></span>)² + (<span id="u_ysqbase"></span>)²) = <span id="u_mag"></span></div>
+</div>
+
+<div class="stage"><h3>2. Make its magnitude 1</h3>
+<p id="u_prompt">The unit vector is not shown yet. Reveal it to see how we keep the direction but change the magnitude to exactly 1.</p>
+<button class="reveal" id="u_revealbtn" onclick="unitReveal(2)">Reveal unit vector</button>
+<div class="ans" id="u_a2">
+<p>To change a vector with magnitude <span id="u_mag2"></span> into a vector with magnitude 1, scale it by <span id="u_recip"></span>.</p>
+<div class="big"><span class="vec">â</span> = <span class="vec">a</span> / |<span class="vec">a</span>|</div>
+<div class="big">= (<span id="u_fx"></span>, <span id="u_fy"></span>)</div>
+</div></div>
+
+<div class="stage"><h3>3. Check that it really is a unit vector</h3>
+<button class="reveal" onclick="unitReveal(3)">Reveal check</button>
+<div class="ans" id="u_a3">
+|<span class="vec">â</span>| = √((<span id="u_ux"></span>)² + (<span id="u_uy"></span>)²)<br/>
+= <span id="u_check"></span>
+<p><strong>Its magnitude is 1.</strong></p>
+</div></div>
+
+<div class="stage"><h3>4. Why scale a unit vector?</h3>
+<div class="whyunit">
+<p>A unit vector gives us a <strong>direction</strong>, but in a real situation we often need a vector with both a particular direction and a particular magnitude.</p>
+<p>For example, we might know:</p>
+<ul>
+<li>the direction an object needs to move, but want to choose its speed;</li>
+<li>the direction of a force, but need the force to have a particular size; or</li>
+<li>the direction of travel, but want a particular displacement.</li>
+</ul>
+<p class="big"><strong>The unit vector gives us the direction. Scaling it gives us the magnitude we need.</strong></p>
+</div>
+<h3>Choose the magnitude you want</h3>
+<p>Now choose the magnitude you want the new vector to have.</p>
+<label for="u_target"><strong>Target magnitude:</strong></label>
+<input id="u_target" type="number" min="0.5" max="50" step="0.5" value="20" style="width:90px;margin:0 8px;padding:7px;border:1px solid #b9c8ca;border-radius:7px"/>
+<button class="reveal" onclick="unitReveal(4)">Scale the unit vector</button>
+<div class="ans" id="u_a4">
+<p>Scale the unit vector by <span id="u_targetshow"></span>:</p>
+<div class="big"><span id="u_targeteq"></span><span class="vec">â</span> = (<span id="u_tx"></span>, <span id="u_ty"></span>)</div>
+<p>This new vector points in the same direction as <span class="vec">a</span>, but its magnitude should be <span id="u_targetmag"></span>.</p>
+<button class="reveal" onclick="unitCheckTarget()">Check its magnitude</button>
+<div class="ans" id="u_targetcheck">
+<p>Check using Pythagoras:</p>
+<div class="big">√((<span id="u_cx"></span>)² + (<span id="u_cy"></span>)²) = <span id="u_cmag"></span></div>
+<p><strong>So the new vector really does have the magnitude you chose.</strong></p>
+</div>
+</div></div>
+
+<button onclick="unitReset()">Reset example</button>
+</div></div>
+
+<div class="foundation"><h3>Foundation idea</h3>
+<p><strong>Scalar multiplication</strong> changes the size of a vector. <strong>Magnitude</strong> tells us its size. A <strong>unit vector</strong> keeps the direction but standardises the magnitude to 1, so we can then scale it to whatever magnitude we need.</p>
+<p><strong>Important:</strong> the zero vector has magnitude 0, so it cannot be converted into a unit vector because division by 0 is undefined.</p>
+</div>
+</section></main>
 <script>(()=>{
 
 function show(id,b){document.querySelectorAll("section.panel").forEach(x=>x.hidden=true);document.getElementById(id).hidden=false;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active")}
@@ -204,4 +300,52 @@ svg.addEventListener("pointermove",e=>{if(!drag)return;e.preventDefault();let p=
 svg.addEventListener("pointerup",()=>drag=null);svg.addEventListener("pointercancel",()=>drag=null);
 function reverseDirection(){reversed=!reversed;hide();update()}
 function resetAll(){A={x:-2,y:1};B={x:1,y:5};reversed=false;hide();update()}update();
+
+// Unit vectors
+(()=>{
+const ns="http://www.w3.org/2000/svg",g=document.getElementById("u_g"),G=document.getElementById("u_grid"),AX=document.getElementById("u_axes");
+const C=300,S=50; let v={x:3,y:4},drag=false;
+const sx=x=>C+x*S, sy=y=>C-y*S;
+function el(id){return document.getElementById(id)}
+function line(p,x1,y1,x2,y2,c,w=1){let l=document.createElementNS(ns,"line");l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);l.setAttribute("stroke",c);l.setAttribute("stroke-width",w);p.appendChild(l)}
+for(let i=-5;i<=5;i++){if(i){line(G,sx(i),25,sx(i),575,"#e2e8ea");line(G,25,sy(i),575,sy(i),"#e2e8ea")}}
+line(AX,25,C,575,C,"#607d80",2);line(AX,C,575,C,25,"#607d80",2);
+for(let i=-5;i<=5;i++){if(!i)continue;let tx=document.createElementNS(ns,"text");tx.setAttribute("x",sx(i));tx.setAttribute("y",C+19);tx.setAttribute("text-anchor","middle");tx.setAttribute("font-size","12");tx.textContent=i;AX.appendChild(tx);let ty=tx.cloneNode();ty.setAttribute("x",C-9);ty.setAttribute("y",sy(i)+4);ty.setAttribute("text-anchor","end");ty.textContent=i;AX.appendChild(ty)}
+function fmt(n){if(Math.abs(n-Math.round(n))<1e-9)return String(Math.round(n));return n.toFixed(2)}
+function hide(){document.querySelectorAll("#unit .ans").forEach(x=>x.style.display="none");el("u_unit").setAttribute("visibility","hidden");el("u_ulab").setAttribute("visibility","hidden");el("u_prompt").textContent="The unit vector is not shown yet. Reveal it to see how we keep the direction but change the magnitude to exactly 1.";el("u_revealbtn").style.display="inline-block"}
+function update(){
+ let m=Math.hypot(v.x,v.y); if(m===0){v={x:1,y:0};m=1}
+ let u={x:v.x/m,y:v.y/m};
+ el("u_original").setAttribute("x1",C);el("u_original").setAttribute("y1",C);el("u_original").setAttribute("x2",sx(v.x));el("u_original").setAttribute("y2",sy(v.y));
+ el("u_unit").setAttribute("x1",C);el("u_unit").setAttribute("y1",C);el("u_unit").setAttribute("x2",sx(u.x));el("u_unit").setAttribute("y2",sy(u.y));
+ el("u_origin").setAttribute("cx",C);el("u_origin").setAttribute("cy",C);el("u_tip").setAttribute("cx",sx(v.x));el("u_tip").setAttribute("cy",sy(v.y));
+ let alx=Math.max(45,Math.min(555,sx(v.x)-20)),aly=Math.max(55,Math.min(555,sy(v.y)-16));
+ el("u_alab_text").setAttribute("x",alx);el("u_alab_text").setAttribute("y",aly);
+ el("u_alab_arrow").setAttribute("x1",alx-1);el("u_alab_arrow").setAttribute("y1",aly-20);el("u_alab_arrow").setAttribute("x2",alx+13);el("u_alab_arrow").setAttribute("y2",aly-20);
+ el("u_alab_head").setAttribute("d","M "+(alx+13)+" "+(aly-20)+" L "+(alx+8)+" "+(aly-23)+" L "+(alx+8)+" "+(aly-17)+" Z");
+ el("u_ulab").setAttribute("x",Math.max(45,Math.min(535,sx(u.x)+15)));el("u_ulab").setAttribute("y",Math.max(45,Math.min(555,sy(u.y)-12)));
+ el("u_x").textContent=v.x;el("u_y").textContent=v.y;el("u_xsqbase").textContent=v.x;el("u_ysqbase").textContent=v.y;
+ el("u_mag").textContent=fmt(m);el("u_mag2").textContent=fmt(m);el("u_recip").textContent="1/"+fmt(m);
+ el("u_fx").textContent=fmt(u.x);el("u_fy").textContent=fmt(u.y);el("u_ux").textContent=fmt(u.x);el("u_uy").textContent=fmt(u.y);
+ el("u_check").textContent=fmt(Math.hypot(u.x,u.y));updateTarget()
+}
+function updateTarget(){
+ let m=Math.hypot(v.x,v.y),u={x:v.x/m,y:v.y/m};
+ let t=Number(el("u_target").value);if(!Number.isFinite(t)||t<=0)t=1;
+ el("u_targetshow").textContent=fmt(t);el("u_targeteq").textContent=fmt(t);
+ let tx=t*u.x,ty=t*u.y;
+ el("u_tx").textContent=fmt(tx);el("u_ty").textContent=fmt(ty);el("u_targetmag").textContent=fmt(t);
+ el("u_cx").textContent=fmt(tx);el("u_cy").textContent=fmt(ty);el("u_cmag").textContent=fmt(Math.hypot(tx,ty))
+}
+window.unitCheckTarget=()=>{el("u_targetcheck").style.display="block"};
+window.unitReveal=n=>{if(n>=1)el("u_a1").style.display="block";if(n>=2){el("u_a2").style.display="block";el("u_unit").setAttribute("visibility","visible");el("u_ulab").setAttribute("visibility","visible");el("u_prompt").textContent="The purple vector has the same direction as the original vector, but its magnitude is exactly 1.";el("u_revealbtn").style.display="none"}if(n>=3)el("u_a3").style.display="block";if(n>=4)el("u_a4").style.display="block"};
+el("u_target").addEventListener("input",()=>{el("u_a4").style.display="none";el("u_targetcheck").style.display="none";updateTarget()});
+window.unitReset=()=>{v={x:3,y:4};el("u_target").value=20;hide();update()};
+function point(e){let p=g.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(g.getScreenCTM().inverse())}
+el("u_tip").onpointerdown=e=>{drag=true;if(el("u_tip").setPointerCapture)el("u_tip").setPointerCapture(e.pointerId)};
+g.onpointermove=e=>{if(!drag)return;e.preventDefault();let p=point(e),x=Math.max(-5,Math.min(5,Math.round((p.x-C)/S))),y=Math.max(-5,Math.min(5,Math.round((C-p.y)/S)));if(x===0&&y===0)return;v={x,y};hide();update()};
+g.onpointerup=g.onpointercancel=()=>drag=false;
+update();
+})();
+
 </script></body></html>
