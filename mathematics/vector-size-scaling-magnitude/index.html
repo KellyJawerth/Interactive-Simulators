@@ -1,9 +1,7 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Vector Size and Scaling - Scalar Multiplication</title>
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Vector Size and Scaling - Magnitude</title>
 <style>
 :root{--a:#087f8c;--ad:#066a75;--p:#e8f5f6;--pp:#f4fafb;--ink:#263238;--muted:#607d80;--purple:#7c5c9e;--orange:#c46b3c}
 *{box-sizing:border-box} body{margin:0;font:16px Arial,Helvetica,sans-serif;color:var(--ink);background:#f5f7f8;line-height:1.5}
@@ -19,58 +17,107 @@ svg{width:100%;height:auto;display:block;touch-action:pan-y}.drag{touch-action:n
 .col{display:inline-flex;align-items:center;vertical-align:middle}.col:before{content:"(";font-size:2em;line-height:.7}.col:after{content:")";font-size:2em;line-height:.7}.nums{display:flex;flex-direction:column;line-height:1;text-align:center;min-width:22px}
 .note{color:var(--muted);font-size:.94rem}.construction{text-align:center;padding:35px;border:2px dashed #b0bec5;border-radius:12px}
 .key{font-weight:700;color:var(--ad)}
-</style></head>
-<body>
-<header><div class="w"><h1>Vector Size and Scaling</h1><p>Explore how multiplying a vector changes its size and direction.</p></div></header>
-<main class="w">
-<div class="tabs"><button class="tab active" onclick="show('scalar',this)">Scalar Multiplication</button><button class="tab wait" onclick="show('magnitude',this)">Magnitude</button><button class="tab wait" onclick="show('unit',this)">Unit Vectors</button></div>
 
-<section id="scalar" class="panel">
+
+:root{--a:#087f8c;--ad:#066a75;--p:#e8f5f6;--pp:#f4fafb;--ink:#263238;--muted:#607d80;--orange:#c46b3c;--purple:#7c5c9e}
+*{box-sizing:border-box}body{margin:0;font:16px Arial,sans-serif;color:var(--ink);background:#f5f7f8;line-height:1.5}header{background:linear-gradient(135deg,var(--ad),var(--a));color:white;padding:30px 20px}.w{max-width:1080px;margin:auto;padding:20px}header .w{padding:0}h1{margin:0 0 5px}h2{color:var(--ad);margin-top:0}
+.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:4px 0 20px}.tab,button{font:inherit;font-weight:700;border:0;border-radius:8px;padding:10px 14px;cursor:pointer}.tab{background:white;border:1px solid #c6d1d4}.tab.active,.reveal{background:var(--a);color:white}.panel{background:white;padding:22px;border-radius:14px;box-shadow:0 3px 14px #0001}
+.layout{display:grid;grid-template-columns:1.12fr .88fr;gap:22px;align-items:start}@media(max-width:800px){.layout{grid-template-columns:1fr}.w{padding:14px}.panel{padding:17px}}
+.card,.stage,.foundation,.coords{border:1px solid #d6e1e3;border-radius:11px;padding:15px}.stage{margin:11px 0;border-left:4px solid var(--a);background:var(--pp)}.stage h3{margin:0 0 6px;color:var(--ad);font-size:1rem}
+svg{width:100%;height:auto;display:block;touch-action:pan-y}.drag{touch-action:none;pointer-events:all;stroke:transparent;stroke-width:44px;paint-order:stroke fill}
+.coords{margin-bottom:12px;background:var(--pp)}.coordrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:7px 0}.coordrow input{width:62px;padding:8px;border:1px solid #aebdc0;border-radius:7px;font:inherit}
+.pill{display:inline-block;background:var(--p);border-radius:999px;padding:6px 11px;margin:7px 5px 0 0;font-weight:700}.ans{display:none;margin-top:8px}.foundation{margin-top:20px;background:var(--p)}.note{color:var(--muted);font-size:.94rem}.big{font-size:1.12rem;font-weight:700;color:var(--ad)}
+.vec{font:italic 1.08em "Times New Roman";position:relative;display:inline-block;padding-top:.17em}.vec:before{content:"";position:absolute;left:0;right:0;top:.05em;border-top:1.2px solid}.vec:after{content:"";position:absolute;right:0;top:0;width:.2em;height:.2em;border-top:1.2px solid;border-right:1.2px solid;transform:rotate(45deg)}
+.col{display:inline-flex;align-items:center;vertical-align:middle}.col:before{content:"(";font-size:2em;line-height:.7}.col:after{content:")";font-size:2em;line-height:.7}.nums{display:flex;flex-direction:column;line-height:1;text-align:center;min-width:22px}
+.placeholder{text-align:center;padding:35px;border:2px dashed #b0bec5;border-radius:12px}
+</style></head><body>
+<header><div class="w"><h1>Vector Size and Scaling</h1><p>Explore how vectors change in size and how their magnitude is calculated.</p></div></header>
+<main class="w"><div class="tabs"><button class="tab" onclick="show('scalar',this)">Scalar Multiplication</button><button class="tab active" onclick="show('mag',this)">Magnitude</button><button class="tab" onclick="show('unit',this)">Unit Vectors</button></div>
+<section class="panel" id="scalar">
 <h2>Scalar Multiplication</h2>
 <p>A <strong>scalar</strong> is a number that multiplies a vector. It can make the vector longer, shorter, or reverse its direction. Start with <span class="vec">a</span>, then choose a scalar <strong>k</strong> to create <strong>k</strong><span class="vec">a</span>.</p>
 <div class="foundation" style="margin-top:0;margin-bottom:18px"><h3>Which k?</h3><p>Here, <strong>k</strong> is a <strong>scalar</strong>, so it represents an ordinary number such as 2, ½, or −1. This is different from the base vector <span class="vec">k</span> used with <span class="vec">i</span>, <span class="vec">j</span>, and <span class="vec">k</span> in 3D vectors. The notation and context tell us which k we mean.</p></div>
 <div class="layout">
 <div class="card">
-<svg id="g" viewBox="0 0 600 600">
+<svg id="s_g" viewbox="0 0 600 600">
 <defs>
-<marker id="arrA" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#087f8c"/></marker>
-<marker id="arrK" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#7c5c9e"/></marker>
-</defs><g id="grid"></g><g id="axes"></g>
-<line id="base" stroke="#087f8c" stroke-width="4" marker-end="url(#arrA)"/>
-<line id="scaled" stroke="#7c5c9e" stroke-width="4" marker-end="url(#arrK)"/>
-<circle id="origin" r="6" fill="#263238"/><circle id="tip" class="drag" r="9" fill="#087f8c"/>
-<foreignObject id="alab" width="55" height="34"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;font-weight:700;color:#066a75"><span class="vec">a</span></div></foreignObject><foreignObject id="klab" width="70" height="34"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;font-weight:700;color:#7c5c9e">k<span class="vec">a</span></div></foreignObject>
+<marker id="s_arrA" markerheight="6" markerwidth="6" orient="auto" refx="5" refy="3"><path d="M0 0L6 3L0 6Z" fill="#087f8c"></path></marker>
+<marker id="s_arrK" markerheight="6" markerwidth="6" orient="auto" refx="5" refy="3"><path d="M0 0L6 3L0 6Z" fill="#7c5c9e"></path></marker>
+</defs><g id="s_grid"></g><g id="s_axes"></g>
+<line id="s_base" marker-end="url(#s_arrA)" stroke="#087f8c" stroke-width="4"></line>
+<line id="s_scaled" marker-end="url(#s_arrK)" stroke="#7c5c9e" stroke-width="4"></line>
+<circle fill="#263238" id="s_origin" r="6"></circle><circle class="drag" fill="#087f8c" id="s_tip" r="9"></circle>
+<foreignobject height="34" id="s_alab" width="55"><div style="font-size:18px;font-weight:700;color:#066a75" xmlns="http://www.w3.org/1999/xhtml"><span class="vec">a</span></div></foreignobject><foreignobject height="34" id="s_klab" width="70"><div style="font-size:18px;font-weight:700;color:#7c5c9e" xmlns="http://www.w3.org/1999/xhtml">k<span class="vec">a</span></div></foreignobject>
 </svg>
-<span class="pill"><span class="vec">a</span> = <span class="col"><span class="nums"><span id="vx">2</span><span id="vy">1</span></span></span></span>
-<span class="pill">k = <span id="kr">2</span></span>
+<span class="pill"><span class="vec">a</span> = <span class="col"><span class="nums"><span id="s_vx">2</span><span id="s_vy">1</span></span></span></span>
+<span class="pill">k = <span id="s_kr">2</span></span>
 <p class="note">Drag the endpoint of <span class="vec">a</span>. The scaled vector updates automatically.</p>
 <h3>Choose the scalar k</h3>
 <div class="controls">
 <button class="scalar" data-k="-2">−2</button><button class="scalar" data-k="-1">−1</button><button class="scalar" data-k="0.5">½</button><button class="scalar on" data-k="2">2</button><button class="scalar" data-k="3">3</button>
 </div>
 </div>
-
 <div>
-<div class="stage"><h3>1. Start with the vector</h3><p><span class="vec">a</span> has components <span class="col"><span class="nums"><span id="s1x">2</span><span id="s1y">1</span></span></span>.</p></div>
-<div class="stage"><h3>2. Multiply each component</h3><p>To find k<span class="vec">a</span>, multiply <strong>every component</strong> by k.</p><button class="reveal" onclick="reveal(2)">Reveal working</button><div id="a2" class="ans"><span id="work"></span></div></div>
-<div class="stage"><h3>3. Write the new vector</h3><button class="reveal" onclick="reveal(3)">Reveal vector</button><div id="a3" class="ans">k<span class="vec">a</span> = <span class="col"><span class="nums"><span id="rx"></span><span id="ry"></span></span></span></div></div>
-<div class="stage"><h3>4. What changed?</h3><button class="reveal" onclick="reveal(4)">Reveal relationship</button><div id="a4" class="ans"><span id="relationship"></span></div></div>
+<div class="stage"><h3>1. Start with the vector</h3><p><span class="vec">a</span> has components <span class="col"><span class="nums"><span id="s_s1x">2</span><span id="s_s1y">1</span></span></span>.</p></div>
+<div class="stage"><h3>2. Multiply each component</h3><p>To find k<span class="vec">a</span>, multiply <strong>every component</strong> by k.</p><button class="reveal" onclick="reveal(2)">Reveal working</button><div class="ans" id="s_a2"><span id="s_work"></span></div></div>
+<div class="stage"><h3>3. Write the new vector</h3><button class="reveal" onclick="reveal(3)">Reveal vector</button><div class="ans" id="s_a3">k<span class="vec">a</span> = <span class="col"><span class="nums"><span id="s_rx"></span><span id="s_ry"></span></span></span></div></div>
+<div class="stage"><h3>4. What changed?</h3><button class="reveal" onclick="reveal(4)">Reveal relationship</button><div class="ans" id="s_a4"><span id="s_relationship"></span></div></div>
 <button onclick="resetAll()">Reset</button>
 </div></div>
-
 <div class="foundation"><h3>Foundation idea</h3>
 <p><span class="key">Scalar multiplication changes the magnitude of a vector.</span></p>
 <p>If <strong>|k| &gt; 1</strong>, the vector becomes longer. If <strong>0 &lt; |k| &lt; 1</strong>, it becomes shorter. A positive scalar keeps the same direction. A negative scalar reverses the direction.</p>
 <p>In particular, <strong>−1</strong><span class="vec">a</span> = −<span class="vec">a</span>: same magnitude, opposite direction.</p>
 </div>
 </section>
+<section class="panel" id="mag"><h2>Magnitude</h2>
+<p>The <strong>magnitude</strong> of a vector is its length. A vector can start anywhere on the coordinate plane. What matters for its magnitude is the change from its starting point to its finishing point.</p>
+<div class="layout"><div>
+<div class="coords"><h3 style="margin-top:0">Choose the coordinates</h3>
+<div class="coordrow"><strong>A = (</strong><input aria-label="A x coordinate" id="ax" max="5" min="-5" type="number" value="-2"/><strong>,</strong><input aria-label="A y coordinate" id="ay" max="5" min="-5" type="number" value="1"/><strong>)</strong></div>
+<div class="coordrow"><strong>B = (</strong><input aria-label="B x coordinate" id="bx" max="5" min="-5" type="number" value="1"/><strong>,</strong><input aria-label="B y coordinate" id="by" max="5" min="-5" type="number" value="5"/><strong>)</strong></div>
+<p class="note">Enter coordinates from −5 to 5, or drag A and B on the graph.</p></div>
+<div class="card"><svg id="g" viewbox="0 0 600 600">
+<defs><marker id="arr" markerheight="6" markerwidth="6" orient="auto" refx="5" refy="3"><path d="M0 0L6 3L0 6Z" fill="#087f8c"></path></marker></defs>
+<g id="grid"></g><g id="axes"></g>
+<line id="vline" marker-end="url(#arr)" stroke="#087f8c" stroke-width="4"></line>
+<g id="construct"></g>
+<circle class="drag" fill="#263238" id="pa" r="8"></circle><circle class="drag" fill="#087f8c" id="pb" r="8"></circle>
+<text font-size="17" font-weight="700" id="la">A</text><text fill="#066a75" font-size="17" font-weight="700" id="lb">B</text>
+</svg>
+<span class="pill"><span class="vec">AB</span> = <span class="col"><span class="nums"><span id="vx"></span><span id="vy"></span></span></span></span>
+<span class="pill">|<span class="vec">AB</span>| = <span id="mystery">?</span></span>
+</div></div>
+<div>
+<div class="stage"><h3>1. Find the vector</h3><p>Finish − Start:</p>
+<div class="ans" id="a1"><span class="vec">AB</span> = (<span id="bxw"></span> − <span id="axw"></span>, <span id="byw"></span> − <span id="ayw"></span>)<br/>
+= (<span id="dxw"></span>, <span id="dyw"></span>)</div><button class="reveal" onclick="reveal(1)">Reveal vector</button></div>
+<div class="stage"><h3>2. Construct the right-angled triangle</h3>
+<p id="constructionPrompt">The adjacent and opposite sides are not shown yet. Reveal the construction to see how the horizontal and vertical changes form a right-angled triangle.</p>
+<button class="reveal" id="constructionButton" onclick="reveal(2)">Reveal construction</button>
+<div class="ans" id="a2">The dotted horizontal side is the <strong>adjacent</strong> side, with length |Δx| = <strong><span id="adx"></span></strong>.<br/>
+The dotted vertical side is the <strong>opposite</strong> side, with length |Δy| = <strong><span id="ady"></span></strong>.<br/>
+The vector <span class="vec">AB</span> is the <strong>hypotenuse</strong>.</div></div>
+<div class="stage"><h3>3. Apply Pythagoras</h3><p class="big">|<span class="vec">AB</span>| = √(x² + y²)</p>
+<button class="reveal" onclick="reveal(3)">Reveal working</button>
+<div class="ans" id="a3">hypotenuse² = adjacent² + opposite²<br/>
+|<span class="vec">AB</span>|² = (<span id="dx2a"></span>)² + (<span id="dy2a"></span>)²<br/>
+= <span id="xsq"></span> + <span id="ysq"></span><br/>
+= <span id="sum"></span><br/><br/>
+|<span class="vec">AB</span>| = √<span id="sum2"></span></div></div>
+<div class="stage"><h3>4. Find the magnitude</h3><button class="reveal" onclick="reveal(4)">Reveal magnitude</button>
+<div class="ans big" id="a4">|<span class="vec">AB</span>| = <span id="mag"></span> units</div></div>
+<button onclick="reverseDirection()">Reverse direction</button> <button onclick="resetAll()">Reset example</button>
+</div></div>
+<div class="foundation"><h3>Foundation idea</h3><p class="big">A vector's position does not determine its magnitude.</p>
+<p>Moving the same vector somewhere else on the coordinate plane does not change its length or direction. First find the horizontal and vertical changes using <strong>Finish − Start</strong>. Those changes form the sides of a right-angled triangle, and the vector is its hypotenuse.</p>
+<p>A component may be negative because it describes direction. Magnitude is a length, so it cannot be negative.</p><p><strong>Reverse the vector and compare:</strong> the signs of the components change, but the magnitude does not. For the starting example, <span class="vec">AB</span> = (3, 4), <span class="vec">BA</span> = (−3, −4), and |<span class="vec">AB</span>| = |<span class="vec">BA</span>| = 5.</p></div>
+</section>
+<section class="panel" hidden="" id="unit"><h2>Unit Vectors</h2><div class="placeholder">Coming next.</div></section></main>
+<script>(()=>{
 
-<section id="magnitude" class="panel" hidden><h2>Magnitude</h2><div class="construction"><h2>Next</h2><p>Magnitude will connect the vector’s components to its length using Pythagoras.</p></div></section>
-<section id="unit" class="panel" hidden><h2>Unit Vectors</h2><div class="construction"><h2>Coming after magnitude</h2><p>We will use magnitude to scale a non-zero vector to a length of exactly 1.</p></div></section>
-</main>
-<script>
 function show(id,b){document.querySelectorAll("section.panel").forEach(x=>x.hidden=true);document.getElementById(id).hidden=false;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active")}
-const ns="http://www.w3.org/2000/svg",g=document.getElementById("g"),G=document.getElementById("grid"),A=document.getElementById("axes"),tip=document.getElementById("tip"),base=document.getElementById("base"),scaled=document.getElementById("scaled"),origin=document.getElementById("origin"),alab=document.getElementById("alab"),klab=document.getElementById("klab");const C=300,S=27;let v={x:2,y:1},k=2,drag=false;
+const ns="http://www.w3.org/2000/svg",s_g=document.getElementById("s_g"),G=document.getElementById("s_grid"),A=document.getElementById("s_axes"),s_tip=document.getElementById("s_tip"),s_base=document.getElementById("s_base"),s_scaled=document.getElementById("s_scaled"),s_origin=document.getElementById("s_origin"),s_alab=document.getElementById("s_alab"),s_klab=document.getElementById("s_klab");const C=300,S=27;let v={x:2,y:1},k=2,drag=false;
 let sx=x=>C+x*S,sy=y=>C-y*S;
 function line(p,x1,y1,x2,y2,c,w=1){let l=document.createElementNS(ns,"line");l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);l.setAttribute("stroke",c);l.setAttribute("stroke-width",w);p.appendChild(l)}
 for(let i=-10;i<=10;i++){if(i){line(G,sx(i),30,sx(i),570,"#e2e8ea");line(G,30,sy(i),570,sy(i),"#e2e8ea")}}line(A,25,C,575,C,"#607d80",2);line(A,C,575,C,25,"#607d80",2);
@@ -79,25 +126,82 @@ function fmt(n){return Number.isInteger(n)?String(n):String(n).replace(".5","½"
 function hideAnswers(){document.querySelectorAll(".ans").forEach(x=>x.style.display="none")}
 function update(){
  let q={x:v.x*k,y:v.y*k};
- base.setAttribute("x1",C);base.setAttribute("y1",C);base.setAttribute("x2",sx(v.x));base.setAttribute("y2",sy(v.y));
- scaled.setAttribute("x1",C);scaled.setAttribute("y1",C);scaled.setAttribute("x2",sx(q.x));scaled.setAttribute("y2",sy(q.y));
- origin.setAttribute("cx",C);origin.setAttribute("cy",C);tip.setAttribute("cx",sx(v.x));tip.setAttribute("cy",sy(v.y));
- alab.setAttribute("x",sx(v.x)+10);alab.setAttribute("y",sy(v.y)-30);klab.setAttribute("x",sx(q.x)+10);klab.setAttribute("y",sy(q.y)-30);
- vx.textContent=s1x.textContent=v.x;vy.textContent=s1y.textContent=v.y;kr.textContent=fmt(k);rx.textContent=q.x;ry.textContent=q.y;
- work.textContent="("+fmt(k)+" × "+v.x+", "+fmt(k)+" × "+v.y+") = ("+q.x+", "+q.y+")";
+ s_base.setAttribute("x1",C);s_base.setAttribute("y1",C);s_base.setAttribute("x2",sx(v.x));s_base.setAttribute("y2",sy(v.y));
+ s_scaled.setAttribute("x1",C);s_scaled.setAttribute("y1",C);s_scaled.setAttribute("x2",sx(q.x));s_scaled.setAttribute("y2",sy(q.y));
+ s_origin.setAttribute("cx",C);s_origin.setAttribute("cy",C);s_tip.setAttribute("cx",sx(v.x));s_tip.setAttribute("cy",sy(v.y));
+ // Keep labels readable even when a vector points toward a graph edge.
+ // Place each label slightly back from its arrow tip and offset it perpendicular to the vector.
+ function placeLabel(el,p,extra=0){
+   let len=Math.hypot(p.x,p.y)||1;
+   let ux=p.x/len, uy=p.y/len;
+   let back=28+extra, side=18;
+   let px=sx(p.x)-ux*back + uy*side;
+   let py=sy(p.y)+uy*back + ux*side;
+   // Keep the label inside the plotting area.
+   px=Math.max(48,Math.min(552,px));
+   py=Math.max(48,Math.min(552,py));
+   el.setAttribute("x",px);el.setAttribute("y",py);
+ }
+ placeLabel(s_alab,v,0);placeLabel(s_klab,q,10);
+ s_vx.textContent=s_s1x.textContent=v.x;s_vy.textContent=s_s1y.textContent=v.y;s_kr.textContent=fmt(k);s_rx.textContent=q.x;s_ry.textContent=q.y;
+ s_work.textContent="("+fmt(k)+" × "+v.x+", "+fmt(k)+" × "+v.y+") = ("+q.x+", "+q.y+")";
  let abs=Math.abs(k),txt="";
- if(k<0)txt="The vector is scaled by "+abs+" and its direction is reversed.";
+ if(k<0)txt="The vector is s_scaled by "+abs+" and its direction is reversed.";
  else if(abs>1)txt="The vector keeps the same direction and becomes "+abs+" times as long.";
  else if(abs>0&&abs<1)txt="The vector keeps the same direction and becomes shorter.";
  else if(k===0)txt="The result is the zero vector.";
  else txt="The vector is unchanged.";
- relationship.textContent=txt;
+ s_relationship.textContent=txt;
 }
 function reveal(n){for(let i=2;i<=n;i++)document.getElementById("a"+i).style.display="block"}
 document.querySelectorAll(".scalar").forEach(b=>b.onclick=()=>{k=Number(b.dataset.k);document.querySelectorAll(".scalar").forEach(x=>x.classList.remove("on"));b.classList.add("on");hideAnswers();update()});
-function point(e){let p=g.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(g.getScreenCTM().inverse())}
-tip.onpointerdown=e=>{drag=true;if(tip.setPointerCapture)tip.setPointerCapture(e.pointerId)};
-g.onpointermove=e=>{if(!drag)return;e.preventDefault();let p=point(e),x=Math.max(-3,Math.min(3,Math.round((p.x-C)/S))),y=Math.max(-3,Math.min(3,Math.round((C-p.y)/S)));if(x||y){v={x,y};hideAnswers();update()}};
-tip.onpointerup=tip.onpointercancel=()=>drag=false;
+function point(e){let p=s_g.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(s_g.getScreenCTM().inverse())}
+s_tip.onpointerdown=e=>{drag=true;if(s_tip.setPointerCapture)s_tip.setPointerCapture(e.pointerId)};
+s_g.onpointermove=e=>{if(!drag)return;e.preventDefault();let p=point(e),x=Math.max(-3,Math.min(3,Math.round((p.x-C)/S))),y=Math.max(-3,Math.min(3,Math.round((C-p.y)/S)));if(x||y){v={x,y};hideAnswers();update()}};
+s_tip.onpointerup=s_tip.onpointercancel=()=>drag=false;
 function resetAll(){v={x:2,y:1};k=2;document.querySelectorAll(".scalar").forEach(x=>x.classList.toggle("on",x.dataset.k==="2"));hideAnswers();update()}update();
+
+})();
+
+function show(id,b){document.querySelectorAll("section.panel").forEach(x=>x.hidden=true);document.getElementById(id).hidden=false;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active")}
+const ns="http://www.w3.org/2000/svg",G=document.getElementById("grid"),AX=document.getElementById("axes"),C=document.getElementById("construct"),svg=document.getElementById("g"),S=45,O=300;let A={x:-2,y:1},B={x:1,y:5},drag=null,reversed=false;
+const sx=x=>O+x*S,sy=y=>O-y*S;
+function ln(parent,x1,y1,x2,y2,c,w=1,d=""){let l=document.createElementNS(ns,"line");for(let [k,v] of Object.entries({x1,y1,x2,y2}))l.setAttribute(k,v);l.setAttribute("stroke",c);l.setAttribute("stroke-width",w);if(d)l.setAttribute("stroke-dasharray",d);parent.appendChild(l);return l}
+for(let i=-6;i<=6;i++){if(i){ln(G,sx(i),30,sx(i),570,"#e2e8ea");ln(G,30,sy(i),570,sy(i),"#e2e8ea")}}ln(AX,25,O,575,O,"#607d80",2);ln(AX,O,575,O,25,"#607d80",2);
+for(let i=-6;i<=6;i++){if(!i)continue;let t=document.createElementNS(ns,"text");t.setAttribute("x",sx(i));t.setAttribute("y",O+19);t.setAttribute("text-anchor","middle");t.setAttribute("font-size","12");t.textContent=i;AX.appendChild(t);let u=t.cloneNode();u.setAttribute("x",O-9);u.setAttribute("y",sy(i)+4);u.setAttribute("text-anchor","end");u.textContent=i;AX.appendChild(u)}
+function val(id){return document.getElementById(id)}
+function clamp(n){n=Number(n);return Number.isFinite(n)?Math.max(-5,Math.min(5,Math.round(n))):0}
+function hide(){document.querySelectorAll(".ans").forEach(x=>x.style.display="none");C.innerHTML="";mystery.textContent="?";constructionPrompt.textContent="The adjacent and opposite sides are not shown yet. Reveal the construction to see how the horizontal and vertical changes form a right-angled triangle.";constructionButton.style.display="inline-block"}
+function updateInputs(){ax.value=A.x;ay.value=A.y;bx.value=B.x;by.value=B.y}
+function update(){
+let P=reversed?B:A,Q=reversed?A:B,name=reversed?"BA":"AB",dx=Q.x-P.x,dy=Q.y-P.y;
+vline.setAttribute("x1",sx(P.x));vline.setAttribute("y1",sy(P.y));vline.setAttribute("x2",sx(Q.x));vline.setAttribute("y2",sy(Q.y));
+pa.setAttribute("cx",sx(A.x));pa.setAttribute("cy",sy(A.y));pb.setAttribute("cx",sx(B.x));pb.setAttribute("cy",sy(B.y));
+la.setAttribute("x",sx(A.x)-20);la.setAttribute("y",sy(A.y)+23);lb.setAttribute("x",sx(B.x)+12);lb.setAttribute("y",sy(B.y)-12);
+document.querySelectorAll(".vec").forEach(el=>{if(el.textContent==="AB"||el.textContent==="BA")el.textContent=name});
+vx.textContent=dx;vy.textContent=dy;
+bxw.textContent=Q.x;axw.textContent=P.x;byw.textContent=Q.y;ayw.textContent=P.y;
+dxw.textContent=dx;dyw.textContent=dy;adx.textContent=Math.abs(dx);ady.textContent=Math.abs(dy);dx2a.textContent=dx;dy2a.textContent=dy;
+let x2=dx*dx,y2=dy*dy,s=x2+y2,m=Math.sqrt(s);xsq.textContent=x2;ysq.textContent=y2;sum.textContent=sum2.textContent=s;mag.textContent=Number.isInteger(m)?m:m.toFixed(2);updateInputs()
+}
+function label(x,y,text,c){let t=document.createElementNS(ns,"text");t.setAttribute("x",x);t.setAttribute("y",y);t.setAttribute("fill",c);t.setAttribute("font-size","16");t.setAttribute("font-weight","700");t.setAttribute("text-anchor","middle");t.setAttribute("stroke","white");t.setAttribute("stroke-width","5");t.setAttribute("paint-order","stroke");t.textContent=text;C.appendChild(t)}
+function construction(){
+C.innerHTML="";let P=reversed?B:A,Q=reversed?A:B,corner={x:Q.x,y:P.y},dx=Q.x-P.x,dy=Q.y-P.y;
+ln(C,sx(P.x),sy(P.y),sx(corner.x),sy(corner.y),"#9b4f2d",4,"8 7");
+ln(C,sx(corner.x),sy(corner.y),sx(Q.x),sy(Q.y),"#62447f",4,"8 7");
+label((sx(P.x)+sx(corner.x))/2,sy(P.y)+(dy>=0?22:-12),"adjacent = "+Math.abs(dx),"#a4542f");
+label(sx(corner.x)+(dx>=0?55:-55),(sy(corner.y)+sy(Q.y))/2,"opposite = "+Math.abs(dy),"#694c88");
+let mx=(sx(P.x)+sx(Q.x))/2, my=(sy(P.y)+sy(Q.y))/2;
+label(mx-28,my-15,"hypotenuse = |AB|","#066a75");
+let s=10,sgnx=dx>=0?-1:1,sgny=dy>=0?-1:1,x=sx(corner.x),y=sy(corner.y);
+let p=document.createElementNS(ns,"path");p.setAttribute("d",`M ${x+sgnx*s} ${y} L ${x+sgnx*s} ${y+sgny*s} L ${x} ${y+sgny*s}`);p.setAttribute("fill","none");p.setAttribute("stroke","#607d80");p.setAttribute("stroke-width","2");C.appendChild(p)
+}
+function reveal(n){if(n>=1)a1.style.display="block";if(n>=2){a2.style.display="block";construction();constructionPrompt.textContent="The dotted lines show the adjacent and opposite sides of the right-angled triangle. The vector AB is the hypotenuse.";constructionButton.style.display="none"}if(n>=3)a3.style.display="block";if(n>=4){a4.style.display="block";mystery.textContent=mag.textContent}}
+["ax","ay","bx","by"].forEach(id=>val(id).addEventListener("change",()=>{A={x:clamp(ax.value),y:clamp(ay.value)};B={x:clamp(bx.value),y:clamp(by.value)};if(A.x===B.x&&A.y===B.y)B.x=Math.min(5,B.x+1);hide();update()}));
+function pt(e){let p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
+[pa,pb].forEach((el,i)=>{el.addEventListener("pointerdown",e=>{drag=i?"B":"A";el.setPointerCapture?.(e.pointerId)})});
+svg.addEventListener("pointermove",e=>{if(!drag)return;e.preventDefault();let p=pt(e),q={x:clamp((p.x-O)/S),y:clamp((O-p.y)/S)};if(drag==="A"){if(q.x===B.x&&q.y===B.y)return;A=q}else{if(q.x===A.x&&q.y===A.y)return;B=q}hide();update()});
+svg.addEventListener("pointerup",()=>drag=null);svg.addEventListener("pointercancel",()=>drag=null);
+function reverseDirection(){reversed=!reversed;hide();update()}
+function resetAll(){A={x:-2,y:1};B={x:1,y:5};reversed=false;hide();update()}update();
 </script></body></html>
