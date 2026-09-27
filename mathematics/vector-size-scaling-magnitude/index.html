@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vector Size and Scaling - Scalar Multiplication</title>
+<style>
+:root{--a:#087f8c;--ad:#066a75;--p:#e8f5f6;--pp:#f4fafb;--ink:#263238;--muted:#607d80;--purple:#7c5c9e;--orange:#c46b3c}
+*{box-sizing:border-box} body{margin:0;font:16px Arial,Helvetica,sans-serif;color:var(--ink);background:#f5f7f8;line-height:1.5}
+header{background:linear-gradient(135deg,var(--ad),var(--a));color:#fff;padding:30px 20px}.w{max-width:1080px;margin:auto;padding:20px}header .w{padding:0}
+h1{margin:0 0 5px} h2{color:var(--ad);margin-top:0}.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:4px 0 20px}
+button{font:inherit;font-weight:700;border:0;border-radius:8px;padding:10px 14px;cursor:pointer}.tab{background:#fff;border:1px solid #c6d1d4}.tab.active,.reveal{background:var(--a);color:#fff}.tab.wait{color:#607d80}
+.panel{background:#fff;padding:22px;border-radius:14px;box-shadow:0 3px 14px #0001}.layout{display:grid;grid-template-columns:1.18fr .82fr;gap:22px;align-items:start}@media(max-width:800px){.layout{grid-template-columns:1fr}.w{padding:14px}.panel{padding:17px}}
+.card,.stage,.foundation{border:1px solid #d6e1e3;border-radius:11px;padding:15px}.card{background:#fff}.stage{margin:11px 0;border-left:4px solid var(--a);background:var(--pp)}.stage h3{margin:0 0 6px;color:var(--ad);font-size:1rem}
+svg{width:100%;height:auto;display:block;touch-action:pan-y}.drag{touch-action:none;pointer-events:all;stroke:transparent;stroke-width:44px;paint-order:stroke fill}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.scalar{background:#e6ecee;color:#37474f}.scalar.on{background:var(--a);color:#fff}
+.pill{display:inline-block;background:var(--p);border-radius:999px;padding:6px 11px;margin:7px 5px 0 0;font-weight:700}.ans{display:none;margin-top:8px}.foundation{margin-top:20px;background:var(--p)}
+.vec{font:italic 1.08em "Times New Roman";position:relative;display:inline-block;padding-top:.17em}.vec:before{content:"";position:absolute;left:0;right:0;top:.05em;border-top:1.2px solid}.vec:after{content:"";position:absolute;right:0;top:0;width:.2em;height:.2em;border-top:1.2px solid;border-right:1.2px solid;transform:rotate(45deg)}
+.col{display:inline-flex;align-items:center;vertical-align:middle}.col:before{content:"(";font-size:2em;line-height:.7}.col:after{content:")";font-size:2em;line-height:.7}.nums{display:flex;flex-direction:column;line-height:1;text-align:center;min-width:22px}
+.note{color:var(--muted);font-size:.94rem}.construction{text-align:center;padding:35px;border:2px dashed #b0bec5;border-radius:12px}
+.key{font-weight:700;color:var(--ad)}
+</style></head>
+<body>
+<header><div class="w"><h1>Vector Size and Scaling</h1><p>Explore how multiplying a vector changes its size and direction.</p></div></header>
+<main class="w">
+<div class="tabs"><button class="tab active" onclick="show('scalar',this)">Scalar Multiplication</button><button class="tab wait" onclick="show('magnitude',this)">Magnitude</button><button class="tab wait" onclick="show('unit',this)">Unit Vectors</button></div>
+
+<section id="scalar" class="panel">
+<h2>Scalar Multiplication</h2>
+<p>A <strong>scalar</strong> is a number that multiplies a vector. It can make the vector longer, shorter, or reverse its direction. Start with <span class="vec">a</span>, then choose a scalar <strong>k</strong> to create <strong>k</strong><span class="vec">a</span>.</p>
+<div class="foundation" style="margin-top:0;margin-bottom:18px"><h3>Which k?</h3><p>Here, <strong>k</strong> is a <strong>scalar</strong>, so it represents an ordinary number such as 2, ½, or −1. This is different from the base vector <span class="vec">k</span> used with <span class="vec">i</span>, <span class="vec">j</span>, and <span class="vec">k</span> in 3D vectors. The notation and context tell us which k we mean.</p></div>
+<div class="layout">
+<div class="card">
+<svg id="g" viewBox="0 0 600 600">
+<defs>
+<marker id="arrA" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#087f8c"/></marker>
+<marker id="arrK" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#7c5c9e"/></marker>
+</defs><g id="grid"></g><g id="axes"></g>
+<line id="base" stroke="#087f8c" stroke-width="4" marker-end="url(#arrA)"/>
+<line id="scaled" stroke="#7c5c9e" stroke-width="4" marker-end="url(#arrK)"/>
+<circle id="origin" r="6" fill="#263238"/><circle id="tip" class="drag" r="9" fill="#087f8c"/>
+<foreignObject id="alab" width="55" height="34"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;font-weight:700;color:#066a75"><span class="vec">a</span></div></foreignObject><foreignObject id="klab" width="70" height="34"><div xmlns="http://www.w3.org/1999/xhtml" style="font-size:18px;font-weight:700;color:#7c5c9e">k<span class="vec">a</span></div></foreignObject>
+</svg>
+<span class="pill"><span class="vec">a</span> = <span class="col"><span class="nums"><span id="vx">2</span><span id="vy">1</span></span></span></span>
+<span class="pill">k = <span id="kr">2</span></span>
+<p class="note">Drag the endpoint of <span class="vec">a</span>. The scaled vector updates automatically.</p>
+<h3>Choose the scalar k</h3>
+<div class="controls">
+<button class="scalar" data-k="-2">−2</button><button class="scalar" data-k="-1">−1</button><button class="scalar" data-k="0.5">½</button><button class="scalar on" data-k="2">2</button><button class="scalar" data-k="3">3</button>
+</div>
+</div>
+
+<div>
+<div class="stage"><h3>1. Start with the vector</h3><p><span class="vec">a</span> has components <span class="col"><span class="nums"><span id="s1x">2</span><span id="s1y">1</span></span></span>.</p></div>
+<div class="stage"><h3>2. Multiply each component</h3><p>To find k<span class="vec">a</span>, multiply <strong>every component</strong> by k.</p><button class="reveal" onclick="reveal(2)">Reveal working</button><div id="a2" class="ans"><span id="work"></span></div></div>
+<div class="stage"><h3>3. Write the new vector</h3><button class="reveal" onclick="reveal(3)">Reveal vector</button><div id="a3" class="ans">k<span class="vec">a</span> = <span class="col"><span class="nums"><span id="rx"></span><span id="ry"></span></span></span></div></div>
+<div class="stage"><h3>4. What changed?</h3><button class="reveal" onclick="reveal(4)">Reveal relationship</button><div id="a4" class="ans"><span id="relationship"></span></div></div>
+<button onclick="resetAll()">Reset</button>
+</div></div>
+
+<div class="foundation"><h3>Foundation idea</h3>
+<p><span class="key">Scalar multiplication changes the magnitude of a vector.</span></p>
+<p>If <strong>|k| &gt; 1</strong>, the vector becomes longer. If <strong>0 &lt; |k| &lt; 1</strong>, it becomes shorter. A positive scalar keeps the same direction. A negative scalar reverses the direction.</p>
+<p>In particular, <strong>−1</strong><span class="vec">a</span> = −<span class="vec">a</span>: same magnitude, opposite direction.</p>
+</div>
+</section>
+
+<section id="magnitude" class="panel" hidden><h2>Magnitude</h2><div class="construction"><h2>Next</h2><p>Magnitude will connect the vector’s components to its length using Pythagoras.</p></div></section>
+<section id="unit" class="panel" hidden><h2>Unit Vectors</h2><div class="construction"><h2>Coming after magnitude</h2><p>We will use magnitude to scale a non-zero vector to a length of exactly 1.</p></div></section>
+</main>
+<script>
+function show(id,b){document.querySelectorAll("section.panel").forEach(x=>x.hidden=true);document.getElementById(id).hidden=false;document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));b.classList.add("active")}
+const ns="http://www.w3.org/2000/svg",g=document.getElementById("g"),G=document.getElementById("grid"),A=document.getElementById("axes"),tip=document.getElementById("tip"),base=document.getElementById("base"),scaled=document.getElementById("scaled"),origin=document.getElementById("origin"),alab=document.getElementById("alab"),klab=document.getElementById("klab");const C=300,S=27;let v={x:2,y:1},k=2,drag=false;
+let sx=x=>C+x*S,sy=y=>C-y*S;
+function line(p,x1,y1,x2,y2,c,w=1){let l=document.createElementNS(ns,"line");l.setAttribute("x1",x1);l.setAttribute("y1",y1);l.setAttribute("x2",x2);l.setAttribute("y2",y2);l.setAttribute("stroke",c);l.setAttribute("stroke-width",w);p.appendChild(l)}
+for(let i=-10;i<=10;i++){if(i){line(G,sx(i),30,sx(i),570,"#e2e8ea");line(G,30,sy(i),570,sy(i),"#e2e8ea")}}line(A,25,C,575,C,"#607d80",2);line(A,C,575,C,25,"#607d80",2);
+for(let i=-10;i<=10;i++){if(!i||i%2!==0)continue;let tx=document.createElementNS(ns,"text");tx.setAttribute("x",sx(i));tx.setAttribute("y",C+19);tx.setAttribute("text-anchor","middle");tx.setAttribute("font-size","12");tx.textContent=i;A.appendChild(tx);let ty=document.createElementNS(ns,"text");ty.setAttribute("x",C-9);ty.setAttribute("y",sy(i)+4);ty.setAttribute("text-anchor","end");ty.setAttribute("font-size","12");ty.textContent=i;A.appendChild(ty)}
+function fmt(n){return Number.isInteger(n)?String(n):String(n).replace(".5","½")}
+function hideAnswers(){document.querySelectorAll(".ans").forEach(x=>x.style.display="none")}
+function update(){
+ let q={x:v.x*k,y:v.y*k};
+ base.setAttribute("x1",C);base.setAttribute("y1",C);base.setAttribute("x2",sx(v.x));base.setAttribute("y2",sy(v.y));
+ scaled.setAttribute("x1",C);scaled.setAttribute("y1",C);scaled.setAttribute("x2",sx(q.x));scaled.setAttribute("y2",sy(q.y));
+ origin.setAttribute("cx",C);origin.setAttribute("cy",C);tip.setAttribute("cx",sx(v.x));tip.setAttribute("cy",sy(v.y));
+ alab.setAttribute("x",sx(v.x)+10);alab.setAttribute("y",sy(v.y)-30);klab.setAttribute("x",sx(q.x)+10);klab.setAttribute("y",sy(q.y)-30);
+ vx.textContent=s1x.textContent=v.x;vy.textContent=s1y.textContent=v.y;kr.textContent=fmt(k);rx.textContent=q.x;ry.textContent=q.y;
+ work.textContent="("+fmt(k)+" × "+v.x+", "+fmt(k)+" × "+v.y+") = ("+q.x+", "+q.y+")";
+ let abs=Math.abs(k),txt="";
+ if(k<0)txt="The vector is scaled by "+abs+" and its direction is reversed.";
+ else if(abs>1)txt="The vector keeps the same direction and becomes "+abs+" times as long.";
+ else if(abs>0&&abs<1)txt="The vector keeps the same direction and becomes shorter.";
+ else if(k===0)txt="The result is the zero vector.";
+ else txt="The vector is unchanged.";
+ relationship.textContent=txt;
+}
+function reveal(n){for(let i=2;i<=n;i++)document.getElementById("a"+i).style.display="block"}
+document.querySelectorAll(".scalar").forEach(b=>b.onclick=()=>{k=Number(b.dataset.k);document.querySelectorAll(".scalar").forEach(x=>x.classList.remove("on"));b.classList.add("on");hideAnswers();update()});
+function point(e){let p=g.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(g.getScreenCTM().inverse())}
+tip.onpointerdown=e=>{drag=true;if(tip.setPointerCapture)tip.setPointerCapture(e.pointerId)};
+g.onpointermove=e=>{if(!drag)return;e.preventDefault();let p=point(e),x=Math.max(-3,Math.min(3,Math.round((p.x-C)/S))),y=Math.max(-3,Math.min(3,Math.round((C-p.y)/S)));if(x||y){v={x,y};hideAnswers();update()}};
+tip.onpointerup=tip.onpointercancel=()=>drag=false;
+function resetAll(){v={x:2,y:1};k=2;document.querySelectorAll(".scalar").forEach(x=>x.classList.toggle("on",x.dataset.k==="2"));hideAnswers();update()}update();
+</script></body></html>
