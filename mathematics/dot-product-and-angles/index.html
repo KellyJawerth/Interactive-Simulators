@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dot Product and Angles — Dot Product Foundations</title>
+<style>
+:root{
+ --aqua:#087f8c; --aqua-dark:#066a75; --pale:#e8f5f6; --paler:#f4fafb;
+ --ink:#263238; --muted:#607d80; --purple:#7c5c9e; --purple-dark:#62447f;
+ --orange:#c46b3c; --line:#d6e1e3;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7f8;color:var(--ink);font:16px Arial,Helvetica,sans-serif;line-height:1.5}
+header{background:linear-gradient(135deg,var(--aqua-dark),var(--aqua));color:white;padding:28px 20px}
+.wrap{max-width:1100px;margin:auto;padding:20px}
+header .wrap{padding:0}
+h1{margin:0 0 5px;font-size:2rem} h2{margin-top:0;color:var(--aqua-dark)}
+h3{margin-top:0}
+.tabs{display:flex;gap:9px;flex-wrap:wrap;margin:4px 0 20px}
+button{font:inherit;font-weight:700;border:0;border-radius:9px;padding:10px 14px;cursor:pointer}
+.tab{background:white;border:1px solid #c7d2d4}
+.tab.active,.reveal,.dim.active{background:var(--aqua);color:white;border-color:var(--aqua)}
+.tab.future{background:#eef2f3;color:#6c7d80;cursor:default}
+.panel{background:white;border-radius:15px;padding:23px;box-shadow:0 3px 14px #00000012}
+.intro{max-width:850px}
+.dimension{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--pale);padding:12px 14px;border-radius:11px;margin:18px 0}
+.dim{background:white;border:1px solid #aac2c5;color:var(--aqua-dark);min-width:70px}
+.layout{display:grid;grid-template-columns:1.04fr .96fr;gap:22px;align-items:start}
+.card,.stage,.foundation,.inputbox,.threeD{border:1px solid var(--line);border-radius:12px;padding:15px}
+.card,.inputbox{background:#fff}
+.stage{margin:0 0 12px;border-left:4px solid var(--aqua);background:var(--paler)}
+.stage h3{font-size:1rem;color:var(--aqua-dark);margin-bottom:5px}
+.foundation{margin-top:20px;background:var(--pale)}
+.inputbox{background:var(--paler);margin-bottom:12px}
+.row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:8px 0}
+input[type=number]{width:60px;padding:8px;border:1px solid #aebdc0;border-radius:7px;font:inherit;text-align:center}
+svg{width:100%;height:auto;display:block;touch-action:pan-y}
+.drag{touch-action:none;-webkit-user-select:none;user-select:none;pointer-events:all;stroke:transparent;stroke-width:44px;paint-order:stroke fill;cursor:grab}
+.vec{font:italic 1.08em "Times New Roman";position:relative;display:inline-block;padding-top:.18em}
+.vec:before{content:"";position:absolute;left:0;right:0;top:.06em;border-top:1.2px solid}
+.vec:after{content:"";position:absolute;right:0;top:.01em;width:.2em;height:.2em;border-top:1.2px solid;border-right:1.2px solid;transform:rotate(45deg)}
+.col{display:inline-flex;align-items:center;vertical-align:middle}
+.col:before{content:"(";font-size:2.25em;line-height:.7}.col:after{content:")";font-size:2.25em;line-height:.7}
+.nums{display:flex;flex-direction:column;line-height:1.02;text-align:center;min-width:24px}
+.pill{display:inline-block;background:var(--pale);border-radius:999px;padding:6px 11px;margin:8px 5px 0 0;font-weight:700}
+.pill.purple{background:#f0ebf5;color:var(--purple-dark)}
+.ans{display:none;margin-top:10px}
+.calc{font-family:Georgia,"Times New Roman",serif;font-size:1.08rem;line-height:1.85}
+.big{font-size:1.13rem;font-weight:700;color:var(--aqua-dark)}
+.note{color:var(--muted);font-size:.94rem}
+.matchgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:10px}
+.match{border-radius:9px;padding:10px;text-align:center;background:white;border:1px solid var(--line)}
+.match.x{border-top:4px solid var(--aqua)} .match.y{border-top:4px solid var(--purple)} .match.z{border-top:4px solid var(--orange)}
+.threeD{display:none;background:#fff}
+.threeD .vectors{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:12px 0}
+.threeD .vectorcard{min-width:180px;padding:14px;border-radius:11px;text-align:center;background:var(--paler)}
+.threeD .vectorcard:nth-child(2){background:#f4f0f7}
+.rule{font-family:Georgia,"Times New Roman",serif;font-size:1.18rem}
+.arrowline{font-weight:700;color:var(--aqua-dark)}
+.reset{background:#e8edef;color:#34474b;margin-top:4px}
+#graphCard{display:block}
+@media(max-width:820px){.layout{grid-template-columns:1fr}.wrap{padding:14px}.panel{padding:17px}}
+@media(max-width:520px){.matchgrid{grid-template-columns:1fr}.row input{width:54px}h1{font-size:1.65rem}svg{max-width:100%;height:auto}}
+
+.anglelayout{display:grid;grid-template-columns:1.04fr .96fr;gap:22px;align-items:start}
+.anglecard{border:1px solid var(--line);border-radius:12px;padding:15px}
+.angleformula{font:1.2rem Georgia,"Times New Roman",serif;text-align:center}
+.readouts{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.readout{background:var(--pale);padding:9px 12px;border-radius:9px;font-weight:700}
+#thetaSlider{width:100%;accent-color:var(--aqua)}
+@media(max-width:820px){.anglelayout{grid-template-columns:1fr}}
+
+.pointlabel{font-size:15px;font-weight:700;paint-order:stroke;stroke:white;stroke-width:4px;stroke-linejoin:round}
+.livecalc{margin-top:14px;background:var(--paler);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.livecalc .line{font-family:Georgia,"Times New Roman",serif;font-size:1.08rem;line-height:1.75}
+.coordsummary{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.coordchip{background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+
+.formula-line{font:1.16rem Georgia,"Times New Roman",serif;white-space:nowrap;overflow-x:auto;padding:7px 0}
+.formula-line.worked{font-size:1.03rem}
+#angle3DCard{display:none}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<h1>Dot Product and Angles</h1>
+<p>Build the dot product from components, then use it to understand relationships between vectors.</p>
+</div></header>
+
+<main class="wrap">
+<div class="tabs">
+<button class="tab active" id="tabFound">Dot Product Foundations</button>
+<button class="tab" id="tabAngle">Angles and Cosine</button>
+<button class="tab future" disabled>Applications</button>
+</div>
+
+<section class="panel" id="foundPanel">
+<h2>Dot Product Foundations</h2>
+<div class="intro">
+<p>The <strong>dot product</strong> combines two vectors using corresponding components. The symbol is a <strong>dot</strong>, <strong>·</strong>, not a multiplication cross <strong>×</strong>.</p>
+<p>There is one important difference from the vector operations you have already used: <strong>the answer to a dot product is a scalar — a number.</strong></p>
+</div>
+
+<div class="dimension">
+<strong>Choose the dimension:</strong>
+<button class="dim active" id="d2">2D</button>
+<button class="dim" id="d3">3D</button>
+<span class="note" id="dimNote">Start with two component pairs.</span>
+</div>
+
+<div class="layout">
+<div>
+<div class="inputbox">
+<h3>Choose two vectors</h3>
+<div class="row">
+<span class="vec">a</span><strong>=</strong>
+<span class="col"><span class="nums"><input id="ax" type="number" min="-5" max="5" value="3"><input id="ay" type="number" min="-5" max="5" value="2"><input class="zinput" id="az" type="number" min="-5" max="5" value="-1" style="display:none"></span></span>
+</div>
+<div class="row">
+<span class="vec">b</span><strong>=</strong>
+<span class="col"><span class="nums"><input id="bx" type="number" min="-5" max="5" value="2"><input id="by" type="number" min="-5" max="5" value="4"><input class="zinput" id="bz" type="number" min="-5" max="5" value="3" style="display:none"></span></span>
+</div>
+<p class="note" id="editNote">Enter components from −5 to 5, or drag either vector endpoint.</p>
+</div>
+
+<div class="card" id="graphCard">
+<svg id="graph" viewBox="0 0 600 600" aria-label="Interactive Cartesian plane showing vectors a and b">
+<defs>
+<marker id="arrA" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#087f8c"/></marker>
+<marker id="arrB" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#7c5c9e"/></marker>
+</defs>
+<g id="grid"></g><g id="axes"></g>
+<line id="lineA" stroke="#087f8c" stroke-width="5" marker-end="url(#arrA)"/>
+<line id="lineB" stroke="#7c5c9e" stroke-width="5" marker-end="url(#arrB)"/>
+<circle r="6" cx="300" cy="300" fill="#263238"/>
+<circle id="tipA" class="drag" r="10" fill="#087f8c"/>
+<circle id="tipB" class="drag" r="10" fill="#7c5c9e"/>
+<g id="labelA"><text font-size="18" font-weight="700" fill="#066a75">a</text><line stroke="#066a75" stroke-width="1.7"/><path fill="#066a75"/></g>
+<g id="labelB"><text font-size="18" font-weight="700" fill="#62447f">b</text><line stroke="#62447f" stroke-width="1.7"/><path fill="#62447f"/></g>
+</svg>
+<p class="note">In 2D, drag either endpoint to change its components.</p>
+</div>
+
+<div class="threeD" id="threeD">
+<h3>Same operation. One more component.</h3>
+<p>In 3D there is no new dot-product rule to learn. Each vector simply has an additional <strong>z-component</strong>.</p>
+<div class="vectors">
+<div class="vectorcard"><span class="vec">a</span> = <span id="a3show"></span></div>
+<div class="vectorcard"><span class="vec">b</span> = <span id="b3show"></span></div>
+</div>
+<div class="matchgrid">
+<div class="match x"><strong>x with x</strong><br><span id="mx"></span></div>
+<div class="match y"><strong>y with y</strong><br><span id="my"></span></div>
+<div class="match z"><strong>z with z</strong><br><span id="mz"></span></div>
+</div>
+</div>
+</div>
+
+<div>
+<div class="stage">
+<h3>1. Match corresponding components</h3>
+<p>Pair components in the <strong>same position</strong>: x with x, y with y<span class="zwords" style="display:none">, and z with z</span>.</p>
+<button class="reveal" data-n="1">Reveal the pairs</button>
+<div class="ans" id="ans1">
+<div class="matchgrid" id="pairGrid">
+<div class="match x"><strong>x pair</strong><br><span id="pairx"></span></div>
+<div class="match y"><strong>y pair</strong><br><span id="pairy"></span></div>
+<div class="match z zbox" style="display:none"><strong>z pair</strong><br><span id="pairz"></span></div>
+</div>
+</div>
+</div>
+
+<div class="stage">
+<h3>2. Multiply each pair</h3>
+<p>Multiply the corresponding components.</p>
+<button class="reveal" data-n="2">Reveal multiplication</button>
+<div class="ans calc" id="ans2"><span id="multline"></span><br><span id="products"></span></div>
+</div>
+
+<div class="stage">
+<h3>3. Add the products</h3>
+<p>Add the results from each component pair.</p>
+<button class="reveal" data-n="3">Reveal dot product</button>
+<div class="ans calc big" id="ans3"><span class="vec">a</span> · <span class="vec">b</span> = <span id="dot"></span></div>
+</div>
+
+<div class="stage">
+<h3>4. What did we get?</h3>
+<p>Is the answer another vector, or something different?</p>
+<button class="reveal" data-n="4">Reveal</button>
+<div class="ans" id="ans4">
+<p><strong id="scalarValue"></strong> is a <strong>scalar</strong>. It has magnitude but no direction, so it is not written as a column vector.</p>
+<p class="big">vector · vector → scalar</p>
+</div>
+</div>
+
+<div class="stage">
+<h3>5. Try changing the vectors</h3>
+<p>Change the components and repeat the calculation. In 2D you can also drag the vectors.</p>
+<p class="arrowline">What do you notice about the dot product when the vectors change?</p>
+<p class="note">For now, don't worry about interpreting the value. We will build that connection in Angles and Cosine.</p>
+</div>
+
+<button class="reset" id="reset">Reset example</button>
+</div>
+</div>
+
+<div class="foundation">
+<h3>Foundation</h3>
+<p><strong>Dot product rule:</strong> multiply corresponding components, then add the products.</p>
+<p class="rule" id="rule2"><span class="vec">a</span> · <span class="vec">b</span> = a<sub>x</sub>b<sub>x</sub> + a<sub>y</sub>b<sub>y</sub></p>
+<p class="rule" id="rule3" style="display:none"><span class="vec">a</span> · <span class="vec">b</span> = a<sub>x</sub>b<sub>x</sub> + a<sub>y</sub>b<sub>y</sub> + a<sub>z</sub>b<sub>z</sub></p>
+<p><strong>The rule has not changed in 3D.</strong> There is simply one more pair of corresponding components.</p>
+<p class="big">Two vectors go in. One scalar comes out.</p>
+</div>
+</section>
+
+<section class="panel" id="anglePanel" style="display:none">
+<h2>Angles and Cosine</h2>
+<div class="intro">
+<p>You already know how to calculate a dot product. Now use the dot product and the magnitudes of two vectors to find the <strong>angle between them</strong>.</p>
+</div>
+
+<div class="dimension">
+<strong>Choose the dimension:</strong>
+<button class="dim active" id="ang2D">2D</button>
+<button class="dim" id="ang3D">3D</button>
+<span class="note" id="angDimNote">Enter the vectors or drag their endpoints.</span>
+</div>
+
+<div class="anglelayout">
+<div>
+<div class="inputbox">
+<h3>Choose two vectors</h3>
+<div class="row"><span class="vec">a</span><strong>=</strong>
+<span class="col"><span class="nums">
+<input id="aax" type="number" min="-5" max="5" value="3">
+<input id="aay" type="number" min="-5" max="5" value="2">
+<input id="aaz" class="angz" type="number" min="-5" max="5" value="1" style="display:none">
+</span></span></div>
+<div class="row"><span class="vec">b</span><strong>=</strong>
+<span class="col"><span class="nums">
+<input id="abx" type="number" min="-5" max="5" value="-1">
+<input id="aby" type="number" min="-5" max="5" value="4">
+<input id="abz" class="angz" type="number" min="-5" max="5" value="2" style="display:none">
+</span></span></div>
+<p class="note" id="angInputNote">Enter components from −5 to 5, or drag either endpoint.</p>
+</div>
+
+<div class="anglecard" id="angleGraphCard">
+<svg id="angleGraph" viewBox="0 0 600 600" aria-label="Two vectors and the angle between them">
+<defs>
+<marker id="aa" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#087f8c"/></marker>
+<marker id="ab" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#7c5c9e"/></marker>
+</defs>
+<g id="angGrid"></g><g id="angAxes"></g>
+<line id="angLineA" x1="300" y1="300" stroke="#087f8c" stroke-width="5" marker-end="url(#aa)"/>
+<line id="angLineB" x1="300" y1="300" stroke="#7c5c9e" stroke-width="5" marker-end="url(#ab)"/>
+<path id="arc" fill="none" stroke="#c46b3c" stroke-width="4"/>
+<circle cx="300" cy="300" r="6" fill="#263238"/>
+<circle id="angTipA" class="drag" r="9" fill="#087f8c"/>
+<circle id="angTipB" class="drag" r="9" fill="#7c5c9e"/>
+<text x="307" y="322" class="pointlabel" fill="#263238">O (0, 0)</text>
+<text id="pointALabel" class="pointlabel" fill="#066a75"></text>
+<text id="pointBLabel" class="pointlabel" fill="#62447f"></text>
+<g id="angLabelA"><text font-size="18" font-weight="700" fill="#066a75">a</text><line stroke="#066a75" stroke-width="1.7"/><path fill="#066a75"/></g>
+<g id="angLabelB"><text font-size="18" font-weight="700" fill="#62447f">b</text><line stroke="#62447f" stroke-width="1.7"/><path fill="#62447f"/></g>
+<text id="thLab" font-size="18" font-weight="700" fill="#9b4f2d">θ</text>
+</svg>
+<div style="text-align:center;margin-top:10px">
+<button class="reveal" id="revealGraphTheta">Reveal angle</button>
+<div id="graphThetaAnswer" class="big" style="display:none;margin-top:10px"></div>
+</div>
+<p class="note">Both vectors start at the origin. The smaller angle between them is θ.</p>
+</div>
+
+<div class="threeD" id="angle3DCard">
+<h3>3D vectors</h3>
+<p>The angle calculation is the same. There is simply one more component in the dot product and in each magnitude.</p>
+<div class="vectors">
+<div class="vectorcard"><span class="vec">a</span> = <span id="a3Angle"></span></div>
+<div class="vectorcard"><span class="vec">b</span> = <span id="b3Angle"></span></div>
+</div>
+</div>
+</div>
+
+<div>
+<div class="stage">
+<h3>1. Find the dot product</h3>
+<p>Use corresponding components, just as you did in Foundations.</p>
+<button class="reveal" data-newang="1">Reveal dot product</button>
+<div class="ans calc" id="newang1">
+<div id="angDotWork"></div>
+<div class="big"><span class="vec">a</span> · <span class="vec">b</span> = <span id="angDot"></span></div>
+</div>
+</div>
+
+<div class="stage">
+<h3>2. Find both magnitudes</h3>
+<p>The formula needs the magnitude of each vector.</p>
+<button class="reveal" data-newang="2">Reveal magnitudes</button>
+<div class="ans calc" id="newang2">
+<div>|<span class="vec">a</span>| = <span id="magAWork"></span> = <span id="magA"></span></div>
+<div>|<span class="vec">b</span>| = <span id="magBWork"></span> = <span id="magB"></span></div>
+</div>
+</div>
+
+<div class="stage">
+<h3>3. Connect dot product and cosine</h3>
+<p>The dot product, the two magnitudes, and the angle are connected by one relationship.</p>
+<button class="reveal" data-newang="3">Reveal the relationship</button>
+<div class="ans" id="newang3">
+<div class="formula-line"><span class="vec">a</span> · <span class="vec">b</span> = |<span class="vec">a</span>| |<span class="vec">b</span>| cos θ</div>
+<p class="note">Because |<span class="vec">a</span>| and |<span class="vec">b</span>| are scalar magnitudes, writing them beside each other means ordinary multiplication.</p>
+<div class="formula-line worked">For substitution: <span class="vec">a</span> · <span class="vec">b</span> = |<span class="vec">a</span>| × |<span class="vec">b</span>| × cos θ</div>
+</div>
+</div>
+
+<div class="stage">
+<h3>4. Rearrange to find the angle</h3>
+<p>Make cos θ the subject, then use inverse cosine.</p>
+<button class="reveal" data-newang="4">Reveal angle calculation</button>
+<div class="ans calc" id="newang4">
+<div class="formula-line">cos θ = (<span class="vec">a</span> · <span class="vec">b</span>) / (|<span class="vec">a</span>| × |<span class="vec">b</span>|)</div>
+<div id="cosSub"></div>
+<div>cos θ = <span id="cosResult"></span></div>
+<div id="thetaReveal" style="display:none">
+<div>θ = cos<sup>−1</sup>(<span id="cosAgain"></span>)</div>
+<div class="big">θ ≈ <span id="thetaResult"></span>°</div>
+</div>
+</div>
+</div>
+
+<div class="stage">
+<h3>5. Check it on the graph</h3>
+<p id="checkText">The graph shows the smaller angle between the two vectors. Does it match your calculation?</p>
+<p class="big">The components gave us the dot product. The dot product and magnitudes gave us the angle.</p>
+</div>
+</div>
+</div>
+
+<div class="foundation">
+<h3>Foundation</h3>
+<div class="formula-line"><span class="vec">a</span> · <span class="vec">b</span> = |<span class="vec">a</span>| |<span class="vec">b</span>| cos θ</div>
+<div class="formula-line">cos θ = (<span class="vec">a</span> · <span class="vec">b</span>) / (|<span class="vec">a</span>| |<span class="vec">b</span>|)</div>
+<p>The formal formula writes scalar factors beside each other. In worked substitution, we use <strong>×</strong> to make the ordinary multiplication explicit.</p>
+<p class="big">Dot product + magnitudes → angle between the vectors.</p>
+</div>
+</section>
+</main>
+
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const v={ax:3,ay:2,az:-1,bx:2,by:4,bz:3};
+let dim=2;
+const mid=300,step=50,limit=5,size=600;
+const clamp=n=>Math.max(-limit,Math.min(limit,Math.round(Number(n)||0)));
+const sx=x=>mid+x*step, sy=y=>mid-y*step;
+
+function col(x,y,z){
+ return `(${x}, ${y}${dim===3?', '+z:''})`;
+}
+function hideAnswers(){document.querySelectorAll('.ans').forEach(e=>e.style.display='none')}
+
+function drawPlane(){
+ let grid='',axes='';
+ for(let i=-5;i<=5;i++){
+  const p=sx(i),q=sy(i);
+  grid+=`<line x1="${p}" y1="50" x2="${p}" y2="550" stroke="#dfe7e9"/>`;
+  grid+=`<line x1="50" y1="${q}" x2="550" y2="${q}" stroke="#dfe7e9"/>`;
+  if(i){
+   axes+=`<text x="${p}" y="322" text-anchor="middle" font-size="13" fill="#607d80">${i}</text>`;
+   axes+=`<text x="286" y="${q+5}" text-anchor="end" font-size="13" fill="#607d80">${i}</text>`;
+  }
+ }
+ $('grid').innerHTML=grid;
+ $('axes').innerHTML=`<line x1="50" y1="300" x2="550" y2="300" stroke="#455a64" stroke-width="2"/>
+ <line x1="300" y1="550" x2="300" y2="50" stroke="#455a64" stroke-width="2"/>${axes}
+ <text x="558" y="294" font-size="16" fill="#455a64">x</text><text x="307" y="44" font-size="16" fill="#455a64">y</text>`;
+}
+function label(group,x,y){
+ const px=sx(x),py=sy(y),len=Math.hypot(x,y)||1,ux=x/len,uy=-y/len,nx=-uy,ny=ux;
+ let lx=px-ux*30+nx*14,ly=py-uy*30+ny*14;
+ lx=Math.max(62,Math.min(525,lx));ly=Math.max(62,Math.min(535,ly));
+ const t=group.querySelector('text'),l=group.querySelector('line'),h=group.querySelector('path');
+ t.setAttribute('x',lx);t.setAttribute('y',ly+9);
+ l.setAttribute('x1',lx-1);l.setAttribute('y1',ly-8);l.setAttribute('x2',lx+13);l.setAttribute('y2',ly-8);
+ h.setAttribute('d',`M ${lx+13} ${ly-8} l -4 -3 l 1 4 z`);
+}
+function updateGraph(){
+ [['A','ax','ay'],['B','bx','by']].forEach(([n,xk,yk])=>{
+  const x=v[xk],y=v[yk];
+  $('line'+n).setAttribute('x1',mid);$('line'+n).setAttribute('y1',mid);
+  $('line'+n).setAttribute('x2',sx(x));$('line'+n).setAttribute('y2',sy(y));
+  $('tip'+n).setAttribute('cx',sx(x));$('tip'+n).setAttribute('cy',sy(y));
+  label($('label'+n),x,y);
+ });
+}
+function update(){
+ ['ax','ay','az','bx','by','bz'].forEach(k=>$(k).value=v[k]);
+ updateGraph();
+ const pairs=[v.ax*v.bx,v.ay*v.by,v.az*v.bz];
+ const dot=pairs[0]+pairs[1]+(dim===3?pairs[2]:0);
+ $('pairx').textContent=`${v.ax} with ${v.bx}`;
+ $('pairy').textContent=`${v.ay} with ${v.by}`;
+ $('pairz').textContent=`${v.az} with ${v.bz}`;
+ $('multline').textContent=dim===2?`(${v.ax} × ${v.bx}) + (${v.ay} × ${v.by})`:`(${v.ax} × ${v.bx}) + (${v.ay} × ${v.by}) + (${v.az} × ${v.bz})`;
+ $('products').textContent=dim===2?`= ${pairs[0]} + ${pairs[1]}`:`= ${pairs[0]} + ${pairs[1]} + ${pairs[2]}`;
+ $('dot').textContent=$('scalarValue').textContent=dot;
+ $('a3show').textContent=`(${v.ax}, ${v.ay}, ${v.az})`;
+ $('b3show').textContent=`(${v.bx}, ${v.by}, ${v.bz})`;
+ $('mx').textContent=`${v.ax} × ${v.bx}`;
+ $('my').textContent=`${v.ay} × ${v.by}`;
+ $('mz').textContent=`${v.az} × ${v.bz}`;
+}
+function setDim(n){
+ dim=n;hideAnswers();
+ $('d2').classList.toggle('active',n===2);$('d3').classList.toggle('active',n===3);
+ document.querySelectorAll('.zinput,.zwords,.zbox').forEach(e=>e.style.display=n===3?'':'none');
+ $('graphCard').style.display=n===2?'block':'none';
+ $('threeD').style.display=n===3?'block':'none';
+ $('rule2').style.display=n===2?'block':'none';$('rule3').style.display=n===3?'block':'none';
+ $('dimNote').textContent=n===2?'Start with two component pairs.':'Same rule — now use three component pairs.';
+ $('editNote').textContent=n===2?'Enter components from −5 to 5, or drag either vector endpoint.':'Enter x, y and z components from −5 to 5.';
+ update();
+}
+document.querySelectorAll('input[type=number]').forEach(inp=>inp.addEventListener('input',()=>{
+ v[inp.id]=clamp(inp.value);hideAnswers();update();
+}));
+document.querySelectorAll('[data-n]').forEach(b=>b.addEventListener('click',()=>{$('ans'+b.dataset.n).style.display='block'}));
+function drag(id,xk,yk){
+ const e=$(id);let active=false;
+ e.addEventListener('pointerdown',ev=>{if(dim!==2)return;active=true;e.setPointerCapture(ev.pointerId)});
+ e.addEventListener('pointermove',ev=>{
+  if(!active||dim!==2)return;ev.preventDefault();
+  const r=$('graph').getBoundingClientRect(),x=(ev.clientX-r.left)*size/r.width,y=(ev.clientY-r.top)*size/r.height;
+  v[xk]=clamp((x-mid)/step);v[yk]=clamp((mid-y)/step);hideAnswers();update();
+ });
+ const stop=()=>active=false;e.addEventListener('pointerup',stop);e.addEventListener('pointercancel',stop);
+}
+drag('tipA','ax','ay');drag('tipB','bx','by');
+$('d2').onclick=()=>setDim(2);$('d3').onclick=()=>setDim(3);
+$('reset').onclick=()=>{Object.assign(v,{ax:3,ay:2,az:-1,bx:2,by:4,bz:3});hideAnswers();update()};
+drawPlane();setDim(2);
+
+
+// Main tab switching
+$('tabFound').onclick=()=>{ $('foundPanel').style.display='block';$('anglePanel').style.display='none';$('tabFound').classList.add('active');$('tabAngle').classList.remove('active') };
+$('tabAngle').onclick=()=>{ $('foundPanel').style.display='none';$('anglePanel').style.display='block';$('tabAngle').classList.add('active');$('tabFound').classList.remove('active') };
+
+let adim=2;
+const av={aax:3,aay:2,aaz:1,abx:-1,aby:4,abz:2};
+const fmt=n=>Math.abs(n)<1e-10?'0':(Math.abs(n-Math.round(n))<1e-10?String(Math.round(n)):n.toFixed(2));
+const aclamp=n=>Math.max(-5,Math.min(5,Math.round(Number(n)||0)));
+
+function drawAngPlane(){
+ let g='',a='';
+ for(let i=-5;i<=5;i++){
+  let p=300+i*50,q=300-i*50;
+  g+=`<line x1="${p}" y1="50" x2="${p}" y2="550" stroke="#dfe7e9"/><line x1="50" y1="${q}" x2="550" y2="${q}" stroke="#dfe7e9"/>`;
+  if(i){a+=`<text x="${p}" y="322" text-anchor="middle" font-size="13" fill="#607d80">${i}</text><text x="286" y="${q+5}" text-anchor="end" font-size="13" fill="#607d80">${i}</text>`}
+ }
+ $('angGrid').innerHTML=g;
+ $('angAxes').innerHTML=`<line x1="50" y1="300" x2="550" y2="300" stroke="#455a64" stroke-width="2"/><line x1="300" y1="550" x2="300" y2="50" stroke="#455a64" stroke-width="2"/>${a}`;
+}
+
+function arrowLabel(group,x,y){
+ const px=300+x*50,py=300-y*50,len=Math.hypot(x,y)||1;
+ const ux=x/len,uy=-y/len,nx=-uy,ny=ux;
+ let lx=300+(x*50)*.62+nx*18, ly=300-(y*50)*.62+ny*18;
+ lx=Math.max(72,Math.min(510,lx));ly=Math.max(72,Math.min(525,ly));
+ const t=group.querySelector('text'),l=group.querySelector('line'),h=group.querySelector('path');
+ t.setAttribute('x',lx);t.setAttribute('y',ly+9);
+ l.setAttribute('x1',lx-1);l.setAttribute('y1',ly-8);l.setAttribute('x2',lx+13);l.setAttribute('y2',ly-8);
+ h.setAttribute('d',`M ${lx+13} ${ly-8} l -4 -3 l 1 4 z`);
+}
+function endpointLabel(el,x,y,name){
+ let px=300+x*50,py=300-y*50;
+ let lx=px+(x>=0?12:-92),ly=py+(y>=0?-12:25);
+ lx=Math.max(55,Math.min(490,lx));ly=Math.max(65,Math.min(540,ly));
+ el.setAttribute('x',lx);el.setAttribute('y',ly);
+ el.textContent=`${name} (${x}, ${y})`;
+}
+function angleBetween2D(){
+ let dot=av.aax*av.abx+av.aay*av.aby;
+ let ma=Math.hypot(av.aax,av.aay), mb=Math.hypot(av.abx,av.aby);
+ if(ma===0||mb===0)return null;
+ let c=Math.max(-1,Math.min(1,dot/(ma*mb)));
+ return Math.acos(c);
+}
+function drawArc(){
+ let r=angleBetween2D();
+ if(r===null){$('arc').setAttribute('d','');$('thLab').textContent='';return}
+ let aa=Math.atan2(av.aay,av.aax), bb=Math.atan2(av.aby,av.abx);
+ let diff=bb-aa;
+ while(diff<=-Math.PI)diff+=2*Math.PI;
+ while(diff>Math.PI)diff-=2*Math.PI;
+ let start=aa,end=aa+diff,R=58;
+ let x1=300+R*Math.cos(start),y1=300-R*Math.sin(start);
+ let x2=300+R*Math.cos(end),y2=300-R*Math.sin(end);
+ let sweep=diff>0?0:1;
+ $('arc').setAttribute('d',`M ${x1} ${y1} A ${R} ${R} 0 0 ${sweep} ${x2} ${y2}`);
+ let midang=aa+diff/2;
+ $('thLab').textContent='θ';
+ $('thLab').setAttribute('x',300+80*Math.cos(midang));
+ $('thLab').setAttribute('y',300-80*Math.sin(midang));
+}
+function updateAngAll(){
+ ['aax','aay','aaz','abx','aby','abz'].forEach(k=>$(k).value=av[k]);
+ if(adim===2){
+  [['A','aax','aay'],['B','abx','aby']].forEach(([n,xk,yk])=>{
+   let x=av[xk],y=av[yk];
+   $('angLine'+n).setAttribute('x2',300+x*50);$('angLine'+n).setAttribute('y2',300-y*50);
+   $('angTip'+n).setAttribute('cx',300+x*50);$('angTip'+n).setAttribute('cy',300-y*50);
+   arrowLabel($('angLabel'+n),x,y);
+   endpointLabel($('point'+n+'Label'),x,y,n);
+  });
+  drawArc();
+ }
+ let ac=[av.aax,av.aay,av.aaz],bc=[av.abx,av.aby,av.abz],N=adim;
+ let terms=[],asq=[],bsq=[],dot=0,sa=0,sb=0;
+ for(let i=0;i<N;i++){terms.push(`(${ac[i]} × ${bc[i]})`);dot+=ac[i]*bc[i];asq.push(`${ac[i]}²`);bsq.push(`${bc[i]}²`);sa+=ac[i]**2;sb+=bc[i]**2}
+ let ma=Math.sqrt(sa),mb=Math.sqrt(sb);
+ $('angDotWork').textContent=terms.join(' + ')+' = '+fmt(dot);
+ $('angDot').textContent=fmt(dot);
+ $('magAWork').textContent=`√(${asq.join(' + ')})`;
+ $('magBWork').textContent=`√(${bsq.join(' + ')})`;
+ $('magA').textContent=fmt(ma);$('magB').textContent=fmt(mb);
+ $('a3Angle').textContent=`(${av.aax}, ${av.aay}, ${av.aaz})`;
+ $('b3Angle').textContent=`(${av.abx}, ${av.aby}, ${av.abz})`;
+ if(ma===0||mb===0){
+  $('cosSub').textContent='The angle is undefined because a zero vector has no direction.';
+  $('cosResult').textContent='undefined';$('cosAgain').textContent='undefined';$('thetaResult').textContent='undefined';
+ } else {
+  let c=Math.max(-1,Math.min(1,dot/(ma*mb))),deg=Math.acos(c)*180/Math.PI;
+  $('cosSub').textContent=`= ${fmt(dot)} / (${fmt(ma)} × ${fmt(mb)})`;
+  $('cosResult').textContent=c.toFixed(3);$('cosAgain').textContent=c.toFixed(3);$('thetaResult').textContent=deg.toFixed(1);
+ }
+}
+function hideAngAnswers(){document.querySelectorAll('#anglePanel .ans').forEach(e=>e.style.display='none');$('thetaReveal').style.display='none';if($('graphThetaAnswer'))$('graphThetaAnswer').style.display='none';if($('thLab'))$('thLab').textContent='θ'}
+function setADim(n){
+ adim=n;hideAngAnswers();
+ $('ang2D').classList.toggle('active',n===2);$('ang3D').classList.toggle('active',n===3);
+ document.querySelectorAll('.angz').forEach(e=>e.style.display=n===3?'':'none');
+ $('angleGraphCard').style.display=n===2?'block':'none';$('angle3DCard').style.display=n===3?'block':'none';
+ $('angDimNote').textContent=n===2?'Enter the vectors or drag their endpoints.':'Same method with one more component.';
+ $('angInputNote').textContent=n===2?'Enter components from −5 to 5, or drag either endpoint.':'Enter x, y and z components from −5 to 5.';
+ updateAngAll();
+}
+document.querySelectorAll('#anglePanel input[type=number]').forEach(inp=>inp.addEventListener('input',()=>{av[inp.id]=aclamp(inp.value);hideAngAnswers();updateAngAll()}));
+document.querySelectorAll('[data-newang]').forEach(b=>b.onclick=()=>{$('newang'+b.dataset.newang).style.display='block'});
+$('revealGraphTheta').onclick=()=>{
+ $('thetaReveal').style.display='block';
+ let v=$('thetaResult').textContent;
+ $('thLab').textContent='θ';
+ $('graphThetaAnswer').textContent=(v && v!=='undefined') ? `θ = ${v}°` : 'Angle undefined';
+ $('graphThetaAnswer').style.display='block';
+};
+function angDrag(id,xk,yk){
+ let el=$(id),active=false;
+ el.addEventListener('pointerdown',e=>{if(adim!==2)return;active=true;el.setPointerCapture(e.pointerId)});
+ el.addEventListener('pointermove',e=>{
+  if(!active||adim!==2)return;e.preventDefault();
+  let r=$('angleGraph').getBoundingClientRect(),x=(e.clientX-r.left)*600/r.width,y=(e.clientY-r.top)*600/r.height;
+  av[xk]=aclamp((x-300)/50);av[yk]=aclamp((300-y)/50);hideAngAnswers();updateAngAll();
+ });
+ let stop=()=>active=false;el.addEventListener('pointerup',stop);el.addEventListener('pointercancel',stop);
+}
+angDrag('angTipA','aax','aay');angDrag('angTipB','abx','aby');
+$('ang2D').onclick=()=>setADim(2);$('ang3D').onclick=()=>setADim(3);
+drawAngPlane();setADim(2);
+
+})();
+</script>
+</body>
+</html>
